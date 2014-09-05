@@ -202,7 +202,7 @@ def addKeyPoints(fcu, points):
 #------------------------------------------------------------------------
 
 class VIEW3D_OT_LoadFaceshiftBvhButton(bpy.types.Operator, ImportHelper):
-    bl_idname = "mhdat.load_faceshift_bvh"
+    bl_idname = "mhx2.load_faceshift_bvh"
     bl_label = "Load FaceShift BVH File (.bvh)"
     bl_description = "Load facesthift from a bvh file"
     bl_options = {'UNDO'}

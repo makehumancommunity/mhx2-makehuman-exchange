@@ -115,7 +115,7 @@ def addBoneDrivers(rig, propname, prefix, act):
 
 
 class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_facerig_drivers"
+    bl_idname = "mhx2.add_facerig_drivers"
     bl_label = "Add Facerig Drivers"
     bl_description = "Control face rig with rig properties."
     bl_options = {'UNDO'}
@@ -192,7 +192,7 @@ def addBoneDrivers(rig, prefix, struct):
 
 
 class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_facerig_drivers"
+    bl_idname = "mhx2.add_facerig_drivers"
     bl_label = "Add Facerig Drivers"
     bl_description = "Control face rig with rig properties."
     bl_options = {'UNDO'}
@@ -228,7 +228,7 @@ def removeBoneDrivers(rig, prefix, struct):
 
 
 class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
-    bl_idname = "mhdat.remove_facerig_drivers"
+    bl_idname = "mhx2.remove_facerig_drivers"
     bl_label = "Remove Facerig Drivers"
     bl_description = "Control face rig with rig properties."
     bl_options = {'UNDO'}

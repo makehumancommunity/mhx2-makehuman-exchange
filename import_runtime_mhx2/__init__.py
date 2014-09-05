@@ -24,23 +24,23 @@
 
 """
 Abstract
-Mhdat (MakeHuman DATa format) importer and runtime system for Blender.
+Mhx2 (MakeHuman eXhange 2 format) importer and runtime system for Blender.
 
 """
 
 bl_info = {
-    'name': 'Import-Runtime: MakeHuman Data (.mhdat)',
+    'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
     'version': (0,1,0),
     "blender": (2, 71, 0),
-    'location': "File > Import > MakeHuman (.mhdat)",
-    'description': 'Import files in the MakeHuman Data format (.mhdat)',
+    'location': "File > Import > MakeHuman (.mhx2)",
+    'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
     'warning': '',
-    'wiki_url': 'http://makehuman.org/doc/node/makehuman_blender.html',
+    'wiki_url': '',
     'category': 'MakeHuman'}
 
 if "bpy" in locals():
-    print("Reloading MHDAT importer-runtime v %d.%d.%d" % bl_info["version"])
+    print("Reloading MHX2 importer-runtime v %d.%d.%d" % bl_info["version"])
     import imp
     imp.reload(armature)
     imp.reload(hm8)
@@ -61,7 +61,7 @@ if "bpy" in locals():
     imp.reload(shapekeys)
     imp.reload(merge)
 else:
-    print("Loading MHDAT importer-runtime v %d.%d.%d" % bl_info["version"])
+    print("Loading MHX2 importer-runtime v %d.%d.%d" % bl_info["version"])
     from . import armature
     from . import hm8
     from . import utils
@@ -91,22 +91,22 @@ import os
 #
 # ---------------------------------------------------------------------
 
-class ImportMhdat(bpy.types.Operator, ImportHelper):
-    """Import from MHDAT file format (.mhdat)"""
-    bl_idname = "import_scene.makehuman_mhdat"
-    bl_description = 'Import from MHDAT file format (.mhdat)'
-    bl_label = "Import MHDAT"
+class ImportMhx2(bpy.types.Operator, ImportHelper):
+    """Import from MHX2 file format (.mhx2)"""
+    bl_idname = "import_scene.makehuman_mhx2"
+    bl_description = 'Import from MHX2 file format (.mhx2)'
+    bl_label = "Import MHX2"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_options = {'UNDO'}
 
-    filename_ext = ".mhdat"
-    filter_glob = StringProperty(default="*.mhdat", options={'HIDDEN'})
+    filename_ext = ".mhx2"
+    filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
     filepath = StringProperty(subtype='FILE_PATH')
 
     useHelpers = BoolProperty(name="Helper Geometry", description="Keep helper geometry", default=False)
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
-    useOverrideRig = BoolProperty(name="Override Rig", description="Override rig definition in mhdat file", default=True)
+    useOverrideRig = BoolProperty(name="Override Rig", description="Override rig definition in mhx2 file", default=True)
 
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
     useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
@@ -140,7 +140,7 @@ class ImportMhdat(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         from .config import Config
         cfg = Config().fromSettings(self)
-        importer.importMhdatFile(self.filepath, cfg, context)
+        importer.importMhx2File(self.filepath, cfg, context)
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -176,30 +176,30 @@ class MhxSetupPanel(bpy.types.Panel):
         layout = self.layout
         ob = context.object
 
-        layout.operator("import_scene.makehuman_mhdat")
+        layout.operator("import_scene.makehuman_mhx2")
         if ob is None:
             return
 
         if ob.type == 'MESH':
             layout.separator()
-            layout.operator("mhdat.merge_objects")
+            layout.operator("mhx2.merge_objects")
 
         layout.separator()
-        layout.operator("mhdat.add_hide_drivers")
-        layout.operator("mhdat.remove_hide_drivers")
+        layout.operator("mhx2.add_hide_drivers")
+        layout.operator("mhx2.remove_hide_drivers")
 
         '''
         layout.separator()
-        layout.operator("mhdat.add_facerig_drivers")
-        layout.operator("mhdat.remove_facerig_drivers")
-        layout.operator("mhdat.load_faceshift_bvh")
+        layout.operator("mhx2.add_facerig_drivers")
+        layout.operator("mhx2.remove_facerig_drivers")
+        layout.operator("mhx2.load_faceshift_bvh")
         '''
 
         layout.separator()
-        op = layout.operator("mhdat.add_shapekeys", text="Add Face Shapes")
+        op = layout.operator("mhx2.add_shapekeys", text="Add Face Shapes")
         op.filename="data/hm8/faceshapes/faceshapes.json"
-        layout.operator("mhdat.add_shapekey_drivers")
-        layout.operator("mhdat.remove_shapekey_drivers")
+        layout.operator("mhx2.add_shapekey_drivers")
+        layout.operator("mhx2.remove_shapekey_drivers")
 
 #------------------------------------------------------------------------
 #    Mhx Layers Panel
@@ -220,8 +220,8 @@ class MhxLayersPanel(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("mhdat.pose_enable_all_layers")
-        layout.operator("mhdat.pose_disable_all_layers")
+        layout.operator("mhx2.pose_enable_all_layers")
+        layout.operator("mhx2.pose_disable_all_layers")
 
         rig = context.object
         if rig.MhxRig == 'MHX':
@@ -241,8 +241,8 @@ class MhxLayersPanel(bpy.types.Panel):
         return
         layout.separator()
         layout.label("Export/Import MHP")
-        layout.operator("mhdat.saveas_mhp")
-        layout.operator("mhdat.load_mhp")
+        layout.operator("mhx2.saveas_mhp")
+        layout.operator("mhx2.load_mhp")
 
 
 #------------------------------------------------------------------------
@@ -307,29 +307,29 @@ class MhxFKIKPanel(bpy.types.Panel):
         layout.label("Snap Arm bones")
         row = layout.row()
         row.label("FK Arm")
-        row.operator("mhdat.snap_fk_ik", text="Snap L FK Arm").data = "MhaArmIk_L 2 3 12"
-        row.operator("mhdat.snap_fk_ik", text="Snap R FK Arm").data = "MhaArmIk_R 18 19 28"
+        row.operator("mhx2.snap_fk_ik", text="Snap L FK Arm").data = "MhaArmIk_L 2 3 12"
+        row.operator("mhx2.snap_fk_ik", text="Snap R FK Arm").data = "MhaArmIk_R 18 19 28"
         row = layout.row()
         row.label("IK Arm")
-        row.operator("mhdat.snap_ik_fk", text="Snap L IK Arm").data = "MhaArmIk_L 2 3 12"
-        row.operator("mhdat.snap_ik_fk", text="Snap R IK Arm").data = "MhaArmIk_R 18 19 28"
+        row.operator("mhx2.snap_ik_fk", text="Snap L IK Arm").data = "MhaArmIk_L 2 3 12"
+        row.operator("mhx2.snap_ik_fk", text="Snap R IK Arm").data = "MhaArmIk_R 18 19 28"
 
         layout.label("Snap Leg bones")
         row = layout.row()
         row.label("FK Leg")
-        row.operator("mhdat.snap_fk_ik", text="Snap L FK Leg").data = "MhaLegIk_L 4 5 12"
-        row.operator("mhdat.snap_fk_ik", text="Snap R FK Leg").data = "MhaLegIk_R 20 21 28"
+        row.operator("mhx2.snap_fk_ik", text="Snap L FK Leg").data = "MhaLegIk_L 4 5 12"
+        row.operator("mhx2.snap_fk_ik", text="Snap R FK Leg").data = "MhaLegIk_R 20 21 28"
         row = layout.row()
         row.label("IK Leg")
-        row.operator("mhdat.snap_ik_fk", text="Snap L IK Leg").data = "MhaLegIk_L 4 5 12"
-        row.operator("mhdat.snap_ik_fk", text="Snap R IK Leg").data = "MhaLegIk_R 20 21 28"
+        row.operator("mhx2.snap_ik_fk", text="Snap L IK Leg").data = "MhaLegIk_L 4 5 12"
+        row.operator("mhx2.snap_ik_fk", text="Snap R IK Leg").data = "MhaLegIk_R 20 21 28"
 
 
     def toggleButton(self, row, rig, prop, fk, ik):
         if rig[prop] > 0.5:
-            row.operator("mhdat.toggle_fk_ik", text="IK").toggle = prop + " 0" + fk + ik
+            row.operator("mhx2.toggle_fk_ik", text="IK").toggle = prop + " 0" + fk + ik
         else:
-            row.operator("mhdat.toggle_fk_ik", text="FK").toggle = prop + " 1" + ik + fk
+            row.operator("mhx2.toggle_fk_ik", text="FK").toggle = prop + " 1" + ik + fk
 
 
 #------------------------------------------------------------------------
@@ -350,7 +350,7 @@ class VisibilityPanel(bpy.types.Panel):
     def draw(self, context):
         ob = context.object
         layout = self.layout
-        layout.operator("mhdat.prettify_visibility")
+        layout.operator("mhx2.prettify_visibility")
         props = list(ob.keys())
         props.sort()
         for prop in props:
@@ -406,13 +406,13 @@ def drawPropPanel(self, ob, prefix):
     rig = getArmature(ob)
     if rig:
         layout = self.layout
-        layout.operator("mhdat.reset_props").prefix = prefix
+        layout.operator("mhx2.reset_props").prefix = prefix
         for prop in rig.keys():
             if prop[0:3] != prefix:
                 continue
             row = layout.split(0.8)
             row.prop(rig, '["%s"]' % prop, text=prop[3:])
-            op = row.operator("mhdat.pin_prop", icon='UNPINNED')
+            op = row.operator("mhx2.pin_prop", icon='UNPINNED')
             op.key = prop
             op.prefix = prefix
 
@@ -421,7 +421,7 @@ def drawPropPanel(self, ob, prefix):
 # ---------------------------------------------------------------------
 
 def menu_func(self, context):
-    self.layout.operator(ImportMhdat.bl_idname, text="MakeHuman (.mhdat)...")
+    self.layout.operator(ImportMhx2.bl_idname, text="MakeHuman (.mhx2)...")
 
 def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
@@ -452,4 +452,4 @@ if __name__ == "__main__":
     unregister()
     register()
 
-print("MHDAT successfully (re)loaded")
+print("MHX2 successfully (re)loaded")

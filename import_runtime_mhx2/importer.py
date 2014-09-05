@@ -43,15 +43,15 @@ from .utils import *
 #
 # ---------------------------------------------------------------------
 
-def importMhdatFile(filepath, cfg, context):
+def importMhx2File(filepath, cfg, context):
     from .load_json import loadJson
 
     filepath = os.path.expanduser(filepath)
     cfg.folder = os.path.dirname(filepath)
-    if os.path.splitext(filepath)[1].lower() != ".mhdat":
-        print("Error: Not a mhdat file: %s" % filepath.encode('utf-8', 'strict'))
+    if os.path.splitext(filepath)[1].lower() != ".mhx2":
+        print("Error: Not a mhx2 file: %s" % filepath.encode('utf-8', 'strict'))
         return
-    print( "Opening MHDAT file %s " % filepath.encode('utf-8', 'strict') )
+    print( "Opening MHX2 file %s " % filepath.encode('utf-8', 'strict') )
 
     time1 = time.clock()
     struct = loadJson(filepath)

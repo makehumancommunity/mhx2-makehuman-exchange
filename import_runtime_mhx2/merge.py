@@ -183,7 +183,7 @@ def mergeBodyParts(human, proxies, scn, proxyTypes=[]):
 
 
 class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
-    bl_idname = "mhdat.merge_objects"
+    bl_idname = "mhx2.merge_objects"
     bl_label = "Merge Selected To Active"
     bl_description = "Merge selected objects to active seamlessly"
     bl_options = {'UNDO'}

@@ -364,7 +364,7 @@ def muteConstraints(constraints, value):
 
 
 class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
-    bl_idname = "mhdat.snap_fk_ik"
+    bl_idname = "mhx2.snap_fk_ik"
     bl_label = "Snap FK"
     bl_options = {'UNDO'}
     data = StringProperty()
@@ -382,7 +382,7 @@ class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
 
 
 class VIEW3D_OT_MhxSnapIk2FkButton(bpy.types.Operator):
-    bl_idname = "mhdat.snap_ik_fk"
+    bl_idname = "mhx2.snap_ik_fk"
     bl_label = "Snap IK"
     bl_options = {'UNDO'}
     data = StringProperty()
@@ -438,7 +438,7 @@ def restoreSnapProp(rig, prop, old, context):
 
 
 class VIEW3D_OT_MhxToggleFkIkButton(bpy.types.Operator):
-    bl_idname = "mhdat.toggle_fk_ik"
+    bl_idname = "mhx2.toggle_fk_ik"
     bl_label = "FK - IK"
     bl_options = {'UNDO'}
     toggle = StringProperty()
@@ -472,7 +472,7 @@ def updatePose(context):
     return
 
 class VIEW3D_OT_MhxUpdateButton(bpy.types.Operator):
-    bl_idname = "mhdat.update"
+    bl_idname = "mhx2.update"
     bl_label = "Update"
 
     def execute(self, context):

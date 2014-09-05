@@ -24,7 +24,7 @@
 
 
 if "bpy" in locals():
-    print("Reloading MHDAT armature")
+    print("Reloading MHX2 armature")
     import imp
     imp.reload(flags)
     imp.reload(utils)
@@ -40,7 +40,7 @@ if "bpy" in locals():
     imp.reload(constraints)
     imp.reload(rigify)
 else:
-    print("Loading MHDAT armature")
+    print("Loading MHX2 armature")
     from . import flags
     from . import utils
     from . import rig_joints
@@ -215,4 +215,4 @@ def addGizmo(gname, mhGizmo, scn):
 
 
 
-print("MHDAT armature loaded")
+print("MHX2 armature loaded")

@@ -39,7 +39,7 @@ from .drivers import *
 #------------------------------------------------------------------------
 
 class VIEW3D_OT_MhxAddGroupsButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_groups"
+    bl_idname = "mhx2.add_groups"
     bl_label = "Add Groups"
     bl_description = "Add meshes to rig group. For file linking."
     bl_options = {'UNDO'}

@@ -209,7 +209,7 @@ def getArmature(ob):
 
 
 class VIEW3D_OT_PinPropButton(bpy.types.Operator):
-    bl_idname = "mhdat.pin_prop"
+    bl_idname = "mhx2.pin_prop"
     bl_label = ""
     bl_description = "Pin property"
     bl_options = {'UNDO'}
@@ -230,7 +230,7 @@ class VIEW3D_OT_PinPropButton(bpy.types.Operator):
 
 
 class VIEW3D_OT_ResetPropsButton(bpy.types.Operator):
-    bl_idname = "mhdat.reset_props"
+    bl_idname = "mhx2.reset_props"
     bl_label = "Reset Props"
     bl_description = ""
     bl_options = {'UNDO'}

@@ -38,7 +38,7 @@ from .drivers import *
 #------------------------------------------------------------------------
 
 class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_hide_drivers"
+    bl_idname = "mhx2.add_hide_drivers"
     bl_label = "Add Visibility Drivers"
     bl_description = "Control visibility with rig property. For file linking."
     bl_options = {'UNDO'}
@@ -94,7 +94,7 @@ def getMaskModifier(cloname, rig):
 
 
 class VIEW3D_OT_MhxRemoveHidersButton(bpy.types.Operator):
-    bl_idname = "mhdat.remove_hide_drivers"
+    bl_idname = "mhx2.remove_hide_drivers"
     bl_label = "Remove Visibility Drivers"
     bl_description = "Remove ability to control visibility from rig property"
     bl_options = {'UNDO'}

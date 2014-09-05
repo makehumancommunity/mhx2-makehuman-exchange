@@ -85,7 +85,7 @@ OtherLayers = [
 
 
 class VIEW3D_OT_MhxEnableAllLayersButton(bpy.types.Operator):
-    bl_idname = "mhdat.pose_enable_all_layers"
+    bl_idname = "mhx2.pose_enable_all_layers"
     bl_label = "Enable all layers"
     bl_options = {'UNDO'}
 
@@ -99,7 +99,7 @@ class VIEW3D_OT_MhxEnableAllLayersButton(bpy.types.Operator):
 
 
 class VIEW3D_OT_MhxDisableAllLayersButton(bpy.types.Operator):
-    bl_idname = "mhdat.pose_disable_all_layers"
+    bl_idname = "mhx2.pose_disable_all_layers"
     bl_label = "Disable all layers"
     bl_options = {'UNDO'}
 
@@ -238,7 +238,7 @@ def loadMhpFile(rig, scn, filepath):
 
 
 class VIEW3D_OT_LoadMhpButton(bpy.types.Operator, ImportHelper):
-    bl_idname = "mhdat.load_mhp"
+    bl_idname = "mhx2.load_mhp"
     bl_label = "Load MHP File"
     bl_description = "Load a pose in MHP format"
     bl_options = {'UNDO'}
@@ -260,7 +260,7 @@ class VIEW3D_OT_LoadMhpButton(bpy.types.Operator, ImportHelper):
 
 
 class VIEW3D_OT_SaveasMhpFileButton(bpy.types.Operator, ExportHelper):
-    bl_idname = "mhdat.saveas_mhp"
+    bl_idname = "mhx2.saveas_mhp"
     bl_label = "Save MHP File"
     bl_description = "Save current pose in MHP format"
     bl_options = {'UNDO'}

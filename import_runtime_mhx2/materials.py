@@ -163,6 +163,9 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
             mat.specular_hardness = 512*value
         elif key == "transparent":
             setTransparent(mat, scn)
+            if value:
+                mat.alpha = 0
+                mat.specular_alpha = 0
         elif key == "emissive_color":
             mat.emit = value[0]
         elif key == "ambient_color":
@@ -194,6 +197,8 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
                 mtex.diffuse_color_factor = mhMaterial["diffuse_map_intensity"]
                 mtex.alpha_factor = 1.0
                 setTransparent(mat, scn)
+                mat.alpha = 0
+                mat.specular_alpha = 0
         elif key == "specular_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
@@ -226,8 +231,6 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
 
 
 def setTransparent(mat, scn):
-    mat.alpha = 0
-    mat.specular_alpha = 0
     mat.use_transparency = True
     if scn.render.use_raytrace:
         mat.transparency_method = 'RAYTRACE'

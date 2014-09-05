@@ -86,7 +86,7 @@ def getScale(verts, struct):
 
 
 class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_shapekeys"
+    bl_idname = "mhx2.add_shapekeys"
     bl_label = "Add Shapekeys"
     bl_description = "Add shapekeys"
     bl_options = {'UNDO'}
@@ -138,7 +138,7 @@ def hasShapekeys(ob):
 
 
 class VIEW3D_OT_AddShapekeyDriverButton(bpy.types.Operator):
-    bl_idname = "mhdat.add_shapekey_drivers"
+    bl_idname = "mhx2.add_shapekey_drivers"
     bl_label = "Add Shapekey Drivers"
     bl_description = "Control shapekeys with rig properties. For file linking."
     bl_options = {'UNDO'}
@@ -177,7 +177,7 @@ def removeShapekeyDrivers(ob, rig):
 
 
 class VIEW3D_OT_MhxRemoveShapekeyDriverButton(bpy.types.Operator):
-    bl_idname = "mhdat.remove_shapekey_drivers"
+    bl_idname = "mhx2.remove_shapekey_drivers"
     bl_label = "Remove Shapekey Drivers"
     bl_description = "Remove ability to control shapekeys from rig property"
     bl_options = {'UNDO'}
@@ -201,7 +201,7 @@ class VIEW3D_OT_MhxRemoveShapekeyDriverButton(bpy.types.Operator):
 #------------------------------------------------------------------------
 
 class VIEW3D_OT_MhxPrettifyButton(bpy.types.Operator):
-    bl_idname = "mhdat.prettify_visibility"
+    bl_idname = "mhx2.prettify_visibility"
     bl_label = "Prettify Visibility Panel"
     bl_description = "Prettify visibility panel"
     bl_options = {'UNDO'}

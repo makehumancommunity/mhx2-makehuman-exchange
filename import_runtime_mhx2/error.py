@@ -42,7 +42,7 @@ theMessage = "No message"
 theErrorLines = []
 
 class ErrorOperator(bpy.types.Operator):
-    bl_idname = "mhdat.error"
+    bl_idname = "mhx2.error"
     bl_label = "Error using MakeHuman tool"
 
     def execute(self, context):
@@ -73,7 +73,7 @@ class MhxError(Exception):
         global theMessage
         theMessage = value
         print("ERROR:", theMessage)
-        bpy.ops.mhdat.error('INVOKE_DEFAULT')
+        bpy.ops.mhx2.error('INVOKE_DEFAULT')
 
     def __str__(self):
         return repr(self.value)
