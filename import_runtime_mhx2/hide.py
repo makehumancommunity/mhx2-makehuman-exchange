@@ -32,6 +32,7 @@ Abstract
 import bpy
 from bpy.props import *
 from .drivers import *
+from .utils import *
 
 #------------------------------------------------------------------------
 #    Setup: Add and remove hide drivers
@@ -61,7 +62,9 @@ class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
 
 
 def addHideDriver(clo, rig):
-    cloname = clo.name.rsplit(".",1)[0]
+    cloname = getClothesName(clo)
+    if not cloname:
+        return
     prop = "Mhh%s" % cloname
     rig[prop] = True
     rig["_RNA_UI"][prop] = {
@@ -77,10 +80,6 @@ def addHideDriver(clo, rig):
 
 
 def getMaskModifier(cloname, rig):
-    try:
-        cloname = cloname.split(":",1)[1]
-    except IndexError:
-        return None
     for ob in rig.children:
         for mod in ob.modifiers:
             if mod.type == 'MASK':
@@ -89,7 +88,7 @@ def getMaskModifier(cloname, rig):
                 except IndexError:
                     continue
                 if modname == cloname:
-                    return mod
+                    return mod, cloname
     return None
 
 
@@ -118,7 +117,8 @@ def removeHideDrivers(clo, rig):
     deleteRigProperty(rig, "Mhh%s" % clo.name)
     clo.driver_remove("hide")
     clo.driver_remove("hide_render")
-    mod = getMaskModifier(clo, rig)
+    cloname = getClothesName(clo)
+    mod = getMaskModifier(cloname, rig)
     if mod:
         mod.driver_remove("show_viewport")
         mod.driver_remove("show_render")

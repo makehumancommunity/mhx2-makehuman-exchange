@@ -91,14 +91,14 @@ import os
 #
 # ---------------------------------------------------------------------
 
-class ImportMhx2(bpy.types.Operator, ImportHelper):
+class ImportMHX2(bpy.types.Operator, ImportHelper):
     """Import from MHX2 file format (.mhx2)"""
     bl_idname = "import_scene.makehuman_mhx2"
     bl_description = 'Import from MHX2 file format (.mhx2)'
     bl_label = "Import MHX2"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_options = {'UNDO'}
+    bl_options = {'PRESET', 'UNDO'}
 
     filename_ext = ".mhx2"
     filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
@@ -111,6 +111,7 @@ class ImportMhx2(bpy.types.Operator, ImportHelper):
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
     useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
+    useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
 
     rigTypes = []
@@ -151,15 +152,26 @@ class ImportMhx2(bpy.types.Operator, ImportHelper):
         layout = self.layout
         layout.prop(self, "useHelpers")
         layout.prop(self, "useOffset")
+        layout.prop(self, "useFaceShapes")
+        if (self.useFaceShapes and
+            not (self.useOverrideRig and self.useFacePanel)):
+            layout.prop(self, "useFaceDrivers")
+
+        layout.label("Add Genitalia:")
+        layout.prop(self, "genitalia", expand=True)
+
+        layout.separator()
+        layout.prop(self, "mergeBodyParts")
+
+        layout.separator()
         layout.prop(self, "useOverrideRig")
         if self.useOverrideRig:
-            layout.prop(self, "rigType")
-            layout.prop(self, "mergeBodyParts")
-            layout.prop(self, "useCustomShapes")
-            layout.prop(self, "useFaceShapes")
-            if self.useFaceShapes:
-                layout.prop(self, "useFacePanel")
-            layout.prop(self, "genitalia")
+            box = layout.box()
+            box.label("Rigging")
+            box.prop(self, "rigType")
+            box.prop(self, "useCustomShapes")
+            if self.useFaceShapes and not self.useFaceDrivers:
+                box.prop(self, "useFacePanel")
 
 #------------------------------------------------------------------------
 #    Setup panel
@@ -345,7 +357,8 @@ class VisibilityPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxVisibilityDrivers)
+        ob = context.object
+        return (ob and ob.type == 'ARMATURE' and ob.MhxVisibilityDrivers)
 
     def draw(self, context):
         ob = context.object
@@ -432,6 +445,7 @@ def register():
     bpy.types.Object.MhxSnapExact = BoolProperty(default=False)
     bpy.types.Object.MhxVisibilityDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxHasFaceShapes = BoolProperty(default=False)
+    bpy.types.Object.MhxFacePanel = BoolProperty(default=False)
     bpy.types.Object.MhxShapekeyDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
 

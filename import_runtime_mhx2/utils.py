@@ -52,6 +52,13 @@ def isDeleteVGroup(vgrp):
 def getVGProxyName(string):
     return string.split(":",1)[1]
 
+def getClothesName(clo):
+    cloname = clo.name.rsplit(".",1)[0]
+    try:
+        return cloname.split(":",1)[1]
+    except IndexError:
+        return None
+
 
 def zup(co):
     return Vector((co[0], -co[2], co[1]))

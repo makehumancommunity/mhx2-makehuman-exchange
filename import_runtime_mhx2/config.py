@@ -27,8 +27,8 @@ import os
 
 Attributes = [
     "useHelpers", "useOffset", "useOverrideRig",
-    "rigType", "genitalia",
-    "useFaceShapes", "useFacePanel","mergeBodyParts",
+    "rigType", "genitalia", "mergeBodyParts",
+    "useFaceShapes", "useFacePanel", "useFaceDrivers",
 ]
 
 class Config:

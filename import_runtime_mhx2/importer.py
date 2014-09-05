@@ -130,7 +130,11 @@ def build(struct, cfg, context):
         addShapeKeys(human, path, proxies=proxies, proxyTypes=proxyTypes)
         human.MhxHasFaceShapes = True
 
-        if parser.boneDrivers:
+        if cfg.useFaceDrivers:
+            from .shapekeys import addShapeKeyDriversToAll
+            meshes = [human] + [ob for (_,ob) in proxies]
+            addShapeKeyDriversToAll(rig, meshes)
+        elif parser.boneDrivers:
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 

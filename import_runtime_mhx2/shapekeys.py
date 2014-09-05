@@ -108,6 +108,20 @@ class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
 #   Setup and remove drivers
 #------------------------------------------------------------------------
 
+def addShapeKeyDriversToAll(rig, meshes):
+    success = False
+    for ob in meshes:
+        if hasShapekeys(ob):
+            addShapekeyDrivers(rig, ob)
+            ob.MhxShapekeyDrivers = True
+            success = True
+    if success:
+        rig.MhxShapekeyDrivers = True
+        print("Shapekey drivers added")
+    else:
+        print("No meshes with shapekeys")
+
+
 def addShapekeyDrivers(rig, ob):
     if not ob.data.shape_keys:
         return
@@ -116,6 +130,10 @@ def addShapekeyDrivers(rig, ob):
         if skey.name != "Basis":
             sname = getShapekeyName(skey)
             rig[sname] = 0.0
+            try:
+                rnaUI = rig["_RNA_UI"]
+            except KeyError:
+                rnaUI = rig["_RNA_UI"] = {}
             rig["_RNA_UI"][sname] = {"min":skey.slider_min, "max":skey.slider_max}
             addDriver(rig, skey, "value", sname, [], "x", False)
 
@@ -148,20 +166,14 @@ class VIEW3D_OT_AddShapekeyDriverButton(bpy.types.Operator):
         rig = context.object
         return (rig and
                 rig.type == 'ARMATURE' and
-                not rig.MhxShapekeyDrivers
+                not rig.MhxShapekeyDrivers and
+                not rig.MhxFacePanel
                )
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)
         initRnaProperties(rig)
-        success = False
-        for ob in meshes:
-            if hasShapekeys(ob):
-                addShapekeyDrivers(rig, ob)
-                ob.MhxShapekeyDrivers = True
-                success = True
-        if success:
-            rig.MhxShapekeyDrivers = True
+        addShapeKeyDriversToAll(rig, meshes)
         return{'FINISHED'}
 
 
