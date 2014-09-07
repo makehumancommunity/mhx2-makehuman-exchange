@@ -8,6 +8,7 @@ Instructions.
 
 1. Copy or link the folder 9_export_mhx2 to the MakeHuman plugins folder.
 
+
 2. Copy or link the folder import_runtime_mhx2 to the addons destination directory where Blender will look for user-defined add-ons. Depending on the OS, this may be:
 
     Windows 7: C:\Users\%username%\AppData\Roaming\Blender Foundation\Blender\2.6x\scripts\addons
@@ -17,6 +18,7 @@ Instructions.
     Vista: C:\Program Files\Blender Foundation\Blender\%blenderversion%\scripts\addons (this is valid at least for blender 2.69)
 
     Linux: /home/$user/.blender/$version/scripts/addons
+
 
 3. Open MakeHuman and design you character. In the Files > Export tab, select MakeHuman Exchange (mhx2), select the export path, and press export.
 
