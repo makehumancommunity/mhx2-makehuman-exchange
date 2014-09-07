@@ -21,13 +21,13 @@
 # Code Home Page:      http://code.google.com/p/makehuman/
 # Authors:             Thomas Larsson
 # Script copyright (C) Thomas Larsson 2014
-# Coding Standards:    See http://www.makehuman.org/node/165
 
 
 import os
 import bpy
 from bpy.props import *
 from mathutils import *
+from .utils import updateScene
 
 #------------------------------------------------------------------------
 #
@@ -181,11 +181,6 @@ def getRigMeshes(context):
             return rig,[ob]
 
     return None,[]
-
-
-def updateScene(context):
-    scn = context.scene
-    scn.frame_current = scn.frame_current
 
 
 def getBoneName(fcu):

@@ -69,3 +69,10 @@ def zup2(co, s):
 
 def multiply(list1, list2):
     [(list1[n] and list2[n]) for n in range(len(list1))]
+
+
+def updateScene(context):
+    scn = context.scene
+    scn.frame_current = scn.frame_current
+
+

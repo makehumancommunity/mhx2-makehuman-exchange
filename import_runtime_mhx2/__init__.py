@@ -59,6 +59,7 @@ if "bpy" in locals():
     imp.reload(faceshift)
     imp.reload(hide)
     imp.reload(shapekeys)
+    imp.reload(visemes)
     imp.reload(merge)
 else:
     print("Loading MHX2 importer-runtime v %d.%d.%d" % bl_info["version"])
@@ -79,6 +80,7 @@ else:
     from . import faceshift
     from . import hide
     from . import shapekeys
+    from . import visemes
     from . import merge
 
 import bpy
@@ -429,6 +431,28 @@ def drawPropPanel(self, ob, prefix):
             op = row.operator("mhx2.pin_prop", icon='UNPINNED')
             op.key = prop
             op.prefix = prefix
+
+#------------------------------------------------------------------------
+#   Visemes panel
+#------------------------------------------------------------------------
+
+class MhxVisemesPanel(bpy.types.Panel):
+    bl_label = "Visemes"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.object and context.object.MhxShapekeyDrivers)
+
+    def draw(self, context):
+        from .visemes import getLayout
+        for vrow in getLayout():
+            row = self.layout.row()
+            for vis in vrow:
+                row.operator("mhx2.set_viseme", text=vis).viseme = vis
 
 # ---------------------------------------------------------------------
 #
