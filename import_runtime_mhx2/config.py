@@ -26,7 +26,7 @@
 import os
 
 Attributes = [
-    "useHelpers", "useOffset", "useOverrideRig",
+    "useHelpers", "useOffset", "useOverride",
     "rigType", "genitalia", "mergeBodyParts",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
 ]
@@ -52,7 +52,7 @@ class Config:
         if settings.useCustomShapes:
             self.useCustomShapes = 'ALL'
 
-        if self.useOverrideRig:
+        if self.useOverride:
             self.deleteHelpers = not self.useHelpers
             self.useHelpers = True
             self.name = ""

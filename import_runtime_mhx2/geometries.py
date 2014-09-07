@@ -44,7 +44,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh):
         ob = buildMesh(mhGeo, mhGeo["mesh"], scn, cfg, False)
         ob.MhxSeedMesh = False
 
-    if cfg.useOverrideRig:
+    if cfg.useOverride:
         if "proxy" in mhGeo.keys():
             mhProxy = mhGeo["proxy"]
             if mhGeo["human"] and useSeedMesh:

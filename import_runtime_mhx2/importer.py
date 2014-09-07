@@ -68,7 +68,7 @@ def build(struct, cfg, context):
 
     scn = context.scene
 
-    if (cfg.useOverrideRig and
+    if (cfg.useOverride and
         cfg.rigType == 'RIGIFY' and
         not checkRigifyEnabled(context)):
         pass
@@ -81,7 +81,7 @@ def build(struct, cfg, context):
 
     parser = None
     print(cfg)
-    if cfg.useOverrideRig:
+    if cfg.useOverride:
         for mhGeo in struct["geometries"]:
             if mhGeo["human"]:
                 mhHuman = mhGeo

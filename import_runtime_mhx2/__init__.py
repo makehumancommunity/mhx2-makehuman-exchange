@@ -106,7 +106,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
     useHelpers = BoolProperty(name="Helper Geometry", description="Keep helper geometry", default=False)
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
-    useOverrideRig = BoolProperty(name="Override Rig", description="Override rig definition in mhx2 file", default=True)
+    useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
 
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
     useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
@@ -150,11 +150,15 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
     def draw(self, context):
         layout = self.layout
+        layout.prop(self, "useOverride")
+        if not self.useOverride:
+            return
+
         layout.prop(self, "useHelpers")
         layout.prop(self, "useOffset")
         layout.prop(self, "useFaceShapes")
         if (self.useFaceShapes and
-            not (self.useOverrideRig and self.useFacePanel)):
+            not self.useFacePanel):
             layout.prop(self, "useFaceDrivers")
 
         layout.label("Add Genitalia:")
@@ -163,15 +167,12 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         layout.separator()
         layout.prop(self, "mergeBodyParts")
 
-        layout.separator()
-        layout.prop(self, "useOverrideRig")
-        if self.useOverrideRig:
-            box = layout.box()
-            box.label("Rigging")
-            box.prop(self, "rigType")
-            box.prop(self, "useCustomShapes")
-            if self.useFaceShapes and not self.useFaceDrivers:
-                box.prop(self, "useFacePanel")
+        box = layout.box()
+        box.label("Rigging")
+        box.prop(self, "rigType")
+        box.prop(self, "useCustomShapes")
+        if self.useFaceShapes and not self.useFaceDrivers:
+            box.prop(self, "useFacePanel")
 
 #------------------------------------------------------------------------
 #    Setup panel
@@ -434,7 +435,7 @@ def drawPropPanel(self, ob, prefix):
 # ---------------------------------------------------------------------
 
 def menu_func(self, context):
-    self.layout.operator(ImportMhx2.bl_idname, text="MakeHuman (.mhx2)...")
+    self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
 
 def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
