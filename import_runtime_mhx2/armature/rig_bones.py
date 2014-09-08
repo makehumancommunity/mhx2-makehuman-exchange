@@ -285,11 +285,11 @@ TerminatorArmature = {
 }
 
 PenisArmature = {
-    'penis_1' :             (0, 'hips', F_DEF, L_TWEAK),
-    'penis_2' :             (0, 'penis_1', F_DEF|F_CON, L_TWEAK),
-    'penis_3' :             (0, 'penis_2', F_DEF|F_CON, L_TWEAK),
-    'scrotum.L' :           (0, 'hips', F_DEF, L_TWEAK),
-    'scrotum.R' :           (0, 'hips', F_DEF, L_TWEAK),
+    'penis_1' :             (0, 'hips', F_DEF|F_SCALE, L_TWEAK),
+    'penis_2' :             (0, 'penis_1', F_DEF|F_SCALE|F_CON, L_TWEAK),
+    'penis_3' :             (0, 'penis_2', F_DEF|F_SCALE|F_CON, L_TWEAK),
+    'scrotum.L' :           (0, 'hips', F_DEF|F_SCALE, L_TWEAK),
+    'scrotum.R' :           (0, 'hips', F_DEF|F_SCALE, L_TWEAK),
 }
 
 RotationLimits = {

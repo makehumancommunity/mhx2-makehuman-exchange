@@ -1141,6 +1141,8 @@ class Bone:
             self.lockRotation = (0,1,0)
         if flags & F_LOCKROT:
             self.lockRotation = (1,1,1)
+        if flags & F_SCALE:
+            self.lockScale = (0,0,0)
         self.setFlags(flags)
         if self.roll == None:
             halt
