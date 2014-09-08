@@ -66,6 +66,17 @@ Joints = [
     #('r-plane-toe',         'o', ('r-foot-1', (0,-1,0))),
 
     ('pubis',               'vl', ((0.9, 4341), (0.1, 4250))),
+
+    ('penis-1',             'vl', ((0.5, 15152), (0.5, 15169))),
+    ('penis-2',             'vl', ((0.5, 15272), (0.5, 15274))),
+    ('penis-3',             'vl', ((0.5, 15320), (0.5, 15326))),
+    ('penis-4',             'v', 15319),
+
+    ('l-scrotum-1',         'vl', ((0.5, 15216), (0.5, 15217))),
+    ('r-scrotum-1',         'vl', ((0.5, 15238), (0.5, 15252))),
+    ('l-scrotum-2',         'v', 15230),
+    ('r-scrotum-2',         'v', 15231),
+
 ]
 
 
@@ -152,6 +163,13 @@ HeadsTails = {
     'skull' :              ('head-2', ('head-2', (0,0.2,0))),
     'toe_end.L' :          ('l-toe-2', ('l-toe-2', (0,0,0.2))),
     'toe_end.R' :          ('r-toe-2', ('r-toe-2', (0,0,0.2))),
+
+    'penis_1' :            ('penis-1', 'penis-2'),
+    'penis_2' :            ('penis-2', 'penis-3'),
+    'penis_3' :            ('penis-3', 'penis-4'),
+
+    'scrotum.L' :          ('l-scrotum-1', 'l-scrotum-2'),
+    'scrotum.R' :          ('r-scrotum-1', 'r-scrotum-2'),
 }
 
 Planes = {
@@ -264,6 +282,14 @@ TerminatorArmature = {
     'skull' :               (0, 'head', F_CON, L_HELP),
     'toe_end.L' :           (0, 'toe.L', F_CON, L_HELP),
     'toe_end.R' :           (0, 'toe.R', F_CON, L_HELP),
+}
+
+PenisArmature = {
+    'penis_1' :             (0, 'hips', F_DEF, L_TWEAK),
+    'penis_2' :             (0, 'penis_1', F_DEF|F_CON, L_TWEAK),
+    'penis_3' :             (0, 'penis_2', F_DEF|F_CON, L_TWEAK),
+    'scrotum.L' :           (0, 'hips', F_DEF, L_TWEAK),
+    'scrotum.R' :           (0, 'hips', F_DEF, L_TWEAK),
 }
 
 RotationLimits = {

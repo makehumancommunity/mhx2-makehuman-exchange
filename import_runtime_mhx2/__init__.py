@@ -128,17 +128,14 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         description = "Rig type",
         default = 'GAME')
 
-    genitals = [("NONE", "None", "None")]
-    gfolder = os.path.join(folder, "data/hm8/genitalia")
-    for file in os.listdir(gfolder):
-        fname = os.path.splitext(file)[0]
-        genitals.append((os.path.join(gfolder, file), fname.capitalize(), file))
-
     genitalia = EnumProperty(
-        items = genitals,
+        items = [("NONE", "None", "None"),
+                 ("PENIS", "Penis", "Penis"),
+                 ("VULVA", "Vulva", "Vulva")],
         name = "Genitalia",
         description = "Genitalia",
         default = 'NONE')
+    usePenisRig = BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
 
     def execute(self, context):
         from .config import Config
@@ -175,6 +172,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         box.prop(self, "useCustomShapes")
         if self.useFaceShapes and not self.useFaceDrivers:
             box.prop(self, "useFacePanel")
+        if self.genitalia == 'PENIS':
+            box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------
 #    Setup panel

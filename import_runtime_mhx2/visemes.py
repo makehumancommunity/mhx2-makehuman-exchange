@@ -24,6 +24,8 @@
 
 import bpy
 from bpy.props import *
+from bpy_extras.io_utils import ImportHelper
+
 from .utils import updateScene
 from .drivers import getArmature
 
@@ -95,7 +97,8 @@ def openFile(context, filepath):
 
 def readMoho(rig, scn, filepath, offs):
     rig = getArmature(context.object)
-    if rig:
+    if not rig:
+        return
     context.scene.objects.active = rig
     bpy.ops.object.mode_set(mode='POSE')
     fp = openFile(context, filepath)

@@ -221,6 +221,8 @@ class Parser:
         self.addBones(rig_bones.Armature)
         if cfg.useTerminators:
             self.addBones(rig_bones.TerminatorArmature)
+        if cfg.usePenisRig:
+            self.addBones(rig_bones.PenisArmature)
         self.addBones(rig_face.Armature)
 
         for bname in cfg.terminals.keys():

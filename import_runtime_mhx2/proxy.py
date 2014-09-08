@@ -39,10 +39,10 @@ from .hm8 import *
 # ---------------------------------------------------------------------
 
 def addProxy(filepath, mhHuman, human):
-    from .load_json import loadJson
+    from .load_json import loadJsonRelative
     from .shapekeys import getScale
 
-    mhGeo = loadJson(filepath)
+    mhGeo = loadJsonRelative(filepath)
     mhProxy = mhGeo["proxy"]
     mhMesh = mhGeo["seed_mesh"] = mhGeo["mesh"]
     mhGeo["human"] = False

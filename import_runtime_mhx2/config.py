@@ -59,6 +59,7 @@ class Config:
             self.description = ""
             self.bones = {}
             self.merge = {}
+            self.usePenisRig = (settings.genitalia == 'PENIS' and settings.usePenisRig)
             self.loadPreset(os.path.join("armature/data/rigs", self.rigType.lower() + ".json"))
 
         return self
@@ -71,6 +72,7 @@ class Config:
         self.useMuscles = False
         self.useTerminators = False
         self.useFaceRig = False
+        self.usePenisRig = False
         self.useLocks = True
         self.useRotationLimits = False
         self.addConnectingBones = False

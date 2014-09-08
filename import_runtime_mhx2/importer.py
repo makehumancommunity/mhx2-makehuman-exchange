@@ -114,7 +114,7 @@ def build(struct, cfg, context):
 
     if cfg.genitalia != "NONE":
         from .proxy import addProxy
-        filepath = os.path.join("data/hm8/genitalia", cfg.genitalia)
+        filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".json")
         print("Adding genitalia:", filepath)
         mhGeo,scale = addProxy(filepath, mhHuman, human)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
