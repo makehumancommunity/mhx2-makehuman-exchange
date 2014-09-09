@@ -72,6 +72,7 @@ class Config:
         self.useMuscles = False
         self.useTerminators = False
         self.useFaceRig = False
+        self.genitalia = 'NONE'
         self.usePenisRig = False
         self.useLocks = True
         self.useRotationLimits = False

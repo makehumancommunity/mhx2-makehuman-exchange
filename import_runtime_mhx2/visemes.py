@@ -29,49 +29,60 @@ from bpy_extras.io_utils import ImportHelper
 from .utils import updateScene
 from .drivers import getArmature
 
-theVisemes = None
-theMoho = None
-theLayout = None
-theFaceShapes = None
+# ---------------------------------------------------------------------
+#   VisemeData class
+# ---------------------------------------------------------------------
 
-def loadVisemeData():
-    global theVisemes, theMoho, theLayout, theFaceShapes
-    from .load_json import loadJsonRelative
-    if theMoho is None:
-        struct = loadJsonRelative("data/hm8/faceshapes/faceshapes.json")
-        theFaceShapes = struct["targets"].keys()
-        struct = loadJsonRelative("data/hm8/faceshapes/visemes.json")
-        theLayout = struct["layout"]
-        theVisemes = struct["visemes"]
-        theMoho = struct["moho"]
+class VisemeData:
+    def __init__(self):
+        self._visemes = None
+        self._moho = None
+        self._layout = None
+        self._mouthShapes = None
 
-def getFaceShapes():
-    global theFaceShapes
-    loadVisemeData()
-    return theFaceShapes
+    def load(self):
+        from .load_json import loadJsonRelative
+        if self._moho is None:
+            struct = loadJsonRelative("data/hm8/faceshapes/faceshapes.json")
+            self._mouthShapes = [key for key in struct["targets"].keys() if key[0:4] in ["mout", "lips", "tong"]]
+            struct = loadJsonRelative("data/hm8/faceshapes/visemes.json")
+            self._layout = struct["layout"]
+            self._visemes = struct["visemes"]
+            self._moho = struct["moho"]
+
+
+theVis = VisemeData()
+
+
+def getMouthShapes():
+    theVis.load()
+    return theVis._mouthShapes
 
 def getLayout():
-    global theLayout
-    loadVisemeData()
-    return theLayout
+    theVis.load()
+    return theVis._layout
 
 def getVisemes():
-    global theVisemes
-    loadVisemeData()
-    return theVisemes
+    theVis.load()
+    return theVis._visemes
 
 def getMoho():
-    global theMoho
-    loadVisemeData()
-    return theMoho
+    theVis.load()
+    return theVis._moho
 
 
+# ---------------------------------------------------------------------
+#   Set viseme
+# ---------------------------------------------------------------------
 
-def setViseme(vis, rig):
-    for key in getFaceShapes():
+def setViseme(rig, vis, useKey=False, frame=1):
+    for key in getMouthShapes():
         rig["Mhs"+key] = 0.0
     for key,value in getVisemes()[vis]:
         rig["Mhs"+key] = value
+    if useKey:
+        for key in getMouthShapes():
+            rig.keyframe_insert('["Mhs%s"]' % key, frame=frame)
 
 
 class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
@@ -85,34 +96,30 @@ class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
     def execute(self, context):
         rig = getArmature(context.object)
         if rig:
-            setViseme(self.viseme, rig)
+            setViseme(rig, self.viseme)
             updateScene(context)
         return{'FINISHED'}
 
+# ---------------------------------------------------------------------
+#   Load Moho
+# ---------------------------------------------------------------------
 
-def openFile(context, filepath):
-    (path, fileName) = os.path.split(filepath)
-    (name, ext) = os.path.splitext(fileName)
-    return open(filepath, "rU")
-
-def readMoho(rig, scn, filepath, offs):
-    rig = getArmature(context.object)
-    if not rig:
-        return
+def loadMoho(rig, context, filepath, offs):
     context.scene.objects.active = rig
+    moho = getMoho()
     bpy.ops.object.mode_set(mode='POSE')
-    fp = openFile(context, filepath)
+    fp = open(filepath, "rU")
     for line in fp:
         words= line.split()
         if len(words) < 2:
             pass
         else:
-            t = int(words[0]) + offs
-            vis = theMoho[words[1]]
-            setViseme(context, vis, True, t)
+            frame = int(words[0]) + offs
+            vis = moho[words[1]]
+            setViseme(rig, vis, True, frame)
     fp.close()
-    setInterpolation(rig)
-    updatePose(context)
+    #setInterpolation(rig)
+    updateScene(context)
     print("Moho file %s loaded" % filepath)
 
 
@@ -129,5 +136,38 @@ class VIEW3D_OT_LoadMohoButton(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         rig = getArmature(context.object)
         if rig:
-            loadMoho(context, self.filepath, 1.0)
+            loadMoho(rig, context, self.filepath, 1.0)
+        return{'FINISHED'}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+# ---------------------------------------------------------------------
+#   Delete lipsync
+# ---------------------------------------------------------------------
+
+def deleteLipsync(rig):
+    if rig.animation_data is None:
+        return
+    act = rig.animation_data.action
+    for fcu in act.fcurves:
+        if (fcu.data_path[0:5] == '["Mhs' and
+            fcu.data_path[5:9] in ["mout", "lips", "tong"]):
+                act.fcurves.remove(fcu)
+    for key in getMouthShapes():
+        rig["Mhs"+key] = 0.0
+
+
+class VIEW3D_OT_DeleteLipsyncButton(bpy.types.Operator):
+    bl_idname = "mhx2.delete_lipsync"
+    bl_label = "Delete Lipsync"
+    bl_description = "Delete F-curves associated with lipsync"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        rig = getArmature(context.object)
+        if rig:
+            deleteLipsync(rig)
+        updateScene(context)
         return{'FINISHED'}

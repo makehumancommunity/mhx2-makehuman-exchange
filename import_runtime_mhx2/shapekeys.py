@@ -65,6 +65,8 @@ def addTargets(ob, targets, scale):
         print(tname)
         skey = ob.shape_key_add(tname)
         skey.value = 0
+        skey.slider_min = -0.5
+        skey.slider_max = 1.5
         for v in ob.data.vertices:
             skey.data[v.index].co = v.co
         nVerts = len(ob.data.vertices)

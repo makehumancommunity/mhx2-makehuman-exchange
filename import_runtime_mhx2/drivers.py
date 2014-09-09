@@ -216,10 +216,7 @@ class VIEW3D_OT_PinPropButton(bpy.types.Operator):
         rig = getArmature(context.object)
         if rig:
             resetProps(rig, self.prefix)
-            try:
-                rig[self.key] = rig["_RNA_UI"][self.key]["max"]
-            except KeyError:
-                rig[self.key] = 1.0
+            rig[self.key] = 1.0
             updateScene(context)
         return{'FINISHED'}
 

@@ -453,6 +453,10 @@ class MhxVisemesPanel(bpy.types.Panel):
             for vis in vrow:
                 row.operator("mhx2.set_viseme", text=vis).viseme = vis
 
+        self.layout.separator()
+        self.layout.operator("mhx2.load_moho")
+        self.layout.operator("mhx2.delete_lipsync")
+
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
