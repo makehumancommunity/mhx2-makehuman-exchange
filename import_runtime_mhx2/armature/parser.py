@@ -368,6 +368,8 @@ class Parser:
                 rig_bones.Armature,
                 rig_face.Armature,
             ])
+            if cfg.usePenisRig:
+                addDict(rig_bones.PenisArmature, generic)
             if cfg.useDeformBones:
                 self.addDeformBones(generic)
                 self.renameDeformBones(rig_muscle.Armature, rig_muscle.CustomShapes)
