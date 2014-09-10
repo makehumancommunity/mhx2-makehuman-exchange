@@ -130,8 +130,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
-                 ("PENIS", "Penis", "Penis"),
-                 ("VULVA", "Vulva", "Vulva")],
+                 ("PENIS", "Male", "Add male genitalia"),
+                 ("VULVA", "Female", "Add female genitalia")],
         name = "Genitalia",
         description = "Genitalia",
         default = 'NONE')

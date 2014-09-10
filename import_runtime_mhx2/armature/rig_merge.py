@@ -49,4 +49,7 @@ ShoulderMergers = {
     "clavicle.R" : ("clavicle.R", "deltoid.R"),
 }
 
+PenisMergers = {
+    "hips" : ("hips", "penis_1", "penis_2", "penis_3", "scrotum.L", "scrotum.R")
+}
 

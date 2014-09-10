@@ -59,7 +59,12 @@ class Config:
             self.description = ""
             self.bones = {}
             self.merge = {}
-            self.usePenisRig = (settings.genitalia == 'PENIS' and settings.usePenisRig)
+            if settings.genitalia == 'PENIS':
+                self.usePenisRig = settings.usePenisRig
+                self.mergePenis = not self.usePenisRig
+            else:
+                self.usePenisRig = False
+                self.mergePenis = False
             self.loadPreset(os.path.join("armature/data/rigs", self.rigType.lower() + ".json"))
 
         return self
@@ -84,6 +89,7 @@ class Config:
         self.mergeFingers = False
         self.mergePalms = False
         self.mergeHead = False
+        self.mergePenis = True
         self.merge = None
         self.properties = {}
         self.terminals = {}

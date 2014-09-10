@@ -360,6 +360,8 @@ class Parser:
                 self.mergeBones(rig_merge.PalmMergers)
             if cfg.mergeHead:
                 self.mergeBones(rig_merge.HeadMergers)
+            if cfg.mergePenis:
+                self.mergeBones(rig_merge.PenisMergers)
 
         if cfg.useDeformNames or cfg.useDeformBones:
             generic = mergeDicts([
@@ -1006,7 +1008,8 @@ class Parser:
                 if mbone != bname:
                     vgroup += self.vertexGroups[mbone]
                     del self.vertexGroups[mbone]
-                    del self.bones[mbone]
+                    if mbone in self.bones.keys():
+                        del self.bones[mbone]
                     for child in self.bones.values():
                         if child.parent == mbone:
                             child.parent = bname
