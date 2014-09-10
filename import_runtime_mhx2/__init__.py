@@ -443,7 +443,8 @@ class MhxVisemesPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxShapekeyDrivers)
+        ob = context.object
+        return (ob and (ob.MhxShapekeyDrivers or ob.MhxFacePanel))
 
     def draw(self, context):
         from .visemes import getLayout

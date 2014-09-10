@@ -25,6 +25,7 @@ from bpy_extras.io_utils import ImportHelper
 
 from .utils import updateScene
 from .drivers import getArmature
+from .armature.rig_panel import BoneDrivers
 
 # ---------------------------------------------------------------------
 #   VisemeData class
@@ -73,13 +74,53 @@ def getMoho():
 # ---------------------------------------------------------------------
 
 def setViseme(rig, vis, useKey=False, frame=1):
-    for key in getMouthShapes():
-        rig["Mhs"+key] = 0.0
-    for key,value in getVisemes()[vis]:
-        rig["Mhs"+key] = value
-    if useKey:
+    if rig.MhxShapekeyDrivers:
         for key in getMouthShapes():
-            rig.keyframe_insert('["Mhs%s"]' % key, frame=frame)
+            rig["Mhs"+key] = 0.0
+        for key,value in getVisemes()[vis]:
+            rig["Mhs"+key] = value
+        if useKey:
+            for key in getMouthShapes():
+                rig.keyframe_insert('["Mhs%s"]' % key, frame=frame)
+    elif rig.MhxFacePanel:
+        for key in getMouthShapes():
+            setPanelKey(rig, key, 0.0)
+        for key,value in getVisemes()[vis]:
+            setPanelKey(rig, key, value)
+        if useKey:
+            for key in getMouthShapes():
+                pb,_fac,idx = getBoneFactor(rig, key)
+                pb.keyframe_insert("location", index=idx, frame=frame)
+
+
+def getBoneFactor(rig, key):
+    try:
+        basis,suffix = key.rsplit("_",1)
+    except IndexError:
+        suffix = None
+    if suffix not in ["left", "right"]:
+        basis = key
+    bname, channel, coord, _smin, _smax = BoneDrivers[basis]
+    if suffix == "left":
+        pb = rig.pose.bones[bname+".L"]
+    elif suffix == "right":
+        pb = rig.pose.bones[bname+".R"]
+    else:
+        pb = rig.pose.bones[bname]
+    fac = coord[1]
+    if channel == 'LOC_X':
+        idx = 0
+        if suffix == "right":
+            fac = -fac
+    elif channel == 'LOC_Z':
+        idx = 2
+    return pb, fac, idx
+
+
+def setPanelKey(rig, key, value):
+    pb,fac,idx = getBoneFactor(rig, key)
+    offs = value/fac
+    pb.location[idx] = offs
 
 
 class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
