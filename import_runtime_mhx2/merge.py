@@ -97,7 +97,7 @@ def mergeObjects(human, clothes):
 
     for clo in clothes:
         deleteHiddenVerts(human, clo)
-        renameShapekeys(clo)
+        #renameShapekeys(clo)
 
     firstCloVert = len(human.data.vertices)
     bpy.ops.object.join()

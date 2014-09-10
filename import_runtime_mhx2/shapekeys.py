@@ -106,6 +106,9 @@ class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
 #------------------------------------------------------------------------
 
 def addShapeKeyDriversToAll(rig, meshes):
+    if rig is None:
+        print("No rig. Cannot add drivers")
+        return
     success = False
     for ob in meshes:
         if hasShapekeys(ob):
