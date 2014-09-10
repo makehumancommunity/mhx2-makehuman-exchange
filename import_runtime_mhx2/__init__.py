@@ -1,5 +1,8 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
+#  Authors:             Thomas Larsson
+#  Script copyright (C) Thomas Larsson 2014
+#
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
 #  as published by the Free Software Foundation; either version 2
@@ -9,24 +12,12 @@
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  You should have received a copy of the GNU General Public License
 #
+#  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software Foundation,
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-
-# Project Name:        MakeHuman
-# Product Home Page:   http://www.makehuman.org/
-# Code Home Page:      http://code.google.com/p/makehuman/
-# Authors:             Thomas Larsson
-# Script copyright (C) Thomas Larsson 2014
-
-"""
-Abstract
-Mhx2 (MakeHuman eXhange 2 format) importer and runtime system for Blender.
-
-"""
 
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
@@ -115,6 +106,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
+    useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
 
     rigTypes = []
     folder = os.path.dirname(__file__)
@@ -175,12 +167,14 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
         box = layout.box()
         box.label("Rigging")
-        box.prop(self, "rigType")
-        box.prop(self, "useCustomShapes")
-        if self.useFaceShapes and not self.useFaceDrivers:
-            box.prop(self, "useFacePanel")
-        if self.genitalia == 'PENIS':
-            box.prop(self, "usePenisRig")
+        box.prop(self, "useRig")
+        if self.useRig:
+            box.prop(self, "rigType")
+            box.prop(self, "useCustomShapes")
+            if self.useFaceShapes and not self.useFaceDrivers:
+                box.prop(self, "useFacePanel")
+            if self.genitalia == 'PENIS':
+                box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------
 #    Setup panel

@@ -1,5 +1,8 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
+#  Authors:             Thomas Larsson
+#  Script copyright (C) Thomas Larsson 2014
+#
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
 #  as published by the Free Software Foundation; either version 2
@@ -15,18 +18,6 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-
-# Project Name:        MakeHuman
-# Product Home Page:   http://www.makehuman.org/
-# Code Home Page:      http://code.google.com/p/makehuman/
-# Authors:             Thomas Larsson
-# Script copyright (C) Thomas Larsson 2014
-
-
-"""
-Abstract
-
-"""
 
 import bpy
 import os
@@ -80,17 +71,17 @@ def build(struct, cfg, context):
         mats[mname] = mat
 
     parser = None
+    rig = None
     print(cfg)
     if cfg.useOverride:
         for mhGeo in struct["geometries"]:
             if mhGeo["human"]:
                 mhHuman = mhGeo
                 break
-        rig,parser = buildRig(mhHuman, cfg, context)
+        if cfg.useRig:
+            rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
-    else:
-        rig = None
 
     human = None
     proxies = []
@@ -134,7 +125,7 @@ def build(struct, cfg, context):
             from .shapekeys import addShapeKeyDriversToAll
             meshes = [human] + [ob for (_,ob) in proxies]
             addShapeKeyDriversToAll(rig, meshes)
-        elif parser.boneDrivers:
+        elif parser and parser.boneDrivers:
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 

@@ -1,5 +1,8 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
+#  Authors:             Thomas Larsson
+#  Script copyright (C) Thomas Larsson 2014
+#
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
 #  as published by the Free Software Foundation; either version 2
@@ -15,18 +18,6 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-
-# Project Name:        MakeHuman
-# Product Home Page:   http://www.makehuman.org/
-# Code Home Page:      http://code.google.com/p/makehuman/
-# Authors:             Thomas Larsson
-# Script copyright (C) Thomas Larsson 2014
-
-
-"""
-Abstract
-
-"""
 
 import bpy
 from .utils import *
@@ -44,7 +35,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh):
         ob = buildMesh(mhGeo, mhGeo["mesh"], scn, cfg, False)
         ob.MhxSeedMesh = False
 
-    if cfg.useOverride:
+    if cfg.useOverride and cfg.useRig:
         if "proxy" in mhGeo.keys():
             mhProxy = mhGeo["proxy"]
             if mhGeo["human"] and useSeedMesh:
