@@ -203,12 +203,10 @@ class MhxSetupPanel(bpy.types.Panel):
         layout.operator("mhx2.add_hide_drivers")
         layout.operator("mhx2.remove_hide_drivers")
 
-        '''
         layout.separator()
         layout.operator("mhx2.add_facerig_drivers")
         layout.operator("mhx2.remove_facerig_drivers")
         layout.operator("mhx2.load_faceshift_bvh")
-        '''
 
         layout.separator()
         op = layout.operator("mhx2.add_shapekeys", text="Add Face Shapes")
@@ -476,6 +474,7 @@ def register():
     bpy.types.Object.MhxHasFaceShapes = BoolProperty(default=False)
     bpy.types.Object.MhxFacePanel = BoolProperty(default=False)
     bpy.types.Object.MhxShapekeyDrivers = BoolProperty(default=False)
+    bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
 
     bpy.utils.register_module(__name__)

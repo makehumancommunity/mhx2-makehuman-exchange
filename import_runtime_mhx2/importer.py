@@ -177,6 +177,8 @@ def buildSkeleton(mhSkel, scn, cfg):
         eb.roll = mhBone["roll"]
         if "parent" in mhBone.keys():
             eb.parent = amt.edit_bones[mhBone["parent"]]
+        if mhBone["name"] == "levator02.L":
+            rig.MhxFaceRig = True
 
     bpy.ops.object.mode_set(mode='OBJECT')
     return rig

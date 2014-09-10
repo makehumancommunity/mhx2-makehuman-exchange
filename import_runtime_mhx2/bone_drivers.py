@@ -118,11 +118,7 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and
-                rig.animation_data and
-                rig.animation_data.action and
-                rig.type == 'ARMATURE'
-               )
+        return (rig and rig.MhxFaceRig)
 
     def execute(self, context):
         rig = context.object
@@ -149,7 +145,7 @@ _FacePoses = None
 
 def getFacePoses():
     global _FacePoses
-    _FacePoses = getStruct("data/face-poses.json", _FacePoses)
+    _FacePoses = getStruct("data/hm8/faceshapes/faceposes.json", _FacePoses)
     return _FacePoses
 
 
@@ -195,10 +191,7 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and
-                rig.type == 'ARMATURE' and
-                not rig.MhxFaceRigDrivers
-               )
+        return (rig and rig.MhxFaceRig)
 
     def execute(self, context):
         global _FacePoses
