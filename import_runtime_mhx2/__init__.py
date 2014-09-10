@@ -111,7 +111,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
 
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
-    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
+    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
@@ -120,13 +120,20 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     folder = os.path.dirname(__file__)
     for file in os.listdir(os.path.join(folder, "armature/data/rigs")):
         fname = os.path.splitext(file)[0]
-        rigTypes.append((fname.upper(), fname.capitalize(), file))
+        entry = (fname.upper(), fname.capitalize(), file)
+        if fname == "mhx":
+            mhx = entry
+        elif fname == "rigify":
+            rigify = entry
+        else:
+            rigTypes.append(entry)
+    rigTypes = [mhx, rigify] + rigTypes
 
     rigType = EnumProperty(
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'GAME')
+        default = 'MHX')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),

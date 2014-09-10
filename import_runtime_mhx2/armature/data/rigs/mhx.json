@@ -18,7 +18,6 @@
         "useFingers" : true,
         "useRotationLimits" : true,
         "useQuaternionsOnly" : false,
-        "useCustomShapes" : "ALL",
         "useConstraints" : true,
         "useLocks" : true,
         "useRotationLimits" : true,

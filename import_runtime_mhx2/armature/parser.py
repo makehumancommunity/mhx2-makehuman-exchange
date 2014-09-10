@@ -676,9 +676,10 @@ class Parser:
                 fkBone = self.bones[fkName] = Bone(self, fkName)
                 fkBone.fromInfo((bname, fkParent, F_WIR, layer<<1, bone.poseFlags))
 
-                customShape = self.customShapes[bone.name]
-                self.customShapes[fkName] = customShape
-                self.customShapes[bone.name] = None
+                if cfg.useCustomShapes:
+                    customShape = self.customShapes[bone.name]
+                    self.customShapes[fkName] = customShape
+                    self.customShapes[bone.name] = None
                 bone.layers = L_HELP
 
                 if cfg.useLocks:
@@ -700,7 +701,8 @@ class Parser:
                 ikBone = self.bones[ikName] = Bone(self, ikName)
                 ikBone.fromInfo((bname, ikParent, F_WIR, L_HELP, bone.poseFlags))
 
-                self.customShapes[ikName] = customShape
+                if cfg.useCustomShapes:
+                    self.customShapes[ikName] = customShape
                 self.addConstraint(bname, copyTransform(ikName, cnsname+"IK", 0))
 
                 if type == "Leaf":

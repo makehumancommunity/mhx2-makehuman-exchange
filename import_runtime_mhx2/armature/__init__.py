@@ -114,6 +114,17 @@ def buildRig(mhHuman, cfg, context):
         pb.lock_rotation = [bool(i) for i in bone.lockRotation]
         pb.lock_scale = [bool(i) for i in bone.lockScale]
 
+    if parser.boneGroups:
+        for bgname,theme,layer in parser.boneGroups:
+            bpy.ops.pose.group_add()
+            bgrp = rig.pose.bone_groups.active
+            bgrp.name = bgname
+            bgrp.color_set = theme
+            for bone in parser.bones.values():
+                if bone.layers & layer != 0:
+                    pb = rig.pose.bones[bone.name]
+                    pb.bone_group = bgrp
+
     for bname,constraints in parser.constraints.items():
         try:
             pb = rig.pose.bones[bname]
