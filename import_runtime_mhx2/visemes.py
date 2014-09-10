@@ -189,12 +189,21 @@ def deleteLipsync(rig):
     if rig.animation_data is None:
         return
     act = rig.animation_data.action
-    for fcu in act.fcurves:
-        if (fcu.data_path[0:5] == '["Mhs' and
-            fcu.data_path[5:9] in ["mout", "lips", "tong"]):
-                act.fcurves.remove(fcu)
-    for key in getMouthShapes():
-        rig["Mhs"+key] = 0.0
+    if rig.MhxShapekeyDrivers:
+        for fcu in act.fcurves:
+            if (fcu.data_path[0:5] == '["Mhs' and
+                fcu.data_path[5:9] in ["mout", "lips", "tong"]):
+                    act.fcurves.remove(fcu)
+        for key in getMouthShapes():
+            rig["Mhs"+key] = 0.0
+    elif rig.MhxFacePanel:
+        for key in getMouthShapes():
+            pb,_fac,idx = getBoneFactor(rig, key)
+            path = 'pose.bones["%s"].location' % pb.name
+            for fcu in act.fcurves:
+                if fcu.data_path == path:
+                    act.fcurves.remove(fcu)
+                    pb.location[idx] = 0.0
 
 
 class VIEW3D_OT_DeleteLipsyncButton(bpy.types.Operator):
