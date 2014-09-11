@@ -478,7 +478,7 @@ class Parser:
             self.offset = Vector((0,0,0))
 
         self.coord = dict(
-            [(vn,self.scale*(Vector(co) + self.offset))
+            [(vn,self.scale*Vector(co) + self.offset)
                 for vn,co in enumerate(mhHuman["seed_mesh"]["vertices"])
             ])
 
@@ -583,7 +583,7 @@ class Parser:
         else:
             (first, second) = joint
             if isinstance(first, str):
-                return self.locations[first] + Vector(second)
+                return self.locations[first] + self.scale*Vector(second)
             else:
                 w1,j1 = first
                 w2,j2 = second

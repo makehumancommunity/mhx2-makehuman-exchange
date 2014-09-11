@@ -175,11 +175,11 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
         elif key == "sssEnabled":
             mat.subsurface_scattering.use = value
         elif key == "sssRScale":
-            mat.subsurface_scattering.radius[0] = value
+            mat.subsurface_scattering.radius[0] = cfg.scale*value
         elif key == "sssGScale":
-            mat.subsurface_scattering.radius[1] = value
+            mat.subsurface_scattering.radius[1] = cfg.scale*value
         elif key == "sssBScale":
-            mat.subsurface_scattering.radius[2] = value
+            mat.subsurface_scattering.radius[2] = cfg.scale*value
         elif key == "diffuse_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
@@ -200,7 +200,7 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
         elif key == "normal_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.normal_factor = 1.0 # mhMaterial["normal_map_intensity"]
+                mtex.normal_factor = cfg.scale # mhMaterial["normal_map_intensity"]
                 mtex.use_map_normal = True
                 tex = mtex.texture
                 tex.use_normal_map = True
@@ -208,7 +208,7 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
             if value:
                 mtex = addTexture(mat, value, cfg)
                 mtex.use_map_normal = True
-                mtex.normal_factor = 1.0 #mhMaterial["bump_map_intensity"]
+                mtex.normal_factor = cfg.scale #mhMaterial["bump_map_intensity"]
                 mtex.use_rgb_to_intensity = True
                 tex = mtex.texture
                 tex.use_normal_map = False
@@ -216,7 +216,7 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
             if value:
                 mtex = addTexture(mat, value, cfg)
                 mtex.use_map_displacement = True
-                mtex.displacement_factor = 1.0 #mhMaterial["displacement_map_intensity"]
+                mtex.displacement_factor = cfg.scale #mhMaterial["displacement_map_intensity"]
                 mtex.use_rgb_to_intensity = True
 
 

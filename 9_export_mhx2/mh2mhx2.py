@@ -46,6 +46,7 @@ def exportMhx2(filepath, cfg):
     # Collect objects, scale meshes and filter out hidden faces/verts, scale rig
     objects = human.getObjects(excludeZeroFaceObjs=True)
     meshes = [obj.mesh.clone(cfg.scale, True) for obj in objects]
+    #human.changeVertexMask(None)
     skel = human.getSkeleton()
     if skel:
         skel = skel.scaled(cfg.scale)
