@@ -43,11 +43,13 @@ class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)
-        initRnaProperties(rig)
-        for ob in meshes:
-            addHideDriver(ob, rig)
-            ob.MhxVisibilityDrivers = True
-        rig.MhxVisibilityDrivers = True
+        if rig:
+            initRnaProperties(rig)
+            for ob in meshes:
+                addHideDriver(ob, rig)
+                ob.MhxVisibilityDrivers = True
+            rig.MhxVisibilityDrivers = True
+            prettifyPanel(rig, "Mhh")
         return{'FINISHED'}
 
 
@@ -63,13 +65,15 @@ def addHideDriver(clo, rig):
         "description" : "Show %s" % clo.name}
     addDriver(rig, clo, "hide", prop, expr = "not(x)")
     addDriver(rig, clo, "hide_render", prop, expr = "not(x)")
-    mod = getMaskModifier(cloname, rig)
-    if mod:
+    mods = getMaskModifiers(cloname, rig)
+    print("MASKS", mods)
+    for mod in mods:
         addDriver(rig, mod, "show_viewport", prop, expr = "x")
         addDriver(rig, mod, "show_render", prop, expr = "x")
 
 
-def getMaskModifier(cloname, rig):
+def getMaskModifiers(cloname, rig):
+    mods = []
     for ob in rig.children:
         for mod in ob.modifiers:
             if mod.type == 'MASK':
@@ -78,8 +82,8 @@ def getMaskModifier(cloname, rig):
                 except IndexError:
                     continue
                 if modname == cloname:
-                    return mod, cloname
-    return None
+                    mods.append(mod)
+    return mods
 
 
 class VIEW3D_OT_MhxRemoveHidersButton(bpy.types.Operator):
@@ -108,10 +112,31 @@ def removeHideDrivers(clo, rig):
     clo.driver_remove("hide")
     clo.driver_remove("hide_render")
     cloname = getClothesName(clo)
-    mod = getMaskModifier(cloname, rig)
-    if mod:
+    mods = getMaskModifiers(cloname, rig)
+    for mod in mods:
         mod.driver_remove("show_viewport")
         mod.driver_remove("show_render")
+
+#------------------------------------------------------------------------
+#   Prettifying
+#------------------------------------------------------------------------
+
+def prettifyPanel(rig, prefix):
+    for prop in rig.keys():
+        if prop[0:3] == prefix:
+            setattr(bpy.types.Object, prop, BoolProperty(default=True))
+
+
+class VIEW3D_OT_MhxPrettifyButton(bpy.types.Operator):
+    bl_idname = "mhx2.prettify_visibility"
+    bl_label = "Prettify Visibility Panel"
+    bl_description = "Prettify visibility panel"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        rig,_meshes = getRigMeshes(context)
+        prettifyPanel(rig, "Mhh")
+        return{'FINISHED'}
 
 
 

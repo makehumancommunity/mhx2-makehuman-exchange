@@ -69,7 +69,7 @@ def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
         gname = mhGeo["name"]
 
     me = bpy.data.meshes.new(gname)
-    scale,offset = getScaleOffset(mhGeo, cfg)
+    scale,offset = getScaleOffset(mhGeo, cfg, useSeedMesh)
     verts = [scale*zup(co)+offset for co in mhMesh["vertices"]]
 
     try:
@@ -94,6 +94,7 @@ def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
 
     ob = bpy.data.objects.new(gname, me)
     scn.objects.link(ob)
+    ob.MhxScale = mhGeo["scale"]
 
     return ob
 
@@ -110,8 +111,8 @@ def buildVertexGroups(vweights, ob, rig):
             vgrp.add([vn], w, 'REPLACE')
 
 
-def getScaleOffset(struct, cfg):
-    if cfg.useHelpers:
+def getScaleOffset(struct, cfg, useSeedMesh):
+    if useSeedMesh:
         scale = struct["scale"]
     else:
         scale = 1

@@ -119,7 +119,7 @@ def getBoneFactor(rig, key):
 
 def setPanelKey(rig, key, value):
     pb,fac,idx = getBoneFactor(rig, key)
-    offs = value/fac
+    offs = rig.MhxScale*value/fac
     pb.location[idx] = offs
 
 

@@ -52,7 +52,7 @@ def addTargets(ob, targets, scale):
     targets = list(targets.items())
     targets.sort()
     if not ob.data.shape_keys:
-        basic = ob.shape_key_add("Basic")
+        basic = ob.shape_key_add("Basis")
     else:
         basic = ob.data.shape_keys.key_blocks[0]
 
@@ -207,21 +207,3 @@ class VIEW3D_OT_MhxRemoveShapekeyDriverButton(bpy.types.Operator):
         if context.object == rig:
             rig.MhxShapekeyDrivers = False
         return{'FINISHED'}
-
-#------------------------------------------------------------------------
-#   Prettifying
-#------------------------------------------------------------------------
-
-class VIEW3D_OT_MhxPrettifyButton(bpy.types.Operator):
-    bl_idname = "mhx2.prettify_visibility"
-    bl_label = "Prettify Visibility Panel"
-    bl_description = "Prettify visibility panel"
-    bl_options = {'UNDO'}
-
-    def execute(self, context):
-        rig,_meshes = getRigMeshes(context)
-        for prop in rig.keys():
-            if prop[0:3] == "Mhh":
-                setattr(bpy.types.Object, prop, BoolProperty(default=True))
-        return{'FINISHED'}
-

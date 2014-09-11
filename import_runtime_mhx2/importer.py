@@ -82,6 +82,7 @@ def build(struct, cfg, context):
             rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
+    rig.MhxScale = mhHuman["scale"]
 
     human = None
     proxies = []

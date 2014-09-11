@@ -55,7 +55,7 @@ def renameShapekeys(ob):
     if ob.data.shape_keys:
         pname = getProxyName(ob)
         for skey in ob.data.shape_keys.key_blocks:
-            if skey.name != "Basic":
+            if skey.name != "Basis":
                 skey.name = "%s:%s" % (pname, skey.name)
 
 

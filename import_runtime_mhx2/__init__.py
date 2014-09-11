@@ -481,6 +481,7 @@ def menu_func(self, context):
 def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
+    bpy.types.Object.MhxScale = FloatProperty(default=1.0)
     bpy.types.Object.MhxMesh = BoolProperty(default=False)
     bpy.types.Object.MhxSeedMesh = BoolProperty(default=False)
     bpy.types.Object.MhxRigify = BoolProperty(default=False)

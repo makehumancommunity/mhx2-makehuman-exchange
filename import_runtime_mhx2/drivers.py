@@ -104,7 +104,6 @@ def addBoneShapeDrivers(rig, human, boneDrivers, proxies=[], proxyTypes=[]):
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
-        print(mhProxy["type"])
         if mhProxy["type"] in proxyTypes:
             for sname,data in boneDrivers.items():
                 addBoneShapeDriver(rig, ob, sname, data)
@@ -112,7 +111,7 @@ def addBoneShapeDrivers(rig, human, boneDrivers, proxies=[], proxyTypes=[]):
 
 def addBoneShapeDriver(rig, ob, sname, data):
     # 'nose_wrinkle' : ('p_brow_mid', 'LOC_Z', pos, 0, 1)
-    bname,channel,_coeffs,_min,_max = data
+    bname,channel,coeffs,_min,_max = data
     try:
         rig.pose.bones[bname]
         useLR = False
@@ -120,26 +119,28 @@ def addBoneShapeDriver(rig, ob, sname, data):
         rig.pose.bones[bname+".L"]
         useLR = True
 
+    fac = coeffs[1]/rig.MhxScale
+
     if channel == 'LOC_X':
         rsign = -1
     else:
         rsign = 1
 
     if useLR:
-        addBoneShapeDriver1(rig, ob, sname+"_left", bname+".L", data, 1)
-        addBoneShapeDriver1(rig, ob, sname+"_right", bname+".R", data, rsign)
+        addBoneShapeDriver1(rig, ob, sname+"_left", bname+".L", data, fac)
+        addBoneShapeDriver1(rig, ob, sname+"_right", bname+".R", data, fac*rsign)
     else:
-        addBoneShapeDriver1(rig, ob, sname, bname, data, 1)
+        addBoneShapeDriver1(rig, ob, sname, bname, data, fac)
 
 
-def addBoneShapeDriver1(rig, ob, sname, bname, data, sign):
+def addBoneShapeDriver1(rig, ob, sname, bname, data, fac):
     try:
         skey = ob.data.shape_keys.key_blocks[sname]
     except KeyError:
         print("No such shape_key: %s" % sname)
         return
 
-    _bname,channel,coeffs,min,max = data
+    _bname,channel,_coeffs,min,max = data
     fcu = skey.driver_add("value")
     drv = fcu.driver
     drv.type = 'AVERAGE'
@@ -154,8 +155,8 @@ def addBoneShapeDriver1(rig, ob, sname, bname, data, sign):
     trg.transform_space = 'LOCAL_SPACE'
 
     fmod = fcu.modifiers[0]
-    fmod.coefficients[0] = coeffs[0]
-    fmod.coefficients[1] = sign*coeffs[1]
+    fmod.coefficients[0] = 0
+    fmod.coefficients[1] = fac
 
 #------------------------------------------------------------------------
 #
