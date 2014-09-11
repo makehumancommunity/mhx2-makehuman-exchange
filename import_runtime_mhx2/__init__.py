@@ -101,12 +101,22 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
     useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
 
-    mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
     useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
+
+    mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
+    mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=True)
+    mergeMaxType = EnumProperty(
+        items = [('BODY', "Body", "Merge up to body"),
+                 ('HAIR', "Hair", "Merge up to hair"),
+                 ('CLOTHES', "Clothes", "Merge all"),
+                 ],
+        name = "Maximum Merge Type",
+        description = "Maximum type to merge",
+        default = 'BODY')
 
     rigTypes = []
     folder = os.path.dirname(__file__)
@@ -162,8 +172,12 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         layout.label("Add Genitalia:")
         layout.prop(self, "genitalia", expand=True)
 
-        layout.separator()
-        layout.prop(self, "mergeBodyParts")
+        box = layout.box()
+        box.label("Merging")
+        box.prop(self, "mergeBodyParts")
+        if self.mergeBodyParts:
+            box.prop(self, "mergeToProxy")
+            box.prop(self, "mergeMaxType")
 
         box = layout.box()
         box.label("Rigging")

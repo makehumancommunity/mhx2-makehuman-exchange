@@ -32,7 +32,8 @@ FingerMergers = {
 }
 
 HeadMergers = {
-    "head" : ("head", "uplid.L", "uplid.R", "lolid.L", "lolid.R", "tongue_base", "tongue_mid", "tongue_tip"),
+    "head" : ("head", "uplid.L", "uplid.R", "lolid.L", "lolid.R"),
+    "jaw" : ("jaw", "tongue_base", "tongue_mid", "tongue_tip"),
 }
 
 SpineMergers = {

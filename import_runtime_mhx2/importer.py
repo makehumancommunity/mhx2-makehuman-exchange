@@ -85,6 +85,7 @@ def build(struct, cfg, context):
 
     human = None
     proxies = []
+    proxy = None
     for mhGeo in struct["geometries"]:
         if "proxy" in mhGeo.keys():
             if mhGeo["human"]:
@@ -92,6 +93,7 @@ def build(struct, cfg, context):
                 if cfg.useHelpers:
                     human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True)
                     human.MhxHuman = True
+                    proxy = ob
                 else:
                     human = ob
             else:
@@ -117,7 +119,7 @@ def build(struct, cfg, context):
     if cfg.useFaceShapes:
         from .shapekeys import addShapeKeys
         path = "data/hm8/faceshapes/faceshapes.json"
-        proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Tongue"]
+        proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
         addShapeKeys(human, path, proxies=proxies, proxyTypes=proxyTypes)
         human.MhxHasFaceShapes = True
 
@@ -130,7 +132,7 @@ def build(struct, cfg, context):
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 
     if cfg.useHelpers:
-        proxyTypes = ["Proxymeshes", "Genitalia"]
+        proxyTypes = ["Proxymeshes", "Genitals"]
         addMasks(human, proxies, proxyTypes=proxyTypes)
 
     if cfg.deleteHelpers:
@@ -146,8 +148,15 @@ def build(struct, cfg, context):
 
     if cfg.mergeBodyParts:
         from .merge import mergeBodyParts
-        proxyTypes = ["Eyes", "Eyebrows", "Eyelashes", "Tongue", "Genitalia"]
-        mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
+        proxyTypes = ["Eyes", "Eyebrows", "Eyelashes", "Teeth", "Tongue", "Genitals"]
+        if cfg.mergeMaxType == 'HAIR':
+            proxyTypes += ['Hair']
+        if cfg.mergeMaxType == 'CLOTHES':
+            proxyTypes += ['Hair', 'Clothes']
+        if proxy and cfg.mergeToProxy:
+            mergeBodyParts(proxy, proxies, scn, proxyTypes=proxyTypes)
+        else:
+            mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
 
     if rig:
         scn.objects.active = rig
@@ -190,7 +199,8 @@ def addMasks(human, proxies, proxyTypes=[]):
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
         vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
-        pname = mhProxy["name"]
+        #pname = mhProxy["name"]
+        pname = getProxyName(ob)
         addMask(human, vnums, pname)
         for mhGeo1,ob1 in proxies:
             if ob == ob1:

@@ -53,6 +53,9 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh):
 
     if rig:
         ob.parent = rig
+        ob.lock_location = (True,True,True)
+        ob.lock_rotation = (True,True,True)
+        ob.lock_scale = (True,True,True)
 
     mat = mats[mhGeo["material"]]
     ob.data.materials.append(mat)
