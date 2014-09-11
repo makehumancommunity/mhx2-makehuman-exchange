@@ -186,10 +186,16 @@ def getBoneName(fcu):
 #   User interface
 #------------------------------------------------------------------------
 
-def resetProps(rig, prefix):
+def resetProps(rig, prefix, scn):
     for key in rig.keys():
         if key[0:3] == prefix:
             rig[key] = 0.0
+            autoKeyProp(rig, key, scn)
+
+
+def autoKeyProp(rig, key, scn):
+    if scn.tool_settings.use_keyframe_insert_auto:
+        rig.keyframe_insert('["%s"]' % key, frame=scn.frame_current)
 
 
 def getArmature(ob):
@@ -210,9 +216,11 @@ class VIEW3D_OT_PinPropButton(bpy.types.Operator):
 
     def execute(self, context):
         rig = getArmature(context.object)
+        scn = context.scene
         if rig:
-            resetProps(rig, self.prefix)
+            resetProps(rig, self.prefix, scn)
             rig[self.key] = 1.0
+            autoKeyProp(rig, self.key, scn)
             updateScene(context)
         return{'FINISHED'}
 
@@ -228,6 +236,6 @@ class VIEW3D_OT_ResetPropsButton(bpy.types.Operator):
     def execute(self, context):
         rig = getArmature(context.object)
         if rig:
-            resetProps(rig, self.prefix)
+            resetProps(rig, self.prefix, context.scene)
             updateScene(context)
         return{'FINISHED'}

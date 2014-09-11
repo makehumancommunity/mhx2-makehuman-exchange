@@ -133,8 +133,10 @@ class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
 
     def execute(self, context):
         rig = getArmature(context.object)
+        scn = context.scene
         if rig:
-            setViseme(rig, self.viseme)
+            auto = scn.tool_settings.use_keyframe_insert_auto
+            setViseme(rig, self.viseme, useKey=auto, frame=scn.frame_current)
             updateScene(context)
         return{'FINISHED'}
 
@@ -189,6 +191,8 @@ def deleteLipsync(rig):
     if rig.animation_data is None:
         return
     act = rig.animation_data.action
+    if act is None:
+        return
     if rig.MhxShapekeyDrivers:
         for fcu in act.fcurves:
             if (fcu.data_path[0:5] == '["Mhs' and
