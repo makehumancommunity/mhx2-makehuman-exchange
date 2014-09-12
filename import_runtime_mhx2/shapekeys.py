@@ -31,14 +31,16 @@ from .utils import zup2
 #   Setup shapekeys
 #------------------------------------------------------------------------
 
-def addShapeKeys(human, filename, proxies=[], proxyTypes=[]):
+def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
     from .load_json import loadJsonRelative
     from .proxy import proxifyTargets
 
     print("Setting up shapekeys")
     struct = loadJsonRelative(filename)
-    scale = getScale(human.data.vertices, struct["sscale"])
-    addTargets(human, struct["targets"], scale)
+    scale = getScale(human, struct["sscale"], mhHuman)
+    if human:
+        addTargets(human, struct["targets"], scale)
+        human.MhxHasFaceShapes = True
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
@@ -46,6 +48,7 @@ def addShapeKeys(human, filename, proxies=[], proxyTypes=[]):
         if mhProxy["type"] in proxyTypes:
             ptargets = proxifyTargets(mhProxy, struct["targets"])
             addTargets(ob, ptargets, scale)
+            ob.MhxHasFaceShapes = True
 
 
 def addTargets(ob, targets, scale):
@@ -71,13 +74,21 @@ def addTargets(ob, targets, scale):
             skey.data[vn].co += zup2(delta, scale)
 
 
-def getScale(verts, struct):
+def getScale(human, struct, mhHuman):
     print(struct)
+    if mhHuman:
+        verts = mhHuman["seed_mesh"]["vertices"]
+    else:
+        verts = human.data.vertices
     scale = Vector((1,1,1))
     for comp,idx in [("x",0), ("z",1), ("y",2)]:
         vn1,vn2,s0 = struct[comp]
-        co1 = verts[vn1].co
-        co2 = verts[vn2].co
+        if mhHuman:
+            co1 = verts[vn1]
+            co2 = verts[vn2]
+        else:
+            co1 = verts[vn1].co
+            co2 = verts[vn2].co
         scale[idx] = abs((co2[idx] - co1[idx])/s0)
     return scale
 
@@ -146,6 +157,8 @@ def getShapekeyName(skey):
 
 
 def hasShapekeys(ob):
+    if ob is None:
+        return False
     if (ob.type != 'MESH' or
         ob.data.shape_keys is None):
         return False

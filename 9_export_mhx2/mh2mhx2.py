@@ -199,6 +199,14 @@ def addGeometry(mhGeos, mesh, skel, mats, mname, cfg):
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["human"] = True
+            faceMask = mesh.getFaceMask()
+            #mesh.changeFaceMask(mesh.object.staticFaceMask)
+            mesh.changeFaceMask(None)
+            mesh.updateIndexBufferFaces()
+            mhProxySeed = mhGeo["proxy_seed_mesh"] = OrderedDict()
+            addMesh(mhProxySeed, mesh)
+            mesh.changeFaceMask(faceMask)
+            mesh.updateIndexBufferFaces()
         else:
             mhGeo["human"] = False
         mhProxy = mhGeo["proxy"] = OrderedDict()

@@ -27,13 +27,15 @@ from .hm8 import *
 #
 # ---------------------------------------------------------------------
 
-def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh):
-    if useSeedMesh:
-        ob = buildMesh(mhGeo, mhGeo["seed_mesh"], scn, cfg, True)
-        ob.MhxSeedMesh = True
-    else:
-        ob = buildMesh(mhGeo, mhGeo["mesh"], scn, cfg, False)
-        ob.MhxSeedMesh = False
+def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None):
+    if meshType is None:
+        if useSeedMesh:
+            meshType = "seed_mesh"
+        else:
+            meshType = "mesh"
+
+    ob = buildMesh(mhGeo, mhGeo[meshType], scn, cfg, useSeedMesh)
+    ob.MhxSeedMesh = useSeedMesh
 
     if cfg.useOverride and cfg.useRig:
         if "proxy" in mhGeo.keys():
@@ -63,6 +65,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh):
 
 
 def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
+    print("BUILD", mhGeo["name"])
     if mhGeo["human"] and useSeedMesh:
         gname = ("%s:Body" % mhGeo["name"].split(':',1)[0])
     else:

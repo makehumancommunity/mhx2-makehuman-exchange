@@ -107,6 +107,14 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
 
+    useHumanType = EnumProperty(
+        items = [('BASE', "Base", "Base mesh"),
+                 ('PROXY', "Proxy", "Exported topology (if exists)"),
+                 ('BOTH', "Both", "Both base mesh and proxy mesh"),
+                 ],
+        name = "Import Human Type",
+        description = "Human types to be imported",
+        default = 'BOTH')
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
     mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=True)
     mergeMaxType = EnumProperty(
@@ -159,8 +167,22 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "useOverride")
+
+        layout.separator()
+        box = layout.box()
+        box.label("Merging")
+        box.prop(self, "mergeBodyParts")
+        if self.mergeBodyParts and self.useHumanType != 'BODY':
+            box.prop(self, "mergeToProxy")
+        if self.mergeBodyParts:
+            box.prop(self, "mergeMaxType")
+
         if not self.useOverride:
             return
+
+        layout.separator()
+        layout.label("Import Human Type:")
+        layout.prop(self, "useHumanType", expand=True)
 
         layout.prop(self, "useHelpers")
         layout.prop(self, "useOffset")
@@ -171,13 +193,6 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
         layout.label("Add Genitalia:")
         layout.prop(self, "genitalia", expand=True)
-
-        box = layout.box()
-        box.label("Merging")
-        box.prop(self, "mergeBodyParts")
-        if self.mergeBodyParts:
-            box.prop(self, "mergeToProxy")
-            box.prop(self, "mergeMaxType")
 
         box = layout.box()
         box.label("Rigging")

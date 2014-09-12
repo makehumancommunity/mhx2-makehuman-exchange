@@ -99,8 +99,9 @@ def deleteRigProperty(rig, prop):
 def addBoneShapeDrivers(rig, human, boneDrivers, proxies=[], proxyTypes=[]):
     print("Setting up bone-shape drivers")
 
-    for sname,data in boneDrivers.items():
-        addBoneShapeDriver(rig, human, sname, data)
+    if human:
+        for sname,data in boneDrivers.items():
+            addBoneShapeDriver(rig, human, sname, data)
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]

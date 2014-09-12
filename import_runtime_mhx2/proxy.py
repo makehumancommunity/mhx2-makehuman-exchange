@@ -29,25 +29,28 @@ from .hm8 import *
 #   Add proxy
 # ---------------------------------------------------------------------
 
-def addProxy(filepath, mhHuman, human):
+def addProxy(filepath, mhHuman):
     from .load_json import loadJsonRelative
-    from .shapekeys import getScale
-
     mhGeo = loadJsonRelative(filepath)
     mhProxy = mhGeo["proxy"]
-    mhMesh = mhGeo["seed_mesh"] = mhGeo["mesh"]
-    mhGeo["human"] = False
-    mhGeo["name"] = ("%s:%s" % (mhHuman["name"].split(":")[0], mhProxy["name"]))
-    mhGeo["offset"] = mhHuman["offset"]
-    mhGeo["material"] = mhHuman["material"]
-    mhGeo["scale"] = mhHuman["scale"]
+    return proxyToGeometry(mhHuman, mhProxy, mhGeo)
 
-    mhGeo["sscale"] = {
+
+def proxyToGeometry(mhHuman, mhProxy, mhGeo):
+    from .shapekeys import getScale
+    pxyGeo = mhGeo
+    pxyGeo["human"] = False
+    pxyGeo["name"] = ("%s:%s" % (mhHuman["name"].split(":")[0], mhProxy["name"]))
+    pxyGeo["offset"] = mhHuman["offset"]
+    pxyGeo["material"] = mhHuman["material"]
+    pxyGeo["scale"] = mhHuman["scale"]
+    mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
+    pxyGeo["sscale"] = {
         "x" : mhProxy["x_scale"],
         "y" : mhProxy["y_scale"],
         "z" : mhProxy["z_scale"]
     }
-    scale = getScale(human.data.vertices, mhGeo["sscale"])
+    scale = getScale(None, pxyGeo["sscale"], mhHuman)
 
     hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
@@ -57,9 +60,8 @@ def addProxy(filepath, mhHuman, human):
                weights[2]*hverts[vnums[2]])
         pverts.append(Vector([pco[n]+scale[n]*offset[n] for n in range(3)]))
     mhMesh["vertices"] = pverts
-    print(pverts[0])
 
-    return mhGeo,scale
+    return pxyGeo,scale
 
 # ---------------------------------------------------------------------
 #   Vertex groups

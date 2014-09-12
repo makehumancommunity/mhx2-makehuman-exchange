@@ -22,7 +22,7 @@
 import os
 
 Attributes = [
-    "useHelpers", "useOffset", "useOverride",
+    "useHelpers", "useOffset", "useOverride", "useHumanType",
     "useRig", "rigType", "genitalia",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",

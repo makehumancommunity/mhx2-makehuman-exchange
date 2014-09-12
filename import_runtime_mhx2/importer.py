@@ -73,44 +73,48 @@ def build(struct, cfg, context):
     parser = None
     rig = None
     print(cfg)
-    if cfg.useOverride:
-        for mhGeo in struct["geometries"]:
-            if mhGeo["human"]:
-                mhHuman = mhGeo
-                break
-        if cfg.useRig:
-            rig,parser = buildRig(mhHuman, cfg, context)
+    for mhGeo in struct["geometries"]:
+        if mhGeo["human"]:
+            mhHuman = mhGeo
+            break
+    if cfg.useOverride and cfg.useRig:
+        rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
-    rig.MhxScale = mhHuman["scale"]
+    if rig:
+        rig.MhxScale = mhHuman["scale"]
 
     human = None
     proxies = []
     proxy = None
     for mhGeo in struct["geometries"]:
         if "proxy" in mhGeo.keys():
+            mhProxy = mhGeo["proxy"]
             if mhGeo["human"]:
-                ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, False)
                 if cfg.useHelpers:
-                    human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True)
-                    human.MhxHuman = True
-                    proxy = ob
+                    if cfg.useHumanType != 'BASE':
+                        proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, False, "proxy_seed_mesh")
+                        proxy.MhxHuman = True
+                    if cfg.useHumanType != 'PROXY':
+                        human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True, "seed_mesh")
+                        human.MhxHuman = True
                 else:
-                    human = ob
+                    proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, False, "mesh")
+                    proxy.MhxHuman = True
+                if proxy:
+                    proxies.append((mhGeo, proxy))
             else:
                 ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
-            mhProxy = mhGeo["proxy"]
-            proxies.append((mhGeo, ob))
+                proxies.append((mhGeo, ob))
         elif mhGeo["human"]:
             human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
-
-    human.MhxHuman = True
+            human.MhxHuman = True
 
     if cfg.genitalia != "NONE":
         from .proxy import addProxy
         filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".json")
         print("Adding genitalia:", filepath)
-        mhGeo,scale = addProxy(filepath, mhHuman, human)
+        mhGeo,scale = addProxy(filepath, mhHuman)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
         proxies.append((mhGeo, ob))
         if "targets" in mhGeo.keys():
@@ -121,8 +125,7 @@ def build(struct, cfg, context):
         from .shapekeys import addShapeKeys
         path = "data/hm8/faceshapes/faceshapes.json"
         proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
-        addShapeKeys(human, path, proxies=proxies, proxyTypes=proxyTypes)
-        human.MhxHasFaceShapes = True
+        addShapeKeys(human, path, mhHuman=mhHuman, proxies=proxies, proxyTypes=proxyTypes)
 
         if cfg.useFaceDrivers:
             from .shapekeys import addShapeKeyDriversToAll
@@ -139,11 +142,12 @@ def build(struct, cfg, context):
     if cfg.deleteHelpers:
         deleteHelpers(human, scn)
 
-    gname = getRigName(human)
+    gname = mhHuman["name"].split(":",1)[0]
     grp = bpy.data.groups.new(gname)
     if rig:
         grp.objects.link(rig)
-    grp.objects.link(human)
+    if human:
+        grp.objects.link(human)
     for _,ob in proxies:
         grp.objects.link(ob)
 
@@ -162,8 +166,11 @@ def build(struct, cfg, context):
     if rig:
         scn.objects.active = rig
         bpy.ops.object.mode_set(mode='POSE')
-    else:
+    elif human:
         scn.objects.active = human
+        bpy.ops.object.mode_set(mode='OBJECT')
+    elif proxy:
+        scn.objects.active = proxy
         bpy.ops.object.mode_set(mode='OBJECT')
 
 
@@ -178,7 +185,7 @@ def buildSkeleton(mhSkel, scn, cfg):
     scn.objects.link(rig)
     scn.objects.active = rig
 
-    scale,offset = getScaleOffset(mhSkel, cfg)
+    scale,offset = getScaleOffset(mhSkel, cfg, True)
     bpy.ops.object.mode_set(mode='EDIT')
     for mhBone in mhSkel["bones"]:
         eb = amt.edit_bones.new(mhBone["name"])
@@ -202,7 +209,8 @@ def addMasks(human, proxies, proxyTypes=[]):
         vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
         #pname = mhProxy["name"]
         pname = getProxyName(ob)
-        addMask(human, vnums, pname)
+        if human:
+            addMask(human, vnums, pname)
         for mhGeo1,ob1 in proxies:
             if ob == ob1:
                 continue
@@ -213,10 +221,10 @@ def addMasks(human, proxies, proxyTypes=[]):
                     addMask(ob1, pvnums, pname)
 
 
-def addMask(human, vnums, pname):
+def addMask(ob, vnums, pname):
     if vnums:
-        mod = human.modifiers.new("Mask:%s" % pname, 'MASK')
-        vgrp = human.vertex_groups.new("Delete:%s" % pname)
+        mod = ob.modifiers.new("Mask:%s" % pname, 'MASK')
+        vgrp = ob.vertex_groups.new("Delete:%s" % pname)
         mod.vertex_group = vgrp.name
         mod.invert_vertex_group = True
         for vn in vnums:
@@ -224,6 +232,8 @@ def addMask(human, vnums, pname):
 
 
 def deleteHelpers(human, scn):
+    if human is None:
+        return
     scn.objects.active = human
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='DESELECT')
