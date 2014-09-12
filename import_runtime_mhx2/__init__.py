@@ -105,7 +105,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
-    useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
+    useRig = BoolProperty(name="Add Rig", description="Add rig", default=False)
 
     useHumanType = EnumProperty(
         items = [('BASE', "Base", "Base mesh"),
@@ -115,7 +115,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         name = "Import Human Type",
         description = "Human types to be imported",
         default = 'BOTH')
-    mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=True)
+    mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
     mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=True)
     mergeMaxType = EnumProperty(
         items = [('BODY', "Body", "Merge up to body"),
