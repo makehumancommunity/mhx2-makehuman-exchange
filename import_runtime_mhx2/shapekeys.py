@@ -38,6 +38,7 @@ def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
     print("Setting up shapekeys")
     struct = loadJsonRelative(filename)
     scale = getScale(human, struct["sscale"], mhHuman)
+    print("SCAL", scale)
     if human:
         addTargets(human, struct["targets"], scale)
         human.MhxHasFaceShapes = True
@@ -76,20 +77,21 @@ def addTargets(ob, targets, scale):
 
 def getScale(human, struct, mhHuman):
     print(struct)
+    scale = Vector((1,1,1))
     if mhHuman:
         verts = mhHuman["seed_mesh"]["vertices"]
-    else:
-        verts = human.data.vertices
-    scale = Vector((1,1,1))
-    for comp,idx in [("x",0), ("z",1), ("y",2)]:
-        vn1,vn2,s0 = struct[comp]
-        if mhHuman:
+        for comp,idx,idx1 in [("x",0,0), ("y",1,2), ("z",2,1)]:
+            vn1,vn2,s0 = struct[comp]
             co1 = verts[vn1]
             co2 = verts[vn2]
-        else:
+            scale[idx1] = abs((co2[idx] - co1[idx])/s0)
+    else:
+        verts = human.data.vertices
+        for comp,idx in [("x",0), ("z",1), ("y",2)]:
+            vn1,vn2,s0 = struct[comp]
             co1 = verts[vn1].co
             co2 = verts[vn2].co
-        scale[idx] = abs((co2[idx] - co1[idx])/s0)
+            scale[idx] = abs((co2[idx] - co1[idx])/s0)
     return scale
 
 
