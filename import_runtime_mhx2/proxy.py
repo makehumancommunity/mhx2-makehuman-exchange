@@ -40,7 +40,6 @@ def addProxy(filepath, mhHuman):
 
 
 def proxyToGeometry(mhHuman, mhProxy, mhGeo):
-    from .shapekeys import getScale
     pxyGeo = mhGeo
     pxyGeo["human"] = False
     pxyGeo["name"] = ("%s:%s" % (mhHuman["name"].split(":")[0], mhProxy["name"]))
@@ -53,8 +52,14 @@ def proxyToGeometry(mhHuman, mhProxy, mhGeo):
         "y" : mhProxy["y_scale"],
         "z" : mhProxy["z_scale"]
     }
-    scale = getScale(None, pxyGeo["sscale"], mhHuman)
+    pverts = fitProxy(mhHuman, pxyGeo, pxyGeo["sscale"])
+    mhMesh["vertices"] = pverts
+    return pxyGeo,scale
 
+
+def fitProxy(mhHuman, mhProxy, mhScale):
+    from .shapekeys import getScale
+    scale = getScale(None, mhScale, mhHuman)
     hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
     for vnums,weights,offset in mhProxy["fitting"]:
@@ -62,9 +67,7 @@ def proxyToGeometry(mhHuman, mhProxy, mhGeo):
                weights[1]*hverts[vnums[1]] +
                weights[2]*hverts[vnums[2]])
         pverts.append(Vector([pco[n]+scale[n]*offset[n] for n in range(3)]))
-    mhMesh["vertices"] = pverts
-
-    return pxyGeo,scale
+    return pverts
 
 # ---------------------------------------------------------------------
 #   Vertex groups
@@ -169,10 +172,16 @@ def draw(self, context):
             default = hairlist[0])
 
 
-def addHair(ob, filepath):
+def addHair(ob, mhHuman, filepath):
     from .load_json import loadJson
-    print(ob)
+    from .materials import buildBlenderMaterial
+
+    offset = Vector(eval(ob.MhxOffset))
     struct = loadJson(filepath)
+
+    mat = buildBlenderMaterial(struct["blender_material"])
+    ob.data.materials.append(mat)
+
     psys = ob.particle_systems.active
     if psys is not None:
         bpy.ops.object.particle_system_remove()
@@ -180,55 +189,43 @@ def addHair(ob, filepath):
 
     psys = ob.particle_systems.active
     pstruct = struct["particles"]
-    print(psys)
     for key,value in pstruct.items():
         if key not in ["settings", "vertices"]:
             try:
                 setattr(psys, key, value)
             except AttributeError:
-                print("***", key,value)
+                #print("***", key,value)
                 pass
 
     pset = psys.settings
-    print(pset)
     for key,value in pstruct["settings"].items():
         if key[0] != "_":
             try:
                 setattr(pset, key, value)
             except AttributeError:
-                print("  ***", key,value)
+                #print("  ***", key,value)
+                pass
 
-    nhairs = int(len(pstruct["vertices"])/pset.hair_step)
-    print("NH", nhairs)
-    pset.count = nhairs
+    hlist = pstruct["hairs"]
+    pset.count = int(len(hlist))
+    hlen = int(len(hlist[0]))
+    pset.hair_step = hlen-1
+
+    mhProxy = struct["proxy"]
+    pverts = fitProxy(mhHuman, mhProxy, mhProxy["sscale"])
+
+    hlist = []
+    for m in range(pset.count):
+        hlist.append( [zup(v) for v in pverts[m*hlen:(m+1)*hlen]] )
+
     bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 
-    verts = pstruct["vertices"]
-    idx = 0
-    m = n = 0
-    print(list(psys.particles))
-    for hair in psys.particles:
-        print(len(hair.hair_keys))
-        for v in hair.hair_keys:
-            print(v.co, verts[idx])
-            v.co = verts[idx]
-            co = psys.co_hair(ob, m, n)
-            #print(v.co, co)
-            idx += 1
-            n += 1
-        m += 1
-
-    m = n = 0
-    for hair in psys.particles:
-        print(len(hair.hair_keys))
-        for v in hair.hair_keys:
-            co = psys.co_hair(ob, m, n)
-            print(v.co, co)
-            n += 1
-        m += 1
+    for m,hair in enumerate(psys.particles):
+        verts = hlist[m]
+        for n,v in enumerate(hair.hair_keys):
+            v.co = Vector(verts[n]) + offset
 
     bpy.ops.object.mode_set(mode='OBJECT')
-
 
 
 class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
@@ -247,8 +244,9 @@ class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
         return (ob and ob.type == 'MESH')
 
     def execute(self, context):
+        from .importer import theMhHuman
         try:
-            addHair(context.object, self.properties.filepath)
+            addHair(context.object, theMhHuman, self.properties.filepath)
         except MHXError:
             handleMHXError(context)
         return{'FINISHED'}

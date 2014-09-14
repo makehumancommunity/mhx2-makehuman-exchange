@@ -98,6 +98,7 @@ def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
     ob = bpy.data.objects.new(gname, me)
     scn.objects.link(ob)
     ob.MhxScale = mhGeo["scale"]
+    ob.MhxOffset = str(list(zup(mhGeo["offset"])))
 
     return ob
 
