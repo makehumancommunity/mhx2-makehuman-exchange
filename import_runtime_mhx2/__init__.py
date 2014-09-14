@@ -215,10 +215,10 @@ class MhxSetupPanel(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_category = "MHX2 Runtime"
 
-
     def draw(self, context):
         layout = self.layout
         ob = context.object
+        scn = context.scene
 
         layout.operator("import_scene.makehuman_mhx2")
         if ob is None:
@@ -226,6 +226,7 @@ class MhxSetupPanel(bpy.types.Panel):
 
         if ob.type == 'MESH':
             layout.separator()
+            layout.operator("mhx2.add_hair")
             layout.operator("mhx2.merge_objects")
 
         layout.separator()

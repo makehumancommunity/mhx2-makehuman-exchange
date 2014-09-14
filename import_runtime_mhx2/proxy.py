@@ -20,7 +20,10 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
+from bpy_extras.io_utils import ImportHelper
+from bpy.props import *
 from mathutils import Vector
+from .error import *
 from .utils import *
 from .hm8 import *
 
@@ -151,3 +154,107 @@ def proxifyTargets(mhProxy, targets):
 #
 # ---------------------------------------------------------------------
 
+def draw(self, context):
+    hairlist = []
+    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
+    for file in os.listdir(folder):
+        fname,ext = os.path.splitext(file)
+        if ext == ".mhc2":
+            hairlist.append(file, fname, fname)
+    if hairlist:
+        return EnumProperty(
+            items = hairlist,
+            name = "Hair",
+            description = "Hair",
+            default = hairlist[0])
+
+
+def addHair(ob, filepath):
+    from .load_json import loadJson
+    print(ob)
+    struct = loadJson(filepath)
+    psys = ob.particle_systems.active
+    if psys is not None:
+        bpy.ops.object.particle_system_remove()
+    bpy.ops.object.particle_system_add()
+
+    psys = ob.particle_systems.active
+    pstruct = struct["particles"]
+    print(psys)
+    for key,value in pstruct.items():
+        if key not in ["settings", "vertices"]:
+            try:
+                setattr(psys, key, value)
+            except AttributeError:
+                print("***", key,value)
+                pass
+
+    pset = psys.settings
+    print(pset)
+    for key,value in pstruct["settings"].items():
+        if key[0] != "_":
+            try:
+                setattr(pset, key, value)
+            except AttributeError:
+                print("  ***", key,value)
+
+    nhairs = int(len(pstruct["vertices"])/pset.hair_step)
+    print("NH", nhairs)
+    pset.count = nhairs
+    bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
+
+    verts = pstruct["vertices"]
+    idx = 0
+    m = n = 0
+    print(list(psys.particles))
+    for hair in psys.particles:
+        print(len(hair.hair_keys))
+        for v in hair.hair_keys:
+            print(v.co, verts[idx])
+            v.co = verts[idx]
+            co = psys.co_hair(ob, m, n)
+            #print(v.co, co)
+            idx += 1
+            n += 1
+        m += 1
+
+    m = n = 0
+    for hair in psys.particles:
+        print(len(hair.hair_keys))
+        for v in hair.hair_keys:
+            co = psys.co_hair(ob, m, n)
+            print(v.co, co)
+            n += 1
+        m += 1
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+
+class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
+    bl_idname = "mhx2.add_hair"
+    bl_label = "Add Hair (.mhc2)"
+    bl_description = "Add Hair"
+    bl_options = {'UNDO'}
+
+    filename_ext = ".mhc2"
+    filter_glob = StringProperty(default="*.mhc2", options={'HIDDEN'})
+    filepath = StringProperty(name="File Path", description="Filepath used for loading the hair file", maxlen=1024, default="")
+
+    @classmethod
+    def poll(self, context):
+        ob = context.object
+        return (ob and ob.type == 'MESH')
+
+    def execute(self, context):
+        try:
+            addHair(context.object, self.properties.filepath)
+        except MHXError:
+            handleMHXError(context)
+        return{'FINISHED'}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+print("Hair loaded")
