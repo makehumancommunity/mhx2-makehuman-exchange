@@ -250,3 +250,30 @@ def addTexture(mat, filepath, cfg):
 
     return mtex
 
+
+def buildBlenderMaterial(struct):
+    mat = bpy.data.materials.new(struct["name"])
+    for key,value in struct.items():
+        buildData(key, value, mat)
+    return mat
+
+
+def buildData(key, data, rna):
+    if rna is None:
+        print(key,data)
+        return
+    if isinstance(data, list):
+        nrna = getattr(rna, key)
+        #dlist = [buildData(elt, nrna) for elt in data]
+    elif isinstance(data, dict):
+        nrna = getattr(rna, key)
+        print("DIC", rna, nrna)
+        for nkey,nvalue in data.items():
+            buildData(nkey, nvalue, nrna)
+        #setattr(rna, key, nlist)
+    else:
+        try:
+            setattr(rna, key, data)
+        except AttributeError:
+            print("***", key, data)
+

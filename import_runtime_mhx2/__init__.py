@@ -215,10 +215,10 @@ class MhxSetupPanel(bpy.types.Panel):
     bl_region_type = "TOOLS"
     bl_category = "MHX2 Runtime"
 
-
     def draw(self, context):
         layout = self.layout
         ob = context.object
+        scn = context.scene
 
         layout.operator("import_scene.makehuman_mhx2")
         if ob is None:
@@ -226,6 +226,7 @@ class MhxSetupPanel(bpy.types.Panel):
 
         if ob.type == 'MESH':
             layout.separator()
+            layout.operator("mhx2.add_hair")
             layout.operator("mhx2.merge_objects")
 
         layout.separator()
@@ -497,6 +498,7 @@ def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
     bpy.types.Object.MhxScale = FloatProperty(default=1.0)
+    bpy.types.Object.MhxOffset = StringProperty(default="[0,0,0]")
     bpy.types.Object.MhxMesh = BoolProperty(default=False)
     bpy.types.Object.MhxSeedMesh = BoolProperty(default=False)
     bpy.types.Object.MhxRigify = BoolProperty(default=False)

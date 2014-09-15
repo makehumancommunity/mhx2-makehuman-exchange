@@ -30,6 +30,8 @@ from .hm8 import *
 from .error import *
 from .utils import *
 
+#theMhHuman = None
+
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
@@ -56,6 +58,7 @@ def build(struct, cfg, context):
     from .armature.rigify import checkRigifyEnabled
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
+    global theMhHuman
 
     scn = context.scene
 
@@ -75,7 +78,7 @@ def build(struct, cfg, context):
     print(cfg)
     for mhGeo in struct["geometries"]:
         if mhGeo["human"]:
-            mhHuman = mhGeo
+            theMhHuman = mhHuman = mhGeo
             break
     if cfg.useOverride and cfg.useRig:
         rig,parser = buildRig(mhHuman, cfg, context)
@@ -83,6 +86,7 @@ def build(struct, cfg, context):
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
     if rig:
         rig.MhxScale = mhHuman["scale"]
+        rig.MhxOffset = str(list(zup(mhHuman["offset"])))
 
     human = None
     proxies = []
