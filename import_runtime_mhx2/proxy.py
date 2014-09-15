@@ -52,22 +52,23 @@ def proxyToGeometry(mhHuman, mhProxy, mhGeo):
         "y" : mhProxy["y_scale"],
         "z" : mhProxy["z_scale"]
     }
-    pverts = fitProxy(mhHuman, pxyGeo, pxyGeo["sscale"])
+    pverts,sscale = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["sscale"])
     mhMesh["vertices"] = pverts
-    return pxyGeo,scale
+    return pxyGeo,sscale
 
 
 def fitProxy(mhHuman, mhProxy, mhScale):
     from .shapekeys import getScale
-    scale = getScale(None, mhScale, mhHuman)
+    print(mhProxy.keys())
+    sscale = getScale(None, mhScale, mhHuman)
     hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
     for vnums,weights,offset in mhProxy["fitting"]:
         pco = (weights[0]*hverts[vnums[0]] +
                weights[1]*hverts[vnums[1]] +
                weights[2]*hverts[vnums[2]])
-        pverts.append(Vector([pco[n]+scale[n]*offset[n] for n in range(3)]))
-    return pverts
+        pverts.append(Vector([pco[n]+sscale[n]*offset[n] for n in range(3)]))
+    return pverts,sscale
 
 # ---------------------------------------------------------------------
 #   Vertex groups
@@ -157,28 +158,26 @@ def proxifyTargets(mhProxy, targets):
 #
 # ---------------------------------------------------------------------
 
-def draw(self, context):
-    hairlist = []
-    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
-    for file in os.listdir(folder):
-        fname,ext = os.path.splitext(file)
-        if ext == ".mhc2":
-            hairlist.append(file, fname, fname)
-    if hairlist:
-        return EnumProperty(
-            items = hairlist,
-            name = "Hair",
-            description = "Hair",
-            default = hairlist[0])
-
-
-def addHair(ob, mhHuman, filepath):
+def getHairCoordinates(mhHuman, filepath):
     from .load_json import loadJson
-    from .materials import buildBlenderMaterial
 
-    offset = Vector(eval(ob.MhxOffset))
+    offset = Vector(zup(mhHuman["offset"]))
     struct = loadJson(filepath)
+    hlist = struct["particles"]["hairs"]
+    nhairs = int(len(hlist))
+    hlen = int(len(hlist[0]))
 
+    mhProxy = struct["proxy"]
+    pverts,_sscale = fitProxy(mhHuman, mhProxy, mhProxy["sscale"])
+
+    hcoords = []
+    for m in range(nhairs):
+        hcoords.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
+    return struct,hcoords
+
+
+def addHair(ob, struct, hcoords):
+    from .materials import buildBlenderMaterial
     mat = buildBlenderMaterial(struct["blender_material"])
     ob.data.materials.append(mat)
 
@@ -206,24 +205,16 @@ def addHair(ob, mhHuman, filepath):
                 #print("  ***", key,value)
                 pass
 
-    hlist = pstruct["hairs"]
-    pset.count = int(len(hlist))
-    hlen = int(len(hlist[0]))
+    pset.count = int(len(hcoords))
+    hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
-
-    mhProxy = struct["proxy"]
-    pverts = fitProxy(mhHuman, mhProxy, mhProxy["sscale"])
-
-    hlist = []
-    for m in range(pset.count):
-        hlist.append( [zup(v) for v in pverts[m*hlen:(m+1)*hlen]] )
 
     bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 
     for m,hair in enumerate(psys.particles):
-        verts = hlist[m]
+        verts = hcoords[m]
         for n,v in enumerate(hair.hair_keys):
-            v.co = Vector(verts[n]) + offset
+            v.co = verts[n]
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -244,11 +235,12 @@ class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
         return (ob and ob.type == 'MESH')
 
     def execute(self, context):
-        from .importer import theMhHuman
+        ob = context.object
         try:
-            addHair(context.object, theMhHuman, self.properties.filepath)
-        except MHXError:
-            handleMHXError(context)
+            struct,hcoords = getHairCoordinates(getMhHuman(ob), self.properties.filepath)
+            addHair(ob, struct, hcoords)
+        except MhxError:
+            handleMhxError(context)
         return{'FINISHED'}
 
     def invoke(self, context, event):

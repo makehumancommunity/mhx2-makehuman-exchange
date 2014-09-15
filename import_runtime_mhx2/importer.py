@@ -30,8 +30,6 @@ from .hm8 import *
 from .error import *
 from .utils import *
 
-#theMhHuman = None
-
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
@@ -58,7 +56,6 @@ def build(struct, cfg, context):
     from .armature.rigify import checkRigifyEnabled
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
-    global theMhHuman
 
     scn = context.scene
 
@@ -78,7 +75,8 @@ def build(struct, cfg, context):
     print(cfg)
     for mhGeo in struct["geometries"]:
         if mhGeo["human"]:
-            theMhHuman = mhHuman = mhGeo
+            mhHuman = mhGeo
+            setMhHuman(mhHuman)
             break
     if cfg.useOverride and cfg.useRig:
         rig,parser = buildRig(mhHuman, cfg, context)
@@ -118,12 +116,18 @@ def build(struct, cfg, context):
         from .proxy import addProxy
         filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".json")
         print("Adding genitalia:", filepath)
-        mhGeo,scale = addProxy(filepath, mhHuman)
+        mhGeo,sscale = addProxy(filepath, mhHuman)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
         proxies.append((mhGeo, ob))
         if "targets" in mhGeo.keys():
             from .shapekeys import addTargets
-            addTargets(ob, mhGeo["targets"], scale)
+            addTargets(ob, mhGeo["targets"], sscale)
+
+    if cfg.hairType != "NONE":
+        from .proxy import getHairCoordinates
+        folder = os.path.dirname(__file__)
+        filepath = os.path.join(folder, "data/hm8/hair", cfg.hairType)
+        hair,hcoords = getHairCoordinates(mhHuman, filepath)
 
     if cfg.useFaceShapes:
         from .shapekeys import addShapeKeys
@@ -166,6 +170,11 @@ def build(struct, cfg, context):
             mergeBodyParts(proxy, proxies, scn, proxyTypes=proxyTypes)
         else:
             mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
+
+    if cfg.hairType != "NONE":
+        from .proxy import addHair
+        scn.objects.active = human
+        addHair(human, hair, hcoords)
 
     if rig:
         scn.objects.active = rig

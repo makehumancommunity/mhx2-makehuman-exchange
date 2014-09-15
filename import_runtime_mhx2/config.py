@@ -23,7 +23,7 @@ import os
 
 Attributes = [
     "useHelpers", "useOffset", "useOverride", "useHumanType",
-    "useRig", "rigType", "genitalia",
+    "useRig", "rigType", "genitalia", "hairType",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
 ]

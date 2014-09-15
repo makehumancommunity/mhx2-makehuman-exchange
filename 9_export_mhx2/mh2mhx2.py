@@ -180,9 +180,12 @@ def addBone(mhBones, bone):
 #-----------------------------------------------------------------------
 
 def addGeometry(mhGeos, mesh, skel, mats, mname, cfg):
+    import uuid
+
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
     mhName = mhGeo["name"] = mname
+    mhGeo["uuid"] = str(uuid.uuid4())
     mhGeo["offset"] = cfg.offset
     mhGeo["scale"] = cfg.scale
     try:

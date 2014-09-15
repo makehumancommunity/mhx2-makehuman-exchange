@@ -36,6 +36,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None
 
     ob = buildMesh(mhGeo, mhGeo[meshType], scn, cfg, useSeedMesh)
     ob.MhxSeedMesh = useSeedMesh
+    ob.MhxUuid = mhGeo["uuid"]
 
     if cfg.useOverride and cfg.useRig:
         if "proxy" in mhGeo.keys():

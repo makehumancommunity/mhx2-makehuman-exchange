@@ -154,15 +154,31 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         default = 'NONE')
     usePenisRig = BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
 
+    hairlist = [("NONE", "None", "None")]
+    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
+    for file in os.listdir(folder):
+        fname,ext = os.path.splitext(file)
+        if ext == ".mhc2":
+            hairlist.append((file, fname, fname))
+
+    hairType = EnumProperty(
+        items = hairlist,
+        name = "Hair",
+        description = "Hair",
+        default = "NONE")
+
+
     def execute(self, context):
         from .config import Config
         cfg = Config().fromSettings(self)
         importer.importMhx2File(self.filepath, cfg, context)
         return {'FINISHED'}
 
+
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
+
 
     def draw(self, context):
         layout = self.layout
@@ -193,6 +209,9 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
         layout.label("Add Genitalia:")
         layout.prop(self, "genitalia", expand=True)
+
+        layout.label("Add Hair:")
+        layout.prop(self, "hairType")
 
         box = layout.box()
         box.label("Rigging")
@@ -497,6 +516,7 @@ def menu_func(self, context):
 def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
+    bpy.types.Object.MhxUuid = StringProperty(default="")
     bpy.types.Object.MhxScale = FloatProperty(default=1.0)
     bpy.types.Object.MhxOffset = StringProperty(default="[0,0,0]")
     bpy.types.Object.MhxMesh = BoolProperty(default=False)

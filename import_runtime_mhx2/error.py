@@ -62,5 +62,6 @@ class MhxError(Exception):
         return repr(self.value)
 
 
-def handleMHXError(context):
+def handleMhxError(context):
     global theMessage
+    print(theMessage)

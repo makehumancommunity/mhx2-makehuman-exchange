@@ -63,7 +63,7 @@ def faceshiftBvhLoad(filepath, useHead):
                         try:
                             prop = "Mfa%s" % FaceShiftShapes[joint]
                         except KeyError:
-                            raise MHXError("Unknown Blendshape %s.\nThis is not a FaceShift BVH file" % joint)
+                            raise MhxError("Unknown Blendshape %s.\nThis is not a FaceShift BVH file" % joint)
                         props[idx] = prop
                         pmotion[prop] = []
                     elif joint == "Blendshapes":
@@ -78,7 +78,7 @@ def faceshiftBvhLoad(filepath, useHead):
                             bmotion[bone] = []
                 elif key == "MOTION":
                     if not readingBlendShapes:
-                        raise MHXError("This is not a FaceShift BVH file")
+                        raise MhxError("This is not a FaceShift BVH file")
                     readingBlendShapes = False
                 elif key == "Frame":
                     readingMotion = True
@@ -222,8 +222,8 @@ class VIEW3D_OT_LoadFaceshiftBvhButton(bpy.types.Operator, ImportHelper):
             motion = faceshiftBvhLoad(self.properties.filepath, self.useHead)
             assignMotion(context, motion)
             print("Faceshift file %s loaded." % self.properties.filepath)
-        except MHXError:
-            handleMHXError(context)
+        except MhxError:
+            handleMhxError(context)
         return{'FINISHED'}
 
     def invoke(self, context, event):

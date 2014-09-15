@@ -20,6 +20,7 @@
 # ##### END GPL LICENSE BLOCK #####
 
 from mathutils import Vector
+from .error import MhxError
 
 def isBody(ob):
     return (ob.name.split(":")[-1] == "Body")
@@ -65,4 +66,18 @@ def updateScene(context):
     scn = context.scene
     scn.frame_current = scn.frame_current
 
+
+def setMhHuman(human):
+    global theMhHuman
+    theMhHuman = human
+
+def getMhHuman(ob):
+    global theMhHuman
+    try:
+        theMhHuman
+    except:
+        raise MhxError("No saved human")
+    if theMhHuman["uuid"] != ob.MhxUuid:
+        raise MhxError("Saved human %s\ndoes not match current object")
+    return theMhHuman
 
