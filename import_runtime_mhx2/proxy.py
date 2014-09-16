@@ -199,6 +199,11 @@ def addHair(ob, struct, hcoords):
                 #print("***", key,value)
                 pass
 
+    skull = ob.vertex_groups.new("Skull")
+    for vn,w in [(879,1.0)]:
+        skull.add([vn], w, 'REPLACE')
+    psys.vertex_group_density = "Skull"
+
     pset = psys.settings
     for key,value in pstruct["settings"].items():
         if key[0] != "_":
@@ -216,6 +221,7 @@ def addHair(ob, struct, hcoords):
 
     for m,hair in enumerate(psys.particles):
         verts = hcoords[m]
+        hair.location = verts[0]
         for n,v in enumerate(hair.hair_keys):
             v.co = verts[n]
 
