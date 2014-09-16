@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+Mhx2Version = "0.10"
+
 import os.path
 import sys
 import codecs
@@ -74,7 +76,7 @@ def exportMhx2(filepath, cfg):
             mesh.vertexWeights = dict()
 
     mhFile = OrderedDict()
-
+    mhFile["mhx2_version"] = Mhx2Version
     mhFile["basemesh"] = getBaseMesh()
 
     if skel:

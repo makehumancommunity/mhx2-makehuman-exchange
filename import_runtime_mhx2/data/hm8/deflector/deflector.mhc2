@@ -1,13 +1,13 @@
 {
     "file_info" : {
-        "author" : "Unknown",
+        "author" : "Thomas Larsson",
         "license" : "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
         "homepage" : "http://www.makehuman.org/"
     },
+    "uuid" : "64cf2896-9d56-4a6c-bbe2-2fa9b9f1e357",
     "proxy" : {
         "name" : "Deflector",
         "type" : "Clothes",
-        "uuid" : "64cf2896-9d56-4a6c-bbe2-2fa9b9f1e357",
         "base_mesh" : "hm08",
         "tags" : ["","","","",""],
         "sscale" : {

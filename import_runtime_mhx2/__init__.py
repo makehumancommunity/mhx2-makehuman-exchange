@@ -106,6 +106,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=False)
+    useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
 
     useHumanType = EnumProperty(
         items = [('BASE', "Base", "Base mesh"),
@@ -116,7 +117,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         description = "Human types to be imported",
         default = 'BOTH')
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
-    mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=True)
+    mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=False)
     mergeMaxType = EnumProperty(
         items = [('BODY', "Body", "Merge up to body"),
                  ('HAIR', "Hair", "Merge up to hair"),
@@ -167,7 +168,6 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         description = "Hair",
         default = "NONE")
 
-
     def execute(self, context):
         from .config import Config
         cfg = Config().fromSettings(self)
@@ -183,16 +183,6 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "useOverride")
-
-        layout.separator()
-        box = layout.box()
-        box.label("Merging")
-        box.prop(self, "mergeBodyParts")
-        if self.mergeBodyParts and self.useHumanType != 'BODY':
-            box.prop(self, "mergeToProxy")
-        if self.mergeBodyParts:
-            box.prop(self, "mergeMaxType")
-
         if not self.useOverride:
             return
 
@@ -207,11 +197,21 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             not self.useFacePanel):
             layout.prop(self, "useFaceDrivers")
 
+        layout.separator()
+        box = layout.box()
+        box.label("Merging")
+        box.prop(self, "mergeBodyParts")
+        if self.mergeBodyParts and self.useHumanType != 'BODY':
+            box.prop(self, "mergeToProxy")
+        if self.mergeBodyParts:
+            box.prop(self, "mergeMaxType")
+
         layout.label("Add Genitalia:")
         layout.prop(self, "genitalia", expand=True)
 
-        layout.label("Add Hair:")
+        layout.separator()
         layout.prop(self, "hairType")
+        layout.prop(self, "useDeflector")
 
         box = layout.box()
         box.label("Rigging")
@@ -351,20 +351,12 @@ class MhxFKIKPanel(bpy.types.Panel):
         row.prop(rig, '["MhaLegIk_L"]', text="")
         row.prop(rig, '["MhaLegIk_R"]', text="")
 
-        try:
-            ok = (rig["MhxVersion"] >= 12)
-        except KeyError:
-            ok = False
-        if not ok:
-            layout.label("Snapping only works with MHX version 1.12 and later.")
-            return
-
         layout.separator()
         layout.label("Snapping")
         row = layout.row()
         row.label("Rotation Limits")
         row.prop(rig, '["MhaRotationLimits"]', text="")
-        row.prop(rig, "MhxSnapExact", text="Exact Snapping")
+        #row.prop(rig, "MhxSnapExact", text="Exact Snapping")
 
         layout.label("Snap Arm bones")
         row = layout.row()

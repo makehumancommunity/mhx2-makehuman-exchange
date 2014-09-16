@@ -162,6 +162,7 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
         elif key == "ambient_color":
             mat.ambient = value[0]
         elif key == "castShadows":
+            mat.use_cast_shadows = value
             mat.use_cast_buffer_shadows = value
         elif key == "receiveShadows":
             mat.use_shadows = value
@@ -249,6 +250,25 @@ def addTexture(mat, filepath, cfg):
     mtex.use_rgb_to_intensity = False
 
     return mtex
+
+
+def createInvisioMaterial(name):
+    return {
+        "name" : ("%s:Invisio" % name),
+        "diffuse_map_intensity" : 0,
+        "specular_map_intensity" : 0,
+        "shininess" : 0,
+        "opacity" : 0,
+        "shadeless" : True,
+        "wireframe" : False,
+        "transparent" : True,
+        "alphaToCoverage" : True,
+        "backfaceCull" : True,
+        "depthless" : True,
+        "castShadows" : False,
+        "receiveShadows" : False,
+        "sssEnabled" : False
+    }
 
 # ---------------------------------------------------------------------
 #   Blender Internal specific material

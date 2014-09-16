@@ -113,16 +113,21 @@ def build(struct, cfg, context):
             human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
             human.MhxHuman = True
 
+    groupName = mhHuman["name"].split(":",1)[0]
+
     if cfg.genitalia != "NONE":
-        from .proxy import addProxy
-        filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".mhc2")
-        print("Adding genitalia:", filepath)
-        mhGeo,sscale = addProxy(filepath, mhHuman)
-        ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
-        proxies.append((mhGeo, ob))
-        if "targets" in mhGeo.keys():
-            from .shapekeys import addTargets
-            addTargets(ob, mhGeo["targets"], sscale)
+        genitalia = addMeshProxy("genitalia", cfg.genitalia, mhHuman, mats, rig, parser, scn, cfg)
+        proxies.append(genitalia)
+
+    if cfg.useDeflector:
+        from .materials import createInvisioMaterial
+        mhMaterial = createInvisioMaterial("%s:Deflector" % groupName)
+        mname,mat = buildMaterial(mhMaterial, scn, cfg)
+        mat.use_raytrace = False
+        deflector = addMeshProxy("deflector", "deflector", mhHuman, {mhHuman["material"] : mat}, rig, parser, scn, cfg)
+        ob = deflector[1]
+        ob.draw_type = 'WIRE'
+        proxies.append(deflector)
 
     if cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates
@@ -151,8 +156,7 @@ def build(struct, cfg, context):
     if cfg.deleteHelpers:
         deleteHelpers(human, scn)
 
-    gname = mhHuman["name"].split(":",1)[0]
-    grp = bpy.data.groups.new(gname)
+    grp = bpy.data.groups.new(groupName)
     if rig:
         grp.objects.link(rig)
     if human:
@@ -188,6 +192,20 @@ def build(struct, cfg, context):
         bpy.ops.object.mode_set(mode='OBJECT')
 
 
+def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
+        from .proxy import addProxy
+        from .geometries import buildGeometry
+
+        filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
+        print("Adding %s:" % pname, filepath)
+        mhGeo,sscale = addProxy(filepath, mhHuman)
+        ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
+        if "targets" in mhGeo.keys():
+            from .shapekeys import addTargets
+            addTargets(ob, mhGeo["targets"], sscale)
+        return mhGeo,ob
+
+
 def buildSkeleton(mhSkel, scn, cfg):
     from .geometries import getScaleOffset
 
@@ -220,6 +238,8 @@ def addMasks(human, proxies, proxyTypes=[]):
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
+        if "delete_verts" not in mhProxy.keys():
+            continue
         vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
         #pname = mhProxy["name"]
         pname = getProxyName(ob)
