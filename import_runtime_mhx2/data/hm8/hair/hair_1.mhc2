@@ -6,7 +6,7 @@
     },
     "proxy" : {
         "name" : "Hair_1",
-        "type" : "Clothes",
+        "type" : "Hair",
         "uuid" : "810c47a6-c11e-44f5-b78c-e439f6989d3f",
         "base_mesh" : "hm08",
         "tags" : ["","","","",""],

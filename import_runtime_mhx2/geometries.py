@@ -71,11 +71,16 @@ def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
         gname = ("%s:Body" % mhGeo["name"].split(':',1)[0])
     else:
         gname = mhGeo["name"]
-
-    me = bpy.data.meshes.new(gname)
     scale,offset = getScaleOffset(mhGeo, cfg, useSeedMesh)
     verts = [scale*zup(co)+offset for co in mhMesh["vertices"]]
+    ob = addMeshToScene(verts, gname, mhMesh, scn)
+    ob.MhxScale = mhGeo["scale"]
+    ob.MhxOffset = str(list(zup(mhGeo["offset"])))
+    return ob
 
+
+def addMeshToScene(verts, gname, mhMesh, scn):
+    me = bpy.data.meshes.new(gname)
     try:
         faces = mhMesh["faces"]
         edges = []
@@ -98,9 +103,6 @@ def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
 
     ob = bpy.data.objects.new(gname, me)
     scn.objects.link(ob)
-    ob.MhxScale = mhGeo["scale"]
-    ob.MhxOffset = str(list(zup(mhGeo["offset"])))
-
     return ob
 
 

@@ -245,7 +245,7 @@ class MhxSetupPanel(bpy.types.Panel):
 
         if ob.type == 'MESH':
             layout.separator()
-            layout.operator("mhx2.add_hair")
+            layout.operator("mhx2.add_mhc2")
             layout.operator("mhx2.merge_objects")
 
         layout.separator()

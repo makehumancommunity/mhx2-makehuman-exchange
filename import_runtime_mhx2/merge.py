@@ -74,6 +74,9 @@ def mergeSelectedObjects(context):
         scn.objects.active = human
         return mergeObjects(human, clothes)
 
+    matnums = []
+    return matnums
+
 
 def mergeObjects(human, clothes):
     print("Merge %s to %s" % ([clo.name for clo in clothes], human.name))

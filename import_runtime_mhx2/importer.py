@@ -56,6 +56,7 @@ def build(struct, cfg, context):
     from .armature.rigify import checkRigifyEnabled
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
+    from .proxy import setMhHuman
 
     scn = context.scene
 
@@ -114,7 +115,7 @@ def build(struct, cfg, context):
 
     if cfg.genitalia != "NONE":
         from .proxy import addProxy
-        filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".json")
+        filepath = os.path.join("data/hm8/genitalia", cfg.genitalia.lower() + ".mhc2")
         print("Adding genitalia:", filepath)
         mhGeo,sscale = addProxy(filepath, mhHuman)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
@@ -124,10 +125,10 @@ def build(struct, cfg, context):
             addTargets(ob, mhGeo["targets"], sscale)
 
     if cfg.hairType != "NONE":
-        from .proxy import getHairCoordinates
+        from .proxy import getProxyCoordinates
         folder = os.path.dirname(__file__)
         filepath = os.path.join(folder, "data/hm8/hair", cfg.hairType)
-        hair,hcoords = getHairCoordinates(mhHuman, filepath)
+        hair,hcoords = getProxyCoordinates(mhHuman, filepath)
 
     if cfg.useFaceShapes:
         from .shapekeys import addShapeKeys

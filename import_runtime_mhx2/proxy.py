@@ -47,11 +47,7 @@ def proxyToGeometry(mhHuman, mhProxy, mhGeo):
     pxyGeo["material"] = mhHuman["material"]
     pxyGeo["scale"] = mhHuman["scale"]
     mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
-    pxyGeo["sscale"] = {
-        "x" : mhProxy["x_scale"],
-        "y" : mhProxy["y_scale"],
-        "z" : mhProxy["z_scale"]
-    }
+    pxyGeo["sscale"] = mhProxy["sscale"]
     pverts,sscale = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["sscale"])
     mhMesh["vertices"] = pverts
     return pxyGeo,sscale
@@ -158,22 +154,29 @@ def proxifyTargets(mhProxy, targets):
 #
 # ---------------------------------------------------------------------
 
-def getHairCoordinates(mhHuman, filepath):
+def isHairStruct(struct):
+    return ("particles" in struct.keys())
+
+
+def getProxyCoordinates(mhHuman, filepath):
     from .load_json import loadJson
 
     offset = Vector(zup(mhHuman["offset"]))
     struct = loadJson(filepath)
-    hlist = struct["particles"]["hairs"]
-    nhairs = int(len(hlist))
-    hlen = int(len(hlist[0]))
-
     mhProxy = struct["proxy"]
     pverts,_sscale = fitProxy(mhHuman, mhProxy, mhProxy["sscale"])
 
-    hcoords = []
-    for m in range(nhairs):
-        hcoords.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
-    return struct,hcoords
+    if isHairStruct(struct):
+        hlist = struct["particles"]["hairs"]
+        nhairs = int(len(hlist))
+        hlen = int(len(hlist[0]))
+        coords = []
+        for m in range(nhairs):
+            coords.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
+    else:
+        coords = [Vector(zup(v)) + offset for v in pverts]
+
+    return struct,coords
 
 
 def addHair(ob, struct, hcoords):
@@ -219,10 +222,22 @@ def addHair(ob, struct, hcoords):
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
-    bl_idname = "mhx2.add_hair"
-    bl_label = "Add Hair (.mhc2)"
-    bl_description = "Add Hair"
+def addMhc2(ob, scn, filepath):
+    from .geometries import addMeshToScene
+
+    mhHuman = getMhHuman(ob)
+    struct,coords = getProxyCoordinates(mhHuman, filepath)
+    if isHairStruct(struct):
+        addHair(ob, struct, coords)
+    else:
+        gname = ("%s:%s" % (getRigName(ob), struct["proxy"]["name"]))
+        addMeshToScene(coords, gname, struct["mesh"], scn)
+
+
+class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
+    bl_idname = "mhx2.add_mhc2"
+    bl_label = "Add Mhc2 (.mhc2)"
+    bl_description = "Add clothes, genitalia or hair stored in a mhc2 file"
     bl_options = {'UNDO'}
 
     filename_ext = ".mhc2"
@@ -235,10 +250,8 @@ class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
         return (ob and ob.type == 'MESH')
 
     def execute(self, context):
-        ob = context.object
         try:
-            struct,hcoords = getHairCoordinates(getMhHuman(ob), self.properties.filepath)
-            addHair(ob, struct, hcoords)
+            addMhc2(context.object, context.scene, self.properties.filepath)
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}
@@ -246,5 +259,24 @@ class VIEW3D_OT_AddHairButton(bpy.types.Operator, ImportHelper):
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
+
+# ---------------------------------------------------------------------
+#   Global variable that holds the loaded json struct for the
+#   current human.
+# ---------------------------------------------------------------------
+
+def setMhHuman(human):
+    global theMhHuman
+    theMhHuman = human
+
+def getMhHuman(ob):
+    global theMhHuman
+    try:
+        theMhHuman
+    except:
+        raise MhxError("No saved human")
+    if theMhHuman["uuid"] != ob.MhxUuid:
+        raise MhxError("Saved human %s\ndoes not match current object")
+    return theMhHuman
 
 print("Hair loaded")
