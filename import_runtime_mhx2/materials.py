@@ -250,30 +250,36 @@ def addTexture(mat, filepath, cfg):
 
     return mtex
 
+# ---------------------------------------------------------------------
+#   Blender Internal specific material
+# ---------------------------------------------------------------------
 
 def buildBlenderMaterial(struct):
     mat = bpy.data.materials.new(struct["name"])
     for key,value in struct.items():
-        buildData(key, value, mat)
+        if key == "diffuse_ramp":
+            mat.use_diffuse_ramp = True
+            buildRamp(mat.diffuse_ramp, value)
+        elif key == "specular_ramp":
+            mat.use_specular_ramp = True
+            buildRamp(mat.specular_ramp, value)
+        else:
+            setSimple(mat, key, value)
     return mat
 
 
-def buildData(key, data, rna):
-    if rna is None:
-        print(key,data)
-        return
-    if isinstance(data, list):
-        nrna = getattr(rna, key)
-        #dlist = [buildData(elt, nrna) for elt in data]
-    elif isinstance(data, dict):
-        nrna = getattr(rna, key)
-        print("DIC", rna, nrna)
-        for nkey,nvalue in data.items():
-            buildData(nkey, nvalue, nrna)
-        #setattr(rna, key, nlist)
-    else:
-        try:
-            setattr(rna, key, data)
-        except AttributeError:
-            print("***", key, data)
+def setSimple(rna, key, data):
+    try:
+        setattr(rna, key, data)
+    except AttributeError:
+        print("***", key, data)
 
+
+def buildRamp(ramp, struct):
+    for key,value in struct.items():
+        if key == "elements":
+            for elt in value:
+                element = ramp.elements.new(elt["position"])
+                element.color = elt["color"]
+        else:
+            setSimple(ramp, key, value)
