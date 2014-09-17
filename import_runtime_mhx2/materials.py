@@ -251,24 +251,30 @@ def addTexture(mat, filepath, cfg):
 
     return mtex
 
+# ---------------------------------------------------------------------
+#   Get material from mhc2 file
+# ---------------------------------------------------------------------
 
-def createInvisioMaterial(name):
-    return {
-        "name" : ("%s:Invisio" % name),
-        "diffuse_map_intensity" : 0,
-        "specular_map_intensity" : 0,
-        "shininess" : 0,
-        "opacity" : 0,
-        "shadeless" : True,
-        "wireframe" : False,
-        "transparent" : True,
-        "alphaToCoverage" : True,
-        "backfaceCull" : True,
-        "depthless" : True,
-        "castShadows" : False,
-        "receiveShadows" : False,
-        "sssEnabled" : False
-    }
+def getMaterial(mhMaterial, gname):
+    if isinstance(mhMaterial, str):
+        if mhMaterial == "Invisio":
+            return {
+                "name" : ("%s:Invisio" % gname),
+                "diffuse_map_intensity" : 0,
+                "specular_map_intensity" : 0,
+                "shininess" : 0,
+                "opacity" : 0,
+                "shadeless" : True,
+                "wireframe" : False,
+                "transparent" : True,
+                "alphaToCoverage" : True,
+                "backfaceCull" : True,
+                "depthless" : True,
+                "castShadows" : False,
+                "receiveShadows" : False,
+                "sssEnabled" : False
+            }
+    raise RuntimeError("Unable to get material %s" % mhMaterial)
 
 # ---------------------------------------------------------------------
 #   Blender Internal specific material

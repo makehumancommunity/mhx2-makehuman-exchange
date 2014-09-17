@@ -121,10 +121,10 @@ def build(struct, cfg, context):
 
     if cfg.useDeflector:
         from .materials import createInvisioMaterial
-        mhMaterial = createInvisioMaterial("%s:Deflector" % groupName)
-        mname,mat = buildMaterial(mhMaterial, scn, cfg)
-        mat.use_raytrace = False
-        deflector = addMeshProxy("deflector", "deflector", mhHuman, {mhHuman["material"] : mat}, rig, parser, scn, cfg)
+        #mhMaterial = createInvisioMaterial("%s:Deflector" % groupName)
+        #mname,mat = buildMaterial(mhMaterial, scn, cfg)
+        #mat.use_raytrace = False
+        deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
         ob = deflector[1]
         ob.draw_type = 'WIRE'
         proxies.append(deflector)
@@ -198,7 +198,7 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
 
         filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
         print("Adding %s:" % pname, filepath)
-        mhGeo,sscale = addProxy(filepath, mhHuman)
+        mhGeo,sscale = addProxy(filepath, mhHuman, mats, scn, cfg)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
         if "targets" in mhGeo.keys():
             from .shapekeys import addTargets

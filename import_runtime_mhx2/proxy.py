@@ -32,19 +32,23 @@ from .hm8 import *
 #   Add proxy
 # ---------------------------------------------------------------------
 
-def addProxy(filepath, mhHuman):
+def addProxy(filepath, mhHuman, mats, scn, cfg):
     from .load_json import loadJsonRelative
+    from .materials import getMaterial, buildMaterial
+
     mhGeo = loadJsonRelative(filepath)
     mhProxy = mhGeo["proxy"]
-    return proxyToGeometry(mhHuman, mhProxy, mhGeo)
-
-
-def proxyToGeometry(mhHuman, mhProxy, mhGeo):
     pxyGeo = mhGeo
     pxyGeo["human"] = False
     pxyGeo["name"] = ("%s:%s" % (mhHuman["name"].split(":")[0], mhProxy["name"]))
     pxyGeo["offset"] = mhHuman["offset"]
-    pxyGeo["material"] = mhHuman["material"]
+    if "material" in mhGeo.keys():
+        mhMaterial = getMaterial(mhGeo["material"], pxyGeo["name"])
+        mname,mat = buildMaterial(mhMaterial, scn, cfg)
+        pxyGeo["material"] = mname
+        mats[mname] = mat
+    else:
+        pxyGeo["material"] = mhHuman["material"]
     pxyGeo["scale"] = mhHuman["scale"]
     mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
     pxyGeo["sscale"] = mhProxy["sscale"]
