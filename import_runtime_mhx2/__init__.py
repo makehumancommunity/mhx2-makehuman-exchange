@@ -107,6 +107,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=False)
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
+    useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
 
     useHumanType = EnumProperty(
         items = [('BASE', "Base", "Base mesh"),
@@ -210,9 +211,13 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         layout.prop(self, "genitalia", expand=True)
 
         layout.separator()
-        layout.prop(self, "hairType")
-        layout.prop(self, "useDeflector")
+        box = layout.box()
+        box.prop(self, "hairType")
+        if self.hairType != 'NONE':
+            box.prop(self, "useHairDynamics")
+        box.prop(self, "useDeflector")
 
+        layout.separator()
         box = layout.box()
         box.label("Rigging")
         box.prop(self, "useRig")

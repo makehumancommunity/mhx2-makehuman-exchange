@@ -120,13 +120,8 @@ def build(struct, cfg, context):
         proxies.append(genitalia)
 
     if cfg.useDeflector:
-        from .materials import createInvisioMaterial
-        #mhMaterial = createInvisioMaterial("%s:Deflector" % groupName)
-        #mname,mat = buildMaterial(mhMaterial, scn, cfg)
-        #mat.use_raytrace = False
         deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
-        ob = deflector[1]
-        ob.draw_type = 'WIRE'
+        makeCollision(deflector[1])
         proxies.append(deflector)
 
     if cfg.hairType != "NONE":
@@ -179,7 +174,7 @@ def build(struct, cfg, context):
     if cfg.hairType != "NONE":
         from .proxy import addHair
         scn.objects.active = human
-        addHair(human, hair, hcoords)
+        addHair(human, hair, hcoords, cfg)
 
     if rig:
         scn.objects.active = rig
@@ -263,6 +258,12 @@ def addMask(ob, vnums, pname):
         mod.invert_vertex_group = True
         for vn in vnums:
             vgrp.add([vn], 1, 'REPLACE')
+
+
+def makeCollision(ob):
+    ob.draw_type = 'WIRE'
+    mod = ob.modifiers.new("Collision", 'COLLISION')
+    print(ob.collision, ob.collision.use)
 
 
 def deleteHelpers(human, scn):

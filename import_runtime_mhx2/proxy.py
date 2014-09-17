@@ -183,7 +183,7 @@ def getProxyCoordinates(mhHuman, filepath):
     return struct,coords
 
 
-def addHair(ob, struct, hcoords):
+def addHair(ob, struct, hcoords, cfg):
     from .materials import buildBlenderMaterial
     mat = buildBlenderMaterial(struct["blender_material"])
     ob.data.materials.append(mat)
@@ -217,6 +217,8 @@ def addHair(ob, struct, hcoords):
                 #print("  ***", key,value)
                 pass
 
+    pset.material = len(ob.data.materials)
+
     pset.count = int(len(hcoords))
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
@@ -230,6 +232,10 @@ def addHair(ob, struct, hcoords):
             v.co = verts[n]
 
     bpy.ops.object.mode_set(mode='OBJECT')
+
+    if cfg.useHairDynamics:
+        psys.use_hair_dynamics = True
+        #pset.pin_stiffness = 0.5
 
 
 def addMhc2(ob, scn, filepath):

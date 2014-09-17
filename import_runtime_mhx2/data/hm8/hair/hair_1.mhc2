@@ -514,7 +514,7 @@
             "lock_boids_to_surface" : false,
             "mass" : 1,
             "material" : 2,
-            "name" : "ParticleSettings",
+            "name" : "Hair_1",
             "normal_factor" : 1,
             "object_align_factor" : [0,0,0],
             "object_factor" : 0,
