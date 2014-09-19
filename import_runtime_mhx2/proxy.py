@@ -183,7 +183,7 @@ def getProxyCoordinates(mhHuman, filepath):
     return struct,coords
 
 
-def addHair(ob, struct, hcoords, cfg):
+def addHair(ob, struct, hcoords, cfg=None):
     from .materials import buildBlenderMaterial
     mat = buildBlenderMaterial(struct["blender_material"])
     ob.data.materials.append(mat)
@@ -233,21 +233,38 @@ def addHair(ob, struct, hcoords, cfg):
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    if cfg.useHairDynamics:
+    if cfg and cfg.useHairDynamics:
         psys.use_hair_dynamics = True
         #pset.pin_stiffness = 0.5
 
 
-def addMhc2(ob, scn, filepath):
-    from .geometries import addMeshToScene
+def addMhc2(context, filepath):
+    ob = context.object
+    rig = getArmature(ob)
+    scn = context.scene
+
+    if len(ob.data.vertices) not in [NBodyVerts, NTotalVerts]:
+        raise MhxError(
+            "Mhc2 can only be added to a\n" +
+            "MakeHuman mesh with\n" +
+            "%d or %d vertices" % (NBodyVerts, NTotalVerts))
 
     mhHuman = getMhHuman(ob)
-    struct,coords = getProxyCoordinates(mhHuman, filepath)
-    if isHairStruct(struct):
-        addHair(ob, struct, coords)
+    mhGeo,coords = getProxyCoordinates(mhHuman, filepath)
+    if isHairStruct(mhGeo):
+        addHair(ob, mhGeo, coords)
     else:
-        gname = ("%s:%s" % (getRigName(ob), struct["proxy"]["name"]))
-        addMeshToScene(coords, gname, struct["mesh"], scn)
+        from .geometries import addMeshToScene, getVertexGroupsFromObject, buildVertexGroups
+        from .importer import addMasks
+
+        gname = ("%s:%s" % (getRigName(ob), mhGeo["proxy"]["name"]))
+        pxy = addMeshToScene(coords, gname, mhGeo["mesh"], scn)
+        pxy.parent = ob
+        mhProxy = mhGeo["proxy"]
+        vgrps = getVertexGroupsFromObject(ob)
+        vgrps = proxifyVertexGroups(mhProxy, vgrps)
+        buildVertexGroups(vgrps, pxy, rig)
+        addMasks(ob, [(mhGeo,pxy)], proxyTypes=[mhProxy["type"]])
 
 
 class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
@@ -267,7 +284,7 @@ class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         try:
-            addMhc2(context.object, context.scene, self.properties.filepath)
+            addMhc2(context, self.properties.filepath)
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}

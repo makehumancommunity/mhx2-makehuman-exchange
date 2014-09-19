@@ -22,6 +22,7 @@
 import os
 import bpy
 from bpy.props import *
+from .error import *
 from .utils import *
 
 #------------------------------------------------------------------------
@@ -73,6 +74,8 @@ def mergeSelectedObjects(context):
     if human:
         scn.objects.active = human
         return mergeObjects(human, clothes)
+    else:
+        raise MhxError("Cannot merge.\nNo human found among\nselected objects.")
 
     matnums = []
     return matnums
@@ -183,14 +186,17 @@ def mergeBodyParts(human, proxies, scn, proxyTypes=[]):
 
 class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
     bl_idname = "mhx2.merge_objects"
-    bl_label = "Merge Selected To Active"
+    bl_label = "Merge Selected To Human"
     bl_description = "Merge selected objects to active seamlessly"
     bl_options = {'UNDO'}
 
     def execute(self, context):
-        matnums = mergeSelectedObjects(context)
-        human = context.object
-        for mn in matnums:
-            changeMaterial(human, mn)
+        try:
+            matnums = mergeSelectedObjects(context)
+            human = context.object
+            for mn in matnums:
+                changeMaterial(human, mn)
+        except MhxError:
+            handleMhxError(context)
         return{'FINISHED'}
 

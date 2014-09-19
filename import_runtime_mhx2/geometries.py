@@ -118,6 +118,14 @@ def buildVertexGroups(vweights, ob, rig):
             vgrp.add([vn], w, 'REPLACE')
 
 
+def getVertexGroupsFromObject(ob):
+    vgrps = dict([(vgrp.index, (vgrp.name, [])) for vgrp in ob.vertex_groups])
+    for v in ob.data.vertices:
+        for g in v.groups:
+            vgrps[g.group][1].append((v.index, g.weight))
+    return dict(vgrps.values())
+
+
 def getScaleOffset(struct, cfg, useSeedMesh):
     if useSeedMesh:
         scale = struct["scale"]

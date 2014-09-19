@@ -23,7 +23,7 @@ import os
 import bpy
 from bpy.props import *
 from mathutils import *
-from .utils import updateScene
+from .utils import *
 
 #------------------------------------------------------------------------
 #
@@ -198,13 +198,6 @@ def resetProps(rig, prefix, scn):
 def autoKeyProp(rig, key, scn):
     if scn.tool_settings.use_keyframe_insert_auto:
         rig.keyframe_insert('["%s"]' % key, frame=scn.frame_current)
-
-
-def getArmature(ob):
-    if ob.type == 'MESH':
-        return ob.parent
-    elif ob.type == 'ARMATURE':
-        return ob
 
 
 class VIEW3D_OT_PinPropButton(bpy.types.Operator):

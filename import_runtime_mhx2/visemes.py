@@ -23,8 +23,7 @@ import bpy
 from bpy.props import *
 from bpy_extras.io_utils import ImportHelper
 
-from .utils import updateScene
-from .drivers import getArmature
+from .utils import *
 from .armature.rig_panel import BoneDrivers
 
 # ---------------------------------------------------------------------

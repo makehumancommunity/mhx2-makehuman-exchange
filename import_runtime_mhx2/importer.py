@@ -71,14 +71,14 @@ def build(struct, cfg, context):
         mname,mat = buildMaterial(mhMaterial, scn, cfg)
         mats[mname] = mat
 
-    parser = None
-    rig = None
-    print(cfg)
     for mhGeo in struct["geometries"]:
         if mhGeo["human"]:
             mhHuman = mhGeo
             setMhHuman(mhHuman)
             break
+
+    parser = None
+    rig = None
     if cfg.useOverride and cfg.useRig:
         rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():

@@ -23,7 +23,7 @@ from mathutils import Vector
 from .error import MhxError
 
 def isBody(ob):
-    return (ob.name.split(":")[-1] == "Body")
+    return (ob.name.split(":")[-1] in ["Body", "Base"])
 
 def getRigName(ob):
     return ob.name.split(":")[0]
@@ -49,6 +49,13 @@ def getClothesName(clo):
         return cloname.split(":",1)[1]
     except IndexError:
         return None
+
+
+def getArmature(ob):
+    if ob.type == 'MESH':
+        return ob.parent
+    elif ob.type == 'ARMATURE':
+        return ob
 
 
 def zup(co):

@@ -437,7 +437,6 @@ class FaceComponentsPanel(bpy.types.Panel):
         return (rig and rig.MhxFaceRigDrivers)
 
     def draw(self, context):
-        from .drivers import getArmature
         rig = context.object
         if rig:
             layout = self.layout
@@ -462,7 +461,6 @@ class MhxShapekeyPanel(bpy.types.Panel):
         return (rig and rig.MhxShapekeyDrivers)
 
     def draw(self, context):
-        from .drivers import getArmature
         rig = context.object
         if rig:
             layout = self.layout
