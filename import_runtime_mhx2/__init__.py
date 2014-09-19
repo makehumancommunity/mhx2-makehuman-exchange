@@ -260,7 +260,6 @@ class MhxSetupPanel(bpy.types.Panel):
         layout.separator()
         layout.operator("mhx2.add_facerig_drivers")
         layout.operator("mhx2.remove_facerig_drivers")
-        layout.operator("mhx2.load_faceshift_bvh")
 
         layout.separator()
         op = layout.operator("mhx2.add_shapekeys", text="Add Face Shapes")
@@ -434,10 +433,17 @@ class FaceComponentsPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxFaceRigDrivers)
+        rig = context.object
+        return (rig and rig.MhxFaceRigDrivers)
 
     def draw(self, context):
-        drawPropPanel(self, context.object, "Mfa")
+        from .drivers import getArmature
+        rig = context.object
+        if rig:
+            layout = self.layout
+            layout.operator("mhx2.reset_props").prefix = "Mfa"
+            layout.operator("mhx2.load_faceshift_bvh")
+            drawProperties(layout, rig, "Mfa")
 
 #------------------------------------------------------------------------
 #   Shapekey panel
@@ -452,29 +458,30 @@ class MhxShapekeyPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxShapekeyDrivers)
+        rig = context.object
+        return (rig and rig.MhxShapekeyDrivers)
 
     def draw(self, context):
-        drawPropPanel(self, context.object, "Mhs")
+        from .drivers import getArmature
+        rig = context.object
+        if rig:
+            layout = self.layout
+            layout.operator("mhx2.reset_props").prefix = "Mhs"
+            drawProperties(layout, rig, "Mhs")
 
 #------------------------------------------------------------------------
 #   Common drawing code for property panels
 #------------------------------------------------------------------------
 
-def drawPropPanel(self, ob, prefix):
-    from .drivers import getArmature
-    rig = getArmature(ob)
-    if rig:
-        layout = self.layout
-        layout.operator("mhx2.reset_props").prefix = prefix
-        for prop in rig.keys():
-            if prop[0:3] != prefix:
-                continue
-            row = layout.split(0.8)
-            row.prop(rig, '["%s"]' % prop, text=prop[3:])
-            op = row.operator("mhx2.pin_prop", icon='UNPINNED')
-            op.key = prop
-            op.prefix = prefix
+def drawProperties(layout, rig, prefix):
+    for prop in rig.keys():
+        if prop[0:3] != prefix:
+            continue
+        row = layout.split(0.8)
+        row.prop(rig, '["%s"]' % prop, text=prop[3:])
+        op = row.operator("mhx2.pin_prop", icon='UNPINNED')
+        op.key = prop
+        op.prefix = prefix
 
 #------------------------------------------------------------------------
 #   Visemes panel

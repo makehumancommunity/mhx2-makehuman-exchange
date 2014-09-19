@@ -29,7 +29,7 @@ from .drivers import *
 #------------------------------------------------------------------------
 #   Bone drivers
 #------------------------------------------------------------------------
-
+'''
 def addBoneDrivers(rig, propname, prefix, act):
     # The driving property names are stored in several string properties,
     # since the size of a string property in Blender is limited.
@@ -127,7 +127,7 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
         rig.animation_data.action = None
         rig.MhxFaceRigDrivers = True
         return{'FINISHED'}
-
+'''
 
 #------------------------------------------------------------------------
 #   Bone drivers
@@ -191,7 +191,7 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and rig.MhxFaceRig)
+        return (rig and rig.MhxFaceRig and not rig.MhxFaceRigDrivers)
 
     def execute(self, context):
         global _FacePoses
