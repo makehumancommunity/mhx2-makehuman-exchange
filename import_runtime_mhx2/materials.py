@@ -162,7 +162,10 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
         elif key == "ambient_color":
             mat.ambient = value[0]
         elif key == "castShadows":
-            mat.use_cast_shadows = value
+            try:
+                mat.use_cast_shadows = value
+            except AttributeError:
+                pass
             mat.use_cast_buffer_shadows = value
         elif key == "receiveShadows":
             mat.use_shadows = value

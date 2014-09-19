@@ -76,11 +76,17 @@ def build(struct, cfg, context):
             mhHuman = mhGeo
             setMhHuman(mhHuman)
             break
+<<<<<<< local
 
     parser = None
     rig = None
     if cfg.useOverride and cfg.useRig:
         rig,parser = buildRig(mhHuman, cfg, context)
+=======
+    if cfg.useOverride:
+        if cfg.useRig:
+            rig,parser = buildRig(mhHuman, cfg, context)
+>>>>>>> other
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
     if rig:
@@ -106,6 +112,8 @@ def build(struct, cfg, context):
                     proxy.MhxHuman = True
                 if proxy:
                     proxies.append((mhGeo, proxy))
+            elif mhProxy["type"] == "Hair" and cfg.hairType != "NONE":
+                print("Skipping hair", mhProxy["name"])
             else:
                 ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
                 proxies.append((mhGeo, ob))
