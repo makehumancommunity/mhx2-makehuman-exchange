@@ -51,29 +51,39 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
         pxyGeo["material"] = mhHuman["material"]
     pxyGeo["scale"] = mhHuman["scale"]
     mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
-    pxyGeo["sscale"] = mhProxy["sscale"]
-    pverts,sscale = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["sscale"])
+    pxyGeo["bounding_box"] = mhProxy["bounding_box"]
+    pverts,scales = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["bounding_box"])
     mhMesh["vertices"] = pverts
-    return pxyGeo,sscale
+    return pxyGeo,scales
 
 
 def fitProxy(mhHuman, mhProxy, mhScale):
     from .shapekeys import getScale
-    sscale = getScale(None, mhScale, mhHuman)
+    scales = getScale(None, mhScale, mhHuman)
     hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
     for vnums,weights,offset in mhProxy["fitting"]:
         pco = (weights[0]*hverts[vnums[0]] +
                weights[1]*hverts[vnums[1]] +
                weights[2]*hverts[vnums[2]])
-        pverts.append(Vector([pco[n]+sscale[n]*offset[n] for n in range(3)]))
-    return pverts,sscale
+        pverts.append(Vector([pco[n]+scales[n]*offset[n] for n in range(3)]))
+    return pverts,scales
 
 # ---------------------------------------------------------------------
 #   Vertex groups
 # ---------------------------------------------------------------------
 
-def proxifyVertexGroups(mhProxy, vgrps):
+def proxifyVertexGroups(mhProxy, mhHuman):
+    parser = mhHuman["parser"]
+    if parser:
+        vgrps = parser.vertexGroups
+    else:
+        mhSeed = mhHuman["seed_mesh"]
+        if "weights" in mhSeed.keys():
+            vgrps = mhSeed["weights"]
+        else:
+            return {}
+
     mhFitting = mhProxy["fitting"]
     ngrps = {}
     for gname,ogrp in vgrps.items():
@@ -108,7 +118,14 @@ def proxifyVertexGroups(mhProxy, vgrps):
 
 def proxifyMask(mhProxy, mhMesh, vnums):
     vgrps = { "Mask" : [(vn,1.0) for vn in vnums] }
-    ngrps = proxifyVertexGroups(mhProxy, vgrps)
+    mhHuman = {
+        "seed_mesh" : {
+            "weights" : vgrps
+        },
+        "parser" : None
+    }
+    ngrps = proxifyVertexGroups(mhProxy, mhHuman)
+
     if "Mask" in ngrps.keys():
         nverts = len(mhMesh["vertices"])
         vmask = dict([(vn,0) for vn in range(nverts)])
@@ -176,7 +193,7 @@ def getProxyCoordinates(mhHuman, filepath):
     offset = Vector(zup(mhHuman["offset"]))
     struct = loadJson(filepath)
     mhProxy = struct["proxy"]
-    pverts,_sscale = fitProxy(mhHuman, mhProxy, mhProxy["sscale"])
+    pverts,_sscale = fitProxy(mhHuman, mhProxy, mhProxy["bounding_box"])
 
     if isHairStruct(struct):
         hlist = struct["particles"]["hairs"]
@@ -273,14 +290,16 @@ def addMhc2(context, filepath):
         from .geometries import addMeshToScene, getVertexGroupsFromObject, buildVertexGroups
         from .importer import addMasks
 
-        gname = ("%s:%s" % (getRigName(ob), mhGeo["proxy"]["name"]))
-        pxy = addMeshToScene(coords, gname, mhGeo["mesh"], scn)
-        pxy.parent = ob
         mhProxy = mhGeo["proxy"]
-        vgrps = getVertexGroupsFromObject(ob)
-        vgrps = proxifyVertexGroups(mhProxy, vgrps)
-        buildVertexGroups(vgrps, pxy, rig)
+        gname = ("%s:%s" % (getRigName(ob), mhProxy["name"]))
+        pxy = addMeshToScene(coords, gname, mhGeo["mesh"], scn)
+        if rig:
+            pxy.parent = rig
+        else:
+            pxy.parent = ob
         addMasks(ob, [(mhGeo,pxy)], proxyTypes=[mhProxy["type"]])
+        ngrps = proxifyVertexGroups(mhProxy, mhHuman)
+        buildVertexGroups(ngrps, pxy, rig)
 
 
 class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
@@ -309,23 +328,3 @@ class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-# ---------------------------------------------------------------------
-#   Global variable that holds the loaded json struct for the
-#   current human.
-# ---------------------------------------------------------------------
-
-def setMhHuman(human):
-    global theMhHuman
-    theMhHuman = human
-
-def getMhHuman(ob):
-    global theMhHuman
-    try:
-        theMhHuman
-    except:
-        raise MhxError("No saved human")
-    if theMhHuman["uuid"] != ob.MhxUuid:
-        raise MhxError("Saved human %s\ndoes not match current object")
-    return theMhHuman
-
-print("Hair loaded")

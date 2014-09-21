@@ -91,6 +91,7 @@ def build(struct, cfg, context):
     if rig:
         rig.MhxScale = mhHuman["scale"]
         rig.MhxOffset = str(list(zup(mhHuman["offset"])))
+    mhHuman["parser"] = parser
 
     human = None
     proxies = []
@@ -124,22 +125,22 @@ def build(struct, cfg, context):
 
     groupName = mhHuman["name"].split(":",1)[0]
 
-    if cfg.genitalia != "NONE":
+    if cfg.useOverride and cfg.genitalia != "NONE":
         genitalia = addMeshProxy("genitalia", cfg.genitalia, mhHuman, mats, rig, parser, scn, cfg)
         proxies.append(genitalia)
 
-    if cfg.useDeflector:
+    if cfg.useOverride and cfg.useDeflector:
         deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
         makeCollision(deflector[1])
         proxies.append(deflector)
 
-    if cfg.hairType != "NONE":
+    if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates
         folder = os.path.dirname(__file__)
         filepath = os.path.join(folder, "data/hm8/hair", cfg.hairType)
         hair,hcoords = getProxyCoordinates(mhHuman, filepath)
 
-    if cfg.useFaceShapes:
+    if cfg.useOverride and cfg.useFaceShapes:
         from .shapekeys import addShapeKeys
         path = "data/hm8/faceshapes/faceshapes.json"
         proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
@@ -153,7 +154,7 @@ def build(struct, cfg, context):
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 
-    if cfg.useHelpers:
+    if cfg.useOverride and cfg.useHelpers:
         proxyTypes = ["Proxymeshes", "Genitals"]
         addMasks(human, proxies, proxyTypes=proxyTypes)
 
@@ -203,11 +204,11 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
 
         filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
         print("Adding %s:" % pname, filepath)
-        mhGeo,sscale = addProxy(filepath, mhHuman, mats, scn, cfg)
+        mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
         if "targets" in mhGeo.keys():
             from .shapekeys import addTargets
-            addTargets(ob, mhGeo["targets"], sscale)
+            addTargets(ob, mhGeo["targets"], scales)
         return mhGeo,ob
 
 

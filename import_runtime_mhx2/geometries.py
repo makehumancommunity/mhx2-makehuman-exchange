@@ -28,6 +28,8 @@ from .hm8 import *
 # ---------------------------------------------------------------------
 
 def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None):
+    from .proxy import proxifyVertexGroups
+
     if meshType is None:
         if useSeedMesh:
             meshType = "seed_mesh"
@@ -42,18 +44,14 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None
     vgrps = None
     if cfg.useOverride:
         if cfg.useRig:
-            if cfg.rigType == 'EXPORTED':
-                if "weights" in mhMesh.keys():
-                    vgrps = mhMesh["weights"]
-            elif "proxy" in mhGeo.keys():
-                mhProxy = mhGeo["proxy"]
-                if mhGeo["human"] and useSeedMesh:
-                    vgrps = parser.vertexGroups
+            if mhGeo["human"]:
+                if "proxy" in mhGeo.keys() and not useSeedMesh:
+                    vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
                 else:
-                    from .proxy import proxifyVertexGroups
-                    vgrps = proxifyVertexGroups(mhProxy, parser.vertexGroups)
+                    vgrps = meshVertexGroups(mhMesh, parser, cfg)
             else:
-                vgrps = parser.vertexGroups
+                vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
+
     elif "weights" in mhMesh.keys():
         vgrps = mhMesh["weights"]
 
@@ -69,6 +67,16 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None
     mat = mats[mhGeo["material"]]
     ob.data.materials.append(mat)
     return ob
+
+
+def meshVertexGroups(mhMesh, parser, cfg):
+    if parser:
+        return parser.vertexGroups
+    elif (cfg.rigType == 'EXPORTED' and
+          "weights" in mhMesh.keys()):
+        return mhMesh["weights"]
+    else:
+        return {}
 
 
 def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):

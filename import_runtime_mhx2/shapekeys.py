@@ -37,7 +37,7 @@ def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
 
     print("Setting up shapekeys")
     struct = loadJsonRelative(filename)
-    scale = getScale(human, struct["sscale"], mhHuman)
+    scale = getScale(human, struct["bounding_box"], mhHuman)
     if human:
         addTargets(human, struct["targets"], scale)
         human.MhxHasFaceShapes = True
