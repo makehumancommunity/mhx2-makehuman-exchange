@@ -95,11 +95,9 @@ def mergeObjects(human, clothes):
         if mod.type == 'MASK':
             mod.show_viewport = False
             vgname = getVGProxyName(mod.vertex_group)
-            print("M", vgname, cnames)
             if vgname in cnames:
                 delMods.append(mod)
 
-    print("DEL", human, delMods)
     for mod in delMods:
         human.modifiers.remove(mod)
 

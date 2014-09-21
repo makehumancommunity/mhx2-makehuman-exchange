@@ -67,7 +67,6 @@ def addHideDriver(clo, rig):
     addDriver(rig, clo, "hide", prop, expr = "not(x)")
     addDriver(rig, clo, "hide_render", prop, expr = "not(x)")
     mods = getMaskModifiers(cloname, rig)
-    print("MASKS", mods)
     for mod in mods:
         addDriver(rig, mod, "show_viewport", prop, expr = "x")
         addDriver(rig, mod, "show_render", prop, expr = "x")

@@ -38,14 +38,12 @@ def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
     print("Setting up shapekeys")
     struct = loadJsonRelative(filename)
     scale = getScale(human, struct["sscale"], mhHuman)
-    print("SCAL", scale)
     if human:
         addTargets(human, struct["targets"], scale)
         human.MhxHasFaceShapes = True
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
-        print(mhProxy["name"])
         if mhProxy["type"] in proxyTypes:
             ptargets = proxifyTargets(mhProxy, struct["targets"])
             addTargets(ob, ptargets, scale)
@@ -61,7 +59,6 @@ def addTargets(ob, targets, scale):
         basic = ob.data.shape_keys.key_blocks[0]
 
     for tname,data in targets:
-        print(tname)
         skey = ob.shape_key_add(tname)
         skey.value = 0
         skey.slider_min = -0.5
@@ -76,7 +73,6 @@ def addTargets(ob, targets, scale):
 
 
 def getScale(human, struct, mhHuman):
-    print(struct)
     scale = Vector((1,1,1))
     if mhHuman:
         verts = mhHuman["seed_mesh"]["vertices"]

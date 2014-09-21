@@ -180,11 +180,6 @@ def build(struct, cfg, context):
         else:
             mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
 
-    if cfg.hairType != "NONE":
-        from .proxy import addHair
-        scn.objects.active = human
-        addHair(human, hair, hcoords, cfg)
-
     if rig:
         scn.objects.active = rig
         bpy.ops.object.mode_set(mode='POSE')
@@ -194,6 +189,12 @@ def build(struct, cfg, context):
     elif proxy:
         scn.objects.active = proxy
         bpy.ops.object.mode_set(mode='OBJECT')
+
+    if cfg.hairType != "NONE":
+        from .proxy import addHair
+        scn.objects.active = human
+        addHair(human, hair, hcoords, scn, cfg)
+
 
 
 def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):

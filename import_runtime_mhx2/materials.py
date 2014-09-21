@@ -299,7 +299,8 @@ def setSimple(rna, key, data):
     try:
         setattr(rna, key, data)
     except AttributeError:
-        print("***", key, data)
+        pass
+        #print("***", key, data)
 
 
 def buildRamp(ramp, struct):

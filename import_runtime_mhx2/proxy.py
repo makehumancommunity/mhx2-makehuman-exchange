@@ -59,7 +59,6 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
 
 def fitProxy(mhHuman, mhProxy, mhScale):
     from .shapekeys import getScale
-    print(mhProxy.keys())
     sscale = getScale(None, mhScale, mhHuman)
     hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
@@ -192,7 +191,7 @@ def getProxyCoordinates(mhHuman, filepath):
     return struct,coords
 
 
-def addHair(ob, struct, hcoords, cfg=None):
+def addHair(ob, struct, hcoords, scn, cfg=None):
     from .materials import buildBlenderMaterial
     mat = buildBlenderMaterial(struct["blender_material"])
     ob.data.materials.append(mat)
@@ -209,7 +208,6 @@ def addHair(ob, struct, hcoords, cfg=None):
             try:
                 setattr(psys, key, value)
             except AttributeError:
-                #print("***", key,value)
                 pass
 
     skull = ob.vertex_groups.new("Skull")
@@ -223,16 +221,29 @@ def addHair(ob, struct, hcoords, cfg=None):
             try:
                 setattr(pset, key, value)
             except AttributeError:
-                #print("  ***", key,value)
                 pass
 
     pset.material = len(ob.data.materials)
+    pset.render_type = 'PATH'
+    pset.path_start = 0
+    pset.path_end = 1
+
+    if cfg and cfg.useHairDynamics:
+        psys.use_hair_dynamics = True
+        #pset.pin_stiffness = 0.5
 
     pset.count = int(len(hcoords))
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
 
     bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
+    pedit = scn.tool_settings.particle_edit
+    pedit.use_preserve_length = False
+    pedit.use_preserve_root = False
+    pedit.select_mode = 'PATH'
+    pedit.tool = 'COMB'
+    bpy.ops.particle.brush_edit(stroke=[{"name":"", "location":(0, 0, 0), "mouse":(577, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(578, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(580, 595), "pressure":0, "pen_flip":False, "time":0, "is_start":False}])
+    pedit.select_mode = 'POINT'
 
     for m,hair in enumerate(psys.particles):
         verts = hcoords[m]
@@ -240,11 +251,7 @@ def addHair(ob, struct, hcoords, cfg=None):
         for n,v in enumerate(hair.hair_keys):
             v.co = verts[n]
 
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    if cfg and cfg.useHairDynamics:
-        psys.use_hair_dynamics = True
-        #pset.pin_stiffness = 0.5
+    #bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def addMhc2(context, filepath):
@@ -261,7 +268,7 @@ def addMhc2(context, filepath):
     mhHuman = getMhHuman(ob)
     mhGeo,coords = getProxyCoordinates(mhHuman, filepath)
     if isHairStruct(mhGeo):
-        addHair(ob, mhGeo, coords)
+        addHair(ob, mhGeo, coords, scn)
     else:
         from .geometries import addMeshToScene, getVertexGroupsFromObject, buildVertexGroups
         from .importer import addMasks
