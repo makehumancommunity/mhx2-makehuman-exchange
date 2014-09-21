@@ -158,7 +158,8 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
                 mat.alpha = 0
                 mat.specular_alpha = 0
         elif key == "emissive_color":
-            mat.emit = value[0]
+            pass
+            #mat.emit = value[0]
         elif key == "ambient_color":
             mat.ambient = value[0]
         elif key == "castShadows":

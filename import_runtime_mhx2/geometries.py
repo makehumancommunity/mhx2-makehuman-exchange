@@ -33,26 +33,32 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None
             meshType = "seed_mesh"
         else:
             meshType = "mesh"
+    mhMesh = mhGeo[meshType]
 
-    ob = buildMesh(mhGeo, mhGeo[meshType], scn, cfg, useSeedMesh)
+    ob = buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh)
     ob.MhxSeedMesh = useSeedMesh
     ob.MhxUuid = mhGeo["uuid"]
 
-    if cfg.useOverride and cfg.useRig:
-        if "proxy" in mhGeo.keys():
-            mhProxy = mhGeo["proxy"]
-            if mhGeo["human"] and useSeedMesh:
-                vgrps = parser.vertexGroups
+    vgrps = None
+    if cfg.useOverride:
+        if cfg.useRig:
+            if cfg.rigType == 'EXPORTED':
+                if "weights" in mhMesh.keys():
+                    vgrps = mhMesh["weights"]
+            elif "proxy" in mhGeo.keys():
+                mhProxy = mhGeo["proxy"]
+                if mhGeo["human"] and useSeedMesh:
+                    vgrps = parser.vertexGroups
+                else:
+                    from .proxy import proxifyVertexGroups
+                    vgrps = proxifyVertexGroups(mhProxy, parser.vertexGroups)
             else:
-                from .proxy import proxifyVertexGroups
-                vgrps = proxifyVertexGroups(mhProxy, parser.vertexGroups)
-        else:
-            vgrps = parser.vertexGroups
+                vgrps = parser.vertexGroups
+    elif "weights" in mhMesh.keys():
+        vgrps = mhMesh["weights"]
+
+    if vgrps:
         buildVertexGroups(vgrps, ob, rig)
-    elif ("weights" in mhGeo.keys() and
-        not cfg.useHelpers and
-        rig):
-        buildVertexGroups(mhGeo["weights"], ob, rig)
 
     if rig:
         ob.parent = rig

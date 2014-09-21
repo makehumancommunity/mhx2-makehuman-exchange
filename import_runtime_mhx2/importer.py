@@ -79,8 +79,13 @@ def build(struct, cfg, context):
 
     parser = None
     rig = None
-    if cfg.useOverride and cfg.useRig:
-        rig,parser = buildRig(mhHuman, cfg, context)
+    if cfg.useOverride:
+        if cfg.useRig:
+            if cfg.rigType == 'EXPORTED':
+                if "skeleton" in struct.keys():
+                    rig = buildSkeleton(struct["skeleton"], scn, cfg)
+            else:
+                rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
     if rig:
@@ -106,6 +111,10 @@ def build(struct, cfg, context):
                     proxy.MhxHuman = True
                 if proxy:
                     proxies.append((mhGeo, proxy))
+            elif mhProxy["type"] == "Hair" and cfg.hairType != 'NONE':
+                pass
+            elif mhProxy["type"] == "Genitals" and cfg.genitalia != 'NONE':
+                pass
             else:
                 ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
                 proxies.append((mhGeo, ob))
@@ -139,7 +148,7 @@ def build(struct, cfg, context):
         if cfg.useFaceDrivers:
             from .shapekeys import addShapeKeyDriversToAll
             meshes = [human] + [ob for (_,ob) in proxies]
-            addShapeKeyDriversToAll(rig, meshes)
+            addShapeKeyDriversToAll(rig, meshes, "Mhf")
         elif parser and parser.boneDrivers:
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
@@ -245,7 +254,11 @@ def addMasks(human, proxies, proxyTypes=[]):
                 continue
             mhProxy1 = mhGeo1["proxy"]
             if mhProxy1["type"] in proxyTypes:
-                pvnums = proxifyMask(mhProxy1, vnums)
+                if "proxy_seed_mesh" in mhGeo1.keys():
+                    mhMesh = mhGeo1["proxy_seed_mesh"]
+                else:
+                    mhMesh = mhGeo1["seed_mesh"]
+                pvnums = proxifyMask(mhProxy1, mhMesh, vnums)
                 if pvnums:
                     addMask(ob1, pvnums, pname)
 

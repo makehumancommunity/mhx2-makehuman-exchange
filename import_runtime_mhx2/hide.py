@@ -38,6 +38,7 @@ class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
     def poll(self, context):
         rig = context.object
         return (rig and
+                rig.type == 'ARMATURE' and
                 not rig.MhxVisibilityDrivers
                )
 
@@ -95,7 +96,9 @@ class VIEW3D_OT_MhxRemoveHidersButton(bpy.types.Operator):
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and rig.MhxVisibilityDrivers)
+        return (rig and
+                rig.type == 'ARMATURE' and
+                rig.MhxVisibilityDrivers)
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)

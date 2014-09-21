@@ -73,14 +73,14 @@ def getMoho():
 # ---------------------------------------------------------------------
 
 def setViseme(rig, vis, useKey=False, frame=1):
-    if rig.MhxShapekeyDrivers:
+    if rig.MhxFaceShapeDrivers:
         for key in getMouthShapes():
-            rig["Mhs"+key] = 0.0
+            rig["Mhf"+key] = 0.0
         for key,value in getVisemes()[vis]:
-            rig["Mhs"+key] = value
+            rig["Mhf"+key] = value
         if useKey:
             for key in getMouthShapes():
-                rig.keyframe_insert('["Mhs%s"]' % key, frame=frame)
+                rig.keyframe_insert('["Mhf%s"]' % key, frame=frame)
     elif rig.MhxFacePanel:
         for key in getMouthShapes():
             setPanelKey(rig, key, 0.0)
@@ -192,13 +192,13 @@ def deleteLipsync(rig):
     act = rig.animation_data.action
     if act is None:
         return
-    if rig.MhxShapekeyDrivers:
+    if rig.MhxFaceShapeDrivers:
         for fcu in act.fcurves:
-            if (fcu.data_path[0:5] == '["Mhs' and
+            if (fcu.data_path[0:5] == '["Mhf' and
                 fcu.data_path[5:9] in ["mout", "lips", "tong"]):
                     act.fcurves.remove(fcu)
         for key in getMouthShapes():
-            rig["Mhs"+key] = 0.0
+            rig["Mhf"+key] = 0.0
     elif rig.MhxFacePanel:
         for key in getMouthShapes():
             pb,_fac,idx = getBoneFactor(rig, key)

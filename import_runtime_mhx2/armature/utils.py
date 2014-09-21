@@ -159,26 +159,6 @@ def computeRoll(head, tail, normal, bone=None):
 #-------------------------------------------------------------------------------
 #
 #-------------------------------------------------------------------------------
-"""
-def readVertexGroups(file, vgroups, vgroupList):
-    #file = os.path.join("shared/armature/vertexgroups", name)
-    fp = open(file, "rU")
-    for line in fp:
-        words = line.split()
-        if len(words) < 2:
-            continue
-        elif words[1] == "weights":
-            name = words[2]
-            try:
-                vgroup = vgroups[name]
-            except KeyError:
-                vgroup = []
-                vgroups[name] = vgroup
-            vgroupList.append((name, vgroup))
-        else:
-            vgroup.append((int(words[0]), float(words[1])))
-    fp.close()
-"""
 
 def mergeWeights(vgroup):
     vgroup.sort()

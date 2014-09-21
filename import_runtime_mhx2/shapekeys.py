@@ -118,44 +118,52 @@ class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
 #   Setup and remove drivers
 #------------------------------------------------------------------------
 
-def addShapeKeyDriversToAll(rig, meshes):
+def addShapeKeyDriversToAll(rig, meshes, prefix):
     if rig is None:
         print("No rig. Cannot add drivers")
         return
     success = False
     for ob in meshes:
         if hasShapekeys(ob):
-            addShapekeyDrivers(rig, ob)
-            ob.MhxShapekeyDrivers = True
+            addShapekeyDrivers(rig, ob, prefix)
             success = True
     if success:
-        rig.MhxShapekeyDrivers = True
+        if prefix == "Mhf":
+            rig.MhxFaceShapeDrivers = True
+        else:
+            rig.MhxOtherShapeDrivers = True
         print("Shapekey drivers added")
     else:
         print("No meshes with shapekeys")
 
 
-def addShapekeyDrivers(rig, ob):
+def addShapekeyDrivers(rig, ob, prefix):
+    facenames = ["brow", "chee", "lips", "nose", "tong", "mout"]
     if not ob.data.shape_keys:
         return
     skeys = ob.data.shape_keys.key_blocks
     for skey in skeys:
-        if skey.name != "Basis":
-            sname = getShapekeyName(skey)
-            rig[sname] = 0.0
-            try:
-                rnaUI = rig["_RNA_UI"]
-            except KeyError:
-                rnaUI = rig["_RNA_UI"] = {}
-            rig["_RNA_UI"][sname] = {"min":skey.slider_min, "max":skey.slider_max}
-            addDriver(rig, skey, "value", sname, [], "x", False)
+        if skey.name == "Basis":
+            continue
+        if prefix == "Mhf" and skey.name[0:4] not in facenames:
+            continue
+        if prefix == "Mho" and skey.name[0:4] in facenames:
+            continue
+        sname = getShapekeyName(skey, prefix)
+        rig[sname] = 0.0
+        try:
+            rnaUI = rig["_RNA_UI"]
+        except KeyError:
+            rnaUI = rig["_RNA_UI"] = {}
+        rig["_RNA_UI"][sname] = {"min":skey.slider_min, "max":skey.slider_max}
+        addDriver(rig, skey, "value", sname, [], "x", False)
 
 
-def getShapekeyName(skey):
-    if skey.name[0:3] == "Mhs":
+def getShapekeyName(skey, prefix):
+    if skey.name[0:3] == prefix:
         return skey.name
     else:
-        return "Mhs"+skey.name
+        return prefix+skey.name
 
 
 def hasShapekeys(ob):
@@ -170,10 +178,10 @@ def hasShapekeys(ob):
     return False
 
 
-class VIEW3D_OT_AddShapekeyDriverButton(bpy.types.Operator):
-    bl_idname = "mhx2.add_shapekey_drivers"
-    bl_label = "Add Shapekey Drivers"
-    bl_description = "Control shapekeys with rig properties. For file linking."
+class VIEW3D_OT_AddFaceShapeDriverButton(bpy.types.Operator):
+    bl_idname = "mhx2.add_face_shape_drivers"
+    bl_label = "Add Face Shape Drivers"
+    bl_description = "Control facial shapes with rig properties. For file linking."
     bl_options = {'UNDO'}
 
     @classmethod
@@ -181,44 +189,82 @@ class VIEW3D_OT_AddShapekeyDriverButton(bpy.types.Operator):
         rig = context.object
         return (rig and
                 rig.type == 'ARMATURE' and
-                not rig.MhxShapekeyDrivers and
+                not rig.MhxFaceShapeDrivers and
                 not rig.MhxFacePanel
                )
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)
         initRnaProperties(rig)
-        addShapeKeyDriversToAll(rig, meshes)
+        addShapeKeyDriversToAll(rig, meshes, "Mhf")
         return{'FINISHED'}
 
 
-def removeShapekeyDrivers(ob, rig):
-    if not ob.data.shape_keys:
-        return
-    skeys = ob.data.shape_keys.key_blocks
-    for skey in skeys:
-        if skey.name != "Basis":
-            sname = getShapekeyName(skey)
-            skey.driver_remove("value")
-            deleteRigProperty(rig, sname)
-
-
-class VIEW3D_OT_MhxRemoveShapekeyDriverButton(bpy.types.Operator):
-    bl_idname = "mhx2.remove_shapekey_drivers"
-    bl_label = "Remove Shapekey Drivers"
-    bl_description = "Remove ability to control shapekeys from rig property"
+class VIEW3D_OT_AddOtherShapeDriverButton(bpy.types.Operator):
+    bl_idname = "mhx2.add_other_shape_drivers"
+    bl_label = "Add Other Shape Drivers"
+    bl_description = "Control other shapes with rig properties. For file linking."
     bl_options = {'UNDO'}
 
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and rig.MhxShapekeyDrivers)
+        return (rig and
+                rig.type == 'ARMATURE' and
+                not rig.MhxOtherShapeDrivers
+               )
+
+    def execute(self, context):
+        rig,meshes = getRigMeshes(context)
+        initRnaProperties(rig)
+        addShapeKeyDriversToAll(rig, meshes, "Mho")
+        return{'FINISHED'}
+
+
+def removeShapekeyDrivers(ob, rig, prefix):
+    if not ob.data.shape_keys:
+        return
+    skeys = ob.data.shape_keys.key_blocks
+    for skey in skeys:
+        if skey.name != "Basis" and skey.name[0:3] != prefix:
+            sname = getShapekeyName(skey, prefix)
+            skey.driver_remove("value")
+            deleteRigProperty(rig, sname)
+
+
+class VIEW3D_OT_MhxRemoveFaceDriverButton(bpy.types.Operator):
+    bl_idname = "mhx2.remove_face_shape_drivers"
+    bl_label = "Remove Face Shape Drivers"
+    bl_description = "Remove ability to control facial shapekeys from rig property"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        rig = context.object
+        return (rig and rig.MhxFaceShapeDrivers)
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)
         for ob in meshes:
-            removeShapekeyDrivers(ob, rig)
-            ob.MhxShapekeyDrivers = False
-        if context.object == rig:
-            rig.MhxShapekeyDrivers = False
+            removeShapekeyDrivers(ob, rig, "Mhf")
+        rig.MhxFaceShapeDrivers = False
+        return{'FINISHED'}
+
+
+class VIEW3D_OT_MhxRemoveOtherDriverButton(bpy.types.Operator):
+    bl_idname = "mhx2.remove_other_shape_drivers"
+    bl_label = "Remove Other Shape Drivers"
+    bl_description = "Remove ability to control other shapekeys from rig property"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        rig = context.object
+        return (rig and rig.MhxOtherShapeDrivers)
+
+    def execute(self, context):
+        rig,meshes = getRigMeshes(context)
+        for ob in meshes:
+            removeShapekeyDrivers(ob, rig, "Mho")
+        rig.MhxOtherShapeDrivers = False
         return{'FINISHED'}
