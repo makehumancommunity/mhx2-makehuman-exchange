@@ -22,7 +22,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,1,0),
+    'version': (0,2,0),
     "blender": (2, 71, 0),
     'location': "File > Import > MakeHuman (.mhx2)",
     'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
@@ -139,13 +139,13 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             rigify = entry
         else:
             rigTypes.append(entry)
-    rigTypes = [mhx, rigify] + rigTypes
+    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"), mhx, rigify] + rigTypes
 
     rigType = EnumProperty(
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'MHX')
+        default = 'EXPORTED')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
@@ -226,7 +226,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             box.prop(self, "useCustomShapes")
             if self.useFaceShapes and not self.useFaceDrivers:
                 box.prop(self, "useFacePanel")
-            if self.genitalia == 'PENIS':
+            if self.genitalia == 'PENIS' and self.rigType != 'EXPORTED':
                 box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------
@@ -248,10 +248,10 @@ class MhxSetupPanel(bpy.types.Panel):
         if ob is None:
             return
 
-        if ob.type == 'MESH':
-            layout.separator()
-            layout.operator("mhx2.add_mhc2")
-            layout.operator("mhx2.merge_objects")
+        layout.separator()
+        layout.operator("mhx2.add_mhc2")
+        layout.operator("mhx2.add_simple_materials")
+        layout.operator("mhx2.merge_objects")
 
         layout.separator()
         layout.operator("mhx2.add_hide_drivers")
@@ -264,8 +264,14 @@ class MhxSetupPanel(bpy.types.Panel):
         layout.separator()
         op = layout.operator("mhx2.add_shapekeys", text="Add Face Shapes")
         op.filename="data/hm8/faceshapes/faceshapes.json"
-        layout.operator("mhx2.add_shapekey_drivers")
-        layout.operator("mhx2.remove_shapekey_drivers")
+
+        layout.separator()
+        layout.operator("mhx2.add_face_shape_drivers")
+        layout.operator("mhx2.remove_face_shape_drivers")
+
+        layout.separator()
+        layout.operator("mhx2.add_other_shape_drivers")
+        layout.operator("mhx2.remove_other_shape_drivers")
 
 #------------------------------------------------------------------------
 #    Mhx Layers Panel
@@ -445,11 +451,11 @@ class FaceComponentsPanel(bpy.types.Panel):
             drawProperties(layout, rig, "Mfa")
 
 #------------------------------------------------------------------------
-#   Shapekey panel
+#   Face Shape panel
 #------------------------------------------------------------------------
 
-class MhxShapekeyPanel(bpy.types.Panel):
-    bl_label = "Shapekeys"
+class MhxFaceShapePanel(bpy.types.Panel):
+    bl_label = "Facial Shapes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "MHX2 Runtime"
@@ -458,14 +464,37 @@ class MhxShapekeyPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         rig = context.object
-        return (rig and rig.MhxShapekeyDrivers)
+        return (rig and rig.MhxFaceShapeDrivers)
 
     def draw(self, context):
         rig = context.object
         if rig:
             layout = self.layout
-            layout.operator("mhx2.reset_props").prefix = "Mhs"
-            drawProperties(layout, rig, "Mhs")
+            layout.operator("mhx2.reset_props").prefix = "Mhf"
+            drawProperties(layout, rig, "Mhf")
+
+#------------------------------------------------------------------------
+#   Other Shape panel
+#------------------------------------------------------------------------
+
+class MhxOtherShapePanel(bpy.types.Panel):
+    bl_label = "Other Shapes"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        rig = context.object
+        return (rig and rig.MhxOtherShapeDrivers)
+
+    def draw(self, context):
+        rig = context.object
+        if rig:
+            layout = self.layout
+            layout.operator("mhx2.reset_props").prefix = "Mho"
+            drawProperties(layout, rig, "Mho")
 
 #------------------------------------------------------------------------
 #   Common drawing code for property panels
@@ -495,7 +524,7 @@ class MhxVisemesPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         ob = context.object
-        return (ob and (ob.MhxShapekeyDrivers or ob.MhxFacePanel))
+        return (ob and (ob.MhxFaceShapeDrivers or ob.MhxFacePanel))
 
     def draw(self, context):
         from .visemes import getLayout
@@ -528,7 +557,8 @@ def register():
     bpy.types.Object.MhxVisibilityDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxHasFaceShapes = BoolProperty(default=False)
     bpy.types.Object.MhxFacePanel = BoolProperty(default=False)
-    bpy.types.Object.MhxShapekeyDrivers = BoolProperty(default=False)
+    bpy.types.Object.MhxFaceShapeDrivers = BoolProperty(default=False)
+    bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
 

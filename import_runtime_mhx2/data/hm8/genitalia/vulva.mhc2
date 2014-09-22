@@ -5,7 +5,7 @@
         "basemesh" : "hm08",
         "name" : "Vulva",
         "type" : "Genitals",
-    	"sscale" : {
+    	"bounding_box" : {
         	"x" : [5399,11998,1.6235],
         	"y" : [791,881,2.6009],
         	"z" : [962,5320,2.166]

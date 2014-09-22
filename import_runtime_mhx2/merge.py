@@ -95,11 +95,9 @@ def mergeObjects(human, clothes):
         if mod.type == 'MASK':
             mod.show_viewport = False
             vgname = getVGProxyName(mod.vertex_group)
-            print("M", vgname, cnames)
             if vgname in cnames:
                 delMods.append(mod)
 
-    print("DEL", human, delMods)
     for mod in delMods:
         human.modifiers.remove(mod)
 
@@ -189,6 +187,11 @@ class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
     bl_label = "Merge Selected To Human"
     bl_description = "Merge selected objects to active seamlessly"
     bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        rig = context.object
+        return (rig and rig.type == 'MESH')
 
     def execute(self, context):
         try:

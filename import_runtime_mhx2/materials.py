@@ -158,14 +158,12 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
                 mat.alpha = 0
                 mat.specular_alpha = 0
         elif key == "emissive_color":
-            mat.emit = value[0]
+            pass
+            #mat.emit = value[0]
         elif key == "ambient_color":
             mat.ambient = value[0]
         elif key == "castShadows":
-            try:
-                mat.use_cast_shadows = value
-            except AttributeError:
-                pass
+            mat.use_cast_shadows = value
             mat.use_cast_buffer_shadows = value
         elif key == "receiveShadows":
             mat.use_shadows = value
@@ -301,7 +299,8 @@ def setSimple(rna, key, data):
     try:
         setattr(rna, key, data)
     except AttributeError:
-        print("***", key, data)
+        pass
+        #print("***", key, data)
 
 
 def buildRamp(ramp, struct):
@@ -312,3 +311,50 @@ def buildRamp(ramp, struct):
                 element.color = elt["color"]
         else:
             setSimple(ramp, key, value)
+
+# ---------------------------------------------------------------------
+#   Simple materials for helpers
+# ---------------------------------------------------------------------
+
+def makeSimpleMaterials(ob):
+    from .hm8 import VertexRanges
+
+    for mname,color,helper in [
+            ("Red", (1,0,0), "Tights"),
+            ("Blue", (0,0,1), "Skirt"),
+            ("Yellow", (1,1,0), "Hair"),
+            ("Green", (0,1,0), "Joints")
+        ]:
+
+        for mat in ob.data.materials:
+            if mat.name == mname:
+                return
+
+        mat = bpy.data.materials.new(mname)
+        mat.diffuse_color = color
+        mn = len(ob.data.materials)
+        ob.data.materials.append(mat)
+
+        vrange = range(VertexRanges[helper][0], VertexRanges[helper][1])
+        for f in ob.data.polygons:
+            for vn in f.vertices:
+                if vn in vrange:
+                    print(f.index,vn,mn)
+                    f.material_index = mn
+                    break
+
+
+class VIEW3D_OT_AddSimpleMaterialsButton(bpy.types.Operator):
+    bl_idname = "mhx2.add_simple_materials"
+    bl_label = "Add Simple Materials"
+    bl_description = "Add simple materials to helper geometry"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        ob = context.object
+        return (ob and ob.MhxHuman)
+
+    def execute(self, context):
+        makeSimpleMaterials(context.object)
+        return{'FINISHED'}

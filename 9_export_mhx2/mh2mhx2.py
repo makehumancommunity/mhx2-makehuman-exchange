@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-Mhx2Version = "0.10"
+Mhx2Version = "0.20"
 
 import os.path
 import sys
@@ -40,6 +40,7 @@ def exportMhx2(filepath, cfg):
     cfg.setupTexFolder(filepath)
 
     log.message("Write MHX2 file %s" % filepath)
+    G.app.progress(0.1, text="Exporting %s" % filepath)
 
     filename = os.path.basename(filepath)
     folder = os.path.dirname(filepath)
@@ -52,28 +53,9 @@ def exportMhx2(filepath, cfg):
     skel = human.getSkeleton()
     if skel:
         skel = skel.scaled(cfg.scale)
-
-    G.app.progress(0.5, text="Exporting %s" % filepath)
-
-    # Generate bone weights for all meshes up front so they can be reused for all
-    if skel:
         rawWeights = human.getVertexWeights()  # Basemesh weights
-        for mesh in meshes:
-            if mesh.object.proxy:
-                # Transfer weights to proxy
-                parentWeights = skeleton.getProxyWeights(mesh.object.proxy, rawWeights)
-            else:
-                parentWeights = rawWeights
-            # Transfer weights to face/vert masked and/or subdivided mesh
-            weights = mesh.getWeights(parentWeights)
-
-            # Attach these vertexWeights to the mesh to pass them around the
-            # exporter easier, the cloned mesh is discarded afterwards, anyway
-            mesh.vertexWeights = weights
     else:
-        # Attach trivial weights to the meshes
-        for mesh in meshes:
-            mesh.vertexWeights = dict()
+        rawWeights = None
 
     mhFile = OrderedDict()
     mhFile["mhx2_version"] = Mhx2Version
@@ -93,8 +75,9 @@ def exportMhx2(filepath, cfg):
     mhGeos = mhFile["geometries"] = []
     for mesh in meshes:
         mname = getGeoName(name, mesh.name)
-        addGeometry(mhGeos, mesh, skel, mats, mname, cfg)
+        addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg)
 
+    G.app.progress(0.2, text="Writing Json file %s" % filepath)
     saveJson(mhFile, filepath, cfg.useBinary)
     G.app.progress(1)
     log.message("%s written" % filepath)
@@ -181,7 +164,7 @@ def addBone(mhBones, bone):
 #   Meshes
 #-----------------------------------------------------------------------
 
-def addGeometry(mhGeos, mesh, skel, mats, mname, cfg):
+def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     import uuid
 
     mhGeo = OrderedDict()
@@ -216,6 +199,13 @@ def addGeometry(mhGeos, mesh, skel, mats, mname, cfg):
             #human.updateProxyMesh()
         else:
             mhGeo["human"] = False
+
+        if skel:
+            parentWeights = skeleton.getProxyWeights(pxy, rawWeights)
+            addWeights(mhSeed, skel, parentWeights)
+            weights = mesh.getWeights(parentWeights)
+            addWeights(mhMesh, skel, weights)
+
         mhProxy = mhGeo["proxy"] = OrderedDict()
         mhProxy["name"] = pxy.name.capitalize()
         mhProxy["type"] = pxy.type
@@ -231,15 +221,20 @@ def addGeometry(mhGeos, mesh, skel, mats, mname, cfg):
         mhProxy["delete_verts"] = pxy.deleteVerts
     else:
         mhGeo["human"] = True
+        if skel:
+            addWeights(mhSeed, skel, rawWeights)
+            weights = mesh.getWeights(rawWeights)
+            addWeights(mhMesh, skel, weights)
 
-    if mesh.vertexWeights:
-        mhWeights = mhGeo["weights"] = OrderedDict()
-        for bone in skel.getBones():
-            try:
-                idxs,weights = mesh.vertexWeights[bone.name]
-            except KeyError:
-                continue
-            mhWeights[bone.name] = np.array([(vn,weights[n]) for n,vn in enumerate(idxs)])
+
+def addWeights(mhMesh, skel, vertexWeights):
+    mhWeights = mhMesh["weights"] = OrderedDict()
+    for bone in skel.getBones():
+        try:
+            idxs,weights = vertexWeights[bone.name]
+        except KeyError:
+            continue
+        mhWeights[bone.name] = np.array([(vn,weights[n]) for n,vn in enumerate(idxs)])
 
 
 def addMesh(mhGeo, mesh):
@@ -257,8 +252,13 @@ def addMesh(mhGeo, mesh):
 def getSkelName(name):
     return name.capitalize()
 
+
 def getGeoName(name, meshname):
-    return ("%s:%s" % (getSkelName(name), os.path.splitext(meshname)[0].capitalize()))
+    mname = os.path.splitext(meshname)[0].capitalize()
+    if mname == "Base":
+        mname = "Body"
+    return ("%s:%s" % (getSkelName(name), mname))
+
 
 def getMaterialName(name, meshname, matname):
     return ("%s:%s" % (getGeoName(name, meshname), matname.capitalize()))

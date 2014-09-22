@@ -38,6 +38,7 @@ class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
     def poll(self, context):
         rig = context.object
         return (rig and
+                rig.type == 'ARMATURE' and
                 not rig.MhxVisibilityDrivers
                )
 
@@ -66,7 +67,6 @@ def addHideDriver(clo, rig):
     addDriver(rig, clo, "hide", prop, expr = "not(x)")
     addDriver(rig, clo, "hide_render", prop, expr = "not(x)")
     mods = getMaskModifiers(cloname, rig)
-    print("MASKS", mods)
     for mod in mods:
         addDriver(rig, mod, "show_viewport", prop, expr = "x")
         addDriver(rig, mod, "show_render", prop, expr = "x")
@@ -95,7 +95,9 @@ class VIEW3D_OT_MhxRemoveHidersButton(bpy.types.Operator):
     @classmethod
     def poll(self, context):
         rig = context.object
-        return (rig and rig.MhxVisibilityDrivers)
+        return (rig and
+                rig.type == 'ARMATURE' and
+                rig.MhxVisibilityDrivers)
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)

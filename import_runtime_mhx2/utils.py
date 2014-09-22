@@ -73,3 +73,21 @@ def updateScene(context):
     scn = context.scene
     scn.frame_current = scn.frame_current
 
+# ---------------------------------------------------------------------
+#   Global variable that holds the loaded json struct for the
+#   current human.
+# ---------------------------------------------------------------------
+
+def setMhHuman(human):
+    global theMhHuman
+    theMhHuman = human
+
+def getMhHuman(ob=None):
+    global theMhHuman
+    try:
+        theMhHuman
+    except:
+        raise MhxError("No saved human")
+    if ob and theMhHuman["uuid"] != ob.MhxUuid:
+        raise MhxError("Saved human %s\ndoes not match current object")
+    return theMhHuman

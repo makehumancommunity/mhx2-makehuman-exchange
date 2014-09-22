@@ -208,10 +208,8 @@ def removeBoneDrivers(rig, prefix, struct):
         del rig[prop]
         for bname in bones.keys():
             bnames[bname] = True
-    print(bnames)
     for bname in bnames:
         pb = rig.pose.bones[bname]
-        print(pb)
         pb.driver_remove("rotation_quaternion")
 
 

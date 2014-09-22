@@ -76,22 +76,22 @@ def build(struct, cfg, context):
             mhHuman = mhGeo
             setMhHuman(mhHuman)
             break
-<<<<<<< local
 
     parser = None
     rig = None
-    if cfg.useOverride and cfg.useRig:
-        rig,parser = buildRig(mhHuman, cfg, context)
-=======
     if cfg.useOverride:
         if cfg.useRig:
-            rig,parser = buildRig(mhHuman, cfg, context)
->>>>>>> other
+            if cfg.rigType == 'EXPORTED':
+                if "skeleton" in struct.keys():
+                    rig = buildSkeleton(struct["skeleton"], scn, cfg)
+            else:
+                rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
     if rig:
         rig.MhxScale = mhHuman["scale"]
         rig.MhxOffset = str(list(zup(mhHuman["offset"])))
+    mhHuman["parser"] = parser
 
     human = None
     proxies = []
@@ -112,8 +112,10 @@ def build(struct, cfg, context):
                     proxy.MhxHuman = True
                 if proxy:
                     proxies.append((mhGeo, proxy))
-            elif mhProxy["type"] == "Hair" and cfg.hairType != "NONE":
-                print("Skipping hair", mhProxy["name"])
+            elif mhProxy["type"] == "Hair" and cfg.hairType != 'NONE':
+                pass
+            elif mhProxy["type"] == "Genitals" and cfg.genitalia != 'NONE':
+                pass
             else:
                 ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
                 proxies.append((mhGeo, ob))
@@ -123,22 +125,22 @@ def build(struct, cfg, context):
 
     groupName = mhHuman["name"].split(":",1)[0]
 
-    if cfg.genitalia != "NONE":
+    if cfg.useOverride and cfg.genitalia != "NONE":
         genitalia = addMeshProxy("genitalia", cfg.genitalia, mhHuman, mats, rig, parser, scn, cfg)
         proxies.append(genitalia)
 
-    if cfg.useDeflector:
+    if cfg.useOverride and cfg.useDeflector:
         deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
         makeCollision(deflector[1])
         proxies.append(deflector)
 
-    if cfg.hairType != "NONE":
+    if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates
         folder = os.path.dirname(__file__)
         filepath = os.path.join(folder, "data/hm8/hair", cfg.hairType)
         hair,hcoords = getProxyCoordinates(mhHuman, filepath)
 
-    if cfg.useFaceShapes:
+    if cfg.useOverride and cfg.useFaceShapes:
         from .shapekeys import addShapeKeys
         path = "data/hm8/faceshapes/faceshapes.json"
         proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
@@ -147,12 +149,12 @@ def build(struct, cfg, context):
         if cfg.useFaceDrivers:
             from .shapekeys import addShapeKeyDriversToAll
             meshes = [human] + [ob for (_,ob) in proxies]
-            addShapeKeyDriversToAll(rig, meshes)
+            addShapeKeyDriversToAll(rig, meshes, "Mhf")
         elif parser and parser.boneDrivers:
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 
-    if cfg.useHelpers:
+    if cfg.useOverride and cfg.useHelpers:
         proxyTypes = ["Proxymeshes", "Genitals"]
         addMasks(human, proxies, proxyTypes=proxyTypes)
 
@@ -179,11 +181,6 @@ def build(struct, cfg, context):
         else:
             mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
 
-    if cfg.hairType != "NONE":
-        from .proxy import addHair
-        scn.objects.active = human
-        addHair(human, hair, hcoords, cfg)
-
     if rig:
         scn.objects.active = rig
         bpy.ops.object.mode_set(mode='POSE')
@@ -194,6 +191,12 @@ def build(struct, cfg, context):
         scn.objects.active = proxy
         bpy.ops.object.mode_set(mode='OBJECT')
 
+    if cfg.hairType != "NONE":
+        from .proxy import addHair
+        scn.objects.active = human
+        addHair(human, hair, hcoords, scn, cfg)
+
+
 
 def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
         from .proxy import addProxy
@@ -201,11 +204,11 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
 
         filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
         print("Adding %s:" % pname, filepath)
-        mhGeo,sscale = addProxy(filepath, mhHuman, mats, scn, cfg)
+        mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
         if "targets" in mhGeo.keys():
             from .shapekeys import addTargets
-            addTargets(ob, mhGeo["targets"], sscale)
+            addTargets(ob, mhGeo["targets"], scales)
         return mhGeo,ob
 
 
@@ -253,7 +256,11 @@ def addMasks(human, proxies, proxyTypes=[]):
                 continue
             mhProxy1 = mhGeo1["proxy"]
             if mhProxy1["type"] in proxyTypes:
-                pvnums = proxifyMask(mhProxy1, vnums)
+                if "proxy_seed_mesh" in mhGeo1.keys():
+                    mhMesh = mhGeo1["proxy_seed_mesh"]
+                else:
+                    mhMesh = mhGeo1["seed_mesh"]
+                pvnums = proxifyMask(mhProxy1, mhMesh, vnums)
                 if pvnums:
                     addMask(ob1, pvnums, pname)
 
