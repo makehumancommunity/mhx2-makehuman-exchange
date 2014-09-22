@@ -248,10 +248,10 @@ class MhxSetupPanel(bpy.types.Panel):
         if ob is None:
             return
 
-        if ob.type == 'MESH':
-            layout.separator()
-            layout.operator("mhx2.add_mhc2")
-            layout.operator("mhx2.merge_objects")
+        layout.separator()
+        layout.operator("mhx2.add_mhc2")
+        layout.operator("mhx2.add_simple_materials")
+        layout.operator("mhx2.merge_objects")
 
         layout.separator()
         layout.operator("mhx2.add_hide_drivers")

@@ -315,7 +315,7 @@ class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
     @classmethod
     def poll(self, context):
         ob = context.object
-        return (ob and ob.type == 'MESH')
+        return (ob and ob.MhxHuman)
 
     def execute(self, context):
         try:
