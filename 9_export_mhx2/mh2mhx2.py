@@ -199,12 +199,17 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
             #human.updateProxyMesh()
         else:
             mhGeo["human"] = False
+            mhProxySeed = None
 
         if skel:
-            parentWeights = skeleton.getProxyWeights(pxy, rawWeights)
-            addWeights(mhSeed, skel, parentWeights)
-            weights = mesh.getWeights(parentWeights)
+            pxySeedWeights = skeleton.getProxyWeights(pxy, rawWeights)
+            weights = mesh.getWeights(pxySeedWeights)
             addWeights(mhMesh, skel, weights)
+            if mhProxySeed:
+                addWeights(mhSeed, skel, rawWeights)
+                addWeights(mhProxySeed, skel, pxySeedWeights)
+            else:
+                addWeights(mhSeed, skel, pxySeedWeights)
 
         mhProxy = mhGeo["proxy"] = OrderedDict()
         mhProxy["name"] = pxy.name.capitalize()

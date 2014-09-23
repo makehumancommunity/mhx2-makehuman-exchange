@@ -176,10 +176,9 @@ def build(struct, cfg, context):
             proxyTypes += ['Hair']
         if cfg.mergeMaxType == 'CLOTHES':
             proxyTypes += ['Hair', 'Clothes']
-        if proxy and cfg.mergeToProxy:
+        ob = getEffectiveHuman(human, proxy, cfg.mergeToProxy)
+        if ob:
             mergeBodyParts(proxy, proxies, scn, proxyTypes=proxyTypes)
-        else:
-            mergeBodyParts(human, proxies, scn, proxyTypes=proxyTypes)
 
     if rig:
         scn.objects.active = rig
@@ -193,9 +192,19 @@ def build(struct, cfg, context):
 
     if cfg.hairType != "NONE":
         from .proxy import addHair
-        scn.objects.active = human
-        addHair(human, hair, hcoords, scn, cfg)
+        ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
+        if ob:
+            scn.objects.active = ob
+            addHair(ob, hair, hcoords, scn, cfg)
 
+
+def getEffectiveHuman(human, proxy, useProxy):
+    if proxy and (useProxy or not human):
+        return proxy
+    elif human and (not useProxy or not proxy):
+        return human
+    else:
+        return None
 
 
 def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):

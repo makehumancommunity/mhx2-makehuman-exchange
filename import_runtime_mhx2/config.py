@@ -24,7 +24,7 @@ import os
 Attributes = [
     "useHelpers", "useOffset", "useOverride", "useHumanType",
     "useRig", "rigType", "genitalia",
-    "hairType", "useHairDynamics", "useDeflector",
+    "hairType", "useHairOnProxy", "useHairDynamics", "useDeflector",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
 ]
