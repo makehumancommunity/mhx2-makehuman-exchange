@@ -73,7 +73,6 @@ def build(struct, cfg, context):
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
     from .proxy import setMhHuman
-    from .uuid4 import uuid4
 
     scn = context.scene
 
@@ -89,8 +88,6 @@ def build(struct, cfg, context):
         mats[mname] = mat
 
     for mhGeo in struct["geometries"]:
-        mhGeo["uuid"] = str(uuid4())
-        print(mhGeo["name"], mhGeo["uuid"])
         if mhGeo["human"]:
             mhHuman = mhGeo
             setMhHuman(mhHuman)

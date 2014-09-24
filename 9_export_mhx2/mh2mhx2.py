@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-Mhx2Version = "0.21"
+Mhx2Version = "0.22"
 
 import os.path
 import sys
@@ -59,7 +59,7 @@ def exportMhx2(filepath, cfg):
 
     mhFile = OrderedDict()
     mhFile["mhx2_version"] = Mhx2Version
-    mhFile["basemesh"] = getBaseMesh()
+    #mhFile["basemesh"] = getBaseMesh()
 
     if skel:
         mhSkel = mhFile["skeleton"] = OrderedDict()
@@ -165,11 +165,12 @@ def addBone(mhBones, bone):
 #-----------------------------------------------------------------------
 
 def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
+    from .uuid4 import uuid4
 
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
     mhName = mhGeo["name"] = mname
-    #mhGeo["uuid"] = str(uuid.uuid4())
+    mhGeo["uuid"] = str(uuid4())
     mhGeo["offset"] = cfg.offset
     mhGeo["scale"] = cfg.scale
     try:
