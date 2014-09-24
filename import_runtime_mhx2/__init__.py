@@ -22,7 +22,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,2,0),
+    'version': (0,21),
     "blender": (2, 71, 0),
     'location': "File > Import > MakeHuman (.mhx2)",
     'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
@@ -31,7 +31,7 @@ bl_info = {
     'category': 'MakeHuman'}
 
 if "bpy" in locals():
-    print("Reloading MHX2 importer-runtime v %d.%d.%d" % bl_info["version"])
+    print("Reloading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     import imp
     imp.reload(armature)
     imp.reload(hm8)
@@ -53,7 +53,7 @@ if "bpy" in locals():
     imp.reload(visemes)
     imp.reload(merge)
 else:
-    print("Loading MHX2 importer-runtime v %d.%d.%d" % bl_info["version"])
+    print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     from . import armature
     from . import hm8
     from . import utils
@@ -77,6 +77,7 @@ else:
 import bpy
 from bpy.props import *
 from bpy_extras.io_utils import ImportHelper
+from .error import *
 
 import os
 
@@ -173,7 +174,10 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         from .config import Config
         cfg = Config().fromSettings(self)
-        importer.importMhx2File(self.filepath, cfg, context)
+        try:
+            importer.importMhx2File(self.filepath, cfg, context)
+        except MhxError:
+            handleMhxError(context)
         return {'FINISHED'}
 
 

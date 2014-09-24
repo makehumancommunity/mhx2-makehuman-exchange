@@ -24,13 +24,13 @@ import log
 
 def saveJson(struct, filepath, binary=False):
     if binary:
-        bytes = encodeJsonData(struct, "    ")
+        bytes = encodeJsonData(struct, "")
         #bytes = json.dumps(struct)
         with gzip.open(filepath, 'wb') as fp:
             fp.write(bytes)
     else:
         import codecs
-        string = encodeJsonData(struct, "    ")
+        string = encodeJsonData(struct, "")
         with codecs.open(filepath, "w", encoding="utf-8") as fp:
             fp.write(string)
             fp.write("\n")

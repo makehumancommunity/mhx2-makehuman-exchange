@@ -26,10 +26,10 @@ theErrorLines = []
 
 class ErrorOperator(bpy.types.Operator):
     bl_idname = "mhx2.error"
-    bl_label = "Error using MakeHuman tool"
+    bl_label = "MHX2 Error:"
 
     def execute(self, context):
-        return {'RUNNING_MODAL'}
+        return {'FINISHED'}
 
     def invoke(self, context, event):
         global theMessage, theErrorLines
@@ -42,11 +42,13 @@ class ErrorOperator(bpy.types.Operator):
         height = 20+5*len(theErrorLines)
         #self.report({'INFO'}, theMessage)
         wm = context.window_manager
-        return wm.invoke_props_dialog(self, width=width, height=height)
+        res = wm.invoke_props_dialog(self, width=width, height=height)
+        return res
 
     def draw(self, context):
         global theErrorLines
         for line in theErrorLines:
+            print(line)
             self.layout.label(line)
 
 

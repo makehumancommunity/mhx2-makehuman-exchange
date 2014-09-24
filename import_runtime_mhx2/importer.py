@@ -36,6 +36,7 @@ from .utils import *
 
 def importMhx2File(filepath, cfg, context):
     from .load_json import loadJson
+    from .__init__ import bl_info
 
     filepath = os.path.expanduser(filepath)
     cfg.folder = os.path.dirname(filepath)
@@ -46,6 +47,21 @@ def importMhx2File(filepath, cfg, context):
 
     time1 = time.clock()
     struct = loadJson(filepath)
+
+    print(bl_info["version"])
+    impVersion = ("%d.%d" % bl_info["version"])
+    try:
+        fileVersion = struct["mhx2_version"]
+    except KeyError:
+        fileVersion = "Unknown"
+
+    if impVersion != fileVersion:
+        raise MhxError(
+            ("Incompatible MHX2 versions:\n" +
+            "Importer: %s\n" % impVersion +
+            "MHX2 file: %s" % fileVersion)
+            )
+
     build(struct, cfg, context)
     time2 = time.clock()
     print("File %s loaded in %g s" % (filepath, time2-time1))
@@ -57,6 +73,7 @@ def build(struct, cfg, context):
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
     from .proxy import setMhHuman
+    from .uuid4 import uuid4
 
     scn = context.scene
 
@@ -72,10 +89,11 @@ def build(struct, cfg, context):
         mats[mname] = mat
 
     for mhGeo in struct["geometries"]:
+        mhGeo["uuid"] = str(uuid4())
+        print(mhGeo["name"], mhGeo["uuid"])
         if mhGeo["human"]:
             mhHuman = mhGeo
             setMhHuman(mhHuman)
-            break
 
     parser = None
     rig = None
@@ -122,6 +140,9 @@ def build(struct, cfg, context):
         elif mhGeo["human"]:
             human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
             human.MhxHuman = True
+
+    if proxy:
+        proxy.MhxUuid = mhHuman["uuid"]
 
     groupName = mhHuman["name"].split(":",1)[0]
 

@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-Mhx2Version = "0.20"
+Mhx2Version = "0.21"
 
 import os.path
 import sys
@@ -165,12 +165,11 @@ def addBone(mhBones, bone):
 #-----------------------------------------------------------------------
 
 def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
-    import uuid
 
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
     mhName = mhGeo["name"] = mname
-    mhGeo["uuid"] = str(uuid.uuid4())
+    #mhGeo["uuid"] = str(uuid.uuid4())
     mhGeo["offset"] = cfg.offset
     mhGeo["scale"] = cfg.scale
     try:
@@ -239,7 +238,11 @@ def addWeights(mhMesh, skel, vertexWeights):
             idxs,weights = vertexWeights[bone.name]
         except KeyError:
             continue
-        mhWeights[bone.name] = np.array([(vn,weights[n]) for n,vn in enumerate(idxs)])
+        if idxs[0] < 0:
+            idxs = idxs[1:]
+            weights = weights[1:]
+        if len(idxs) > 0:
+            mhWeights[bone.name] = np.array([(vn,weights[n]) for n,vn in enumerate(idxs)])
 
 
 def addMesh(mhGeo, mesh):
