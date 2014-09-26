@@ -27,7 +27,7 @@ bl_info = {
     'location': "File > Import > MakeHuman (.mhx2)",
     'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
     'warning': '',
-    'wiki_url': '',
+    'wiki_url': 'http://thomasmakehuman.wordpress.com/mhx2-documentation/',
     'category': 'MakeHuman'}
 
 if "bpy" in locals():

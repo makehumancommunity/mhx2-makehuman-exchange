@@ -196,7 +196,7 @@ def build(struct, cfg, context):
             proxyTypes += ['Hair', 'Clothes']
         ob = getEffectiveHuman(human, proxy, cfg.mergeToProxy)
         if ob:
-            mergeBodyParts(proxy, proxies, scn, proxyTypes=proxyTypes)
+            mergeBodyParts(ob, proxies, scn, proxyTypes=proxyTypes)
 
     if rig:
         scn.objects.active = rig
