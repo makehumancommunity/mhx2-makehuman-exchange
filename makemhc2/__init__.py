@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -18,19 +18,19 @@
 #
 
 bl_info = {
-    "name": "Make Proxy",
+    "name": "Make MHC2",
     "author": "Thomas Larsson",
-    "version": (1,1,0),
+    "version": (0,10),
     "blender": (2,7,1),
     "location": "View3D > Properties > Make MH clothes",
     "description": "Make clothes and UVs for MHX2 characters",
     "warning": "",
-    'wiki_url': "http://makehuman.org/doc/node/main.html",
+    'wiki_url': "",
     "category": "MakeHuman"}
 
 
 if "bpy" in locals():
-    print("Reloading main v %d.%d.%d" % bl_info["version"])
+    print("Reloading main v %d.%d" % bl_info["version"])
     import imp
     imp.reload(maketarget)
     imp.reload(mc)
@@ -43,7 +43,7 @@ if "bpy" in locals():
     imp.reload(main)
     imp.reload(project)
 else:
-    print("Loading main v %d.%d.%d" % bl_info["version"])
+    print("Loading main v %d.%d" % bl_info["version"])
     import bpy
     import os
     from bpy.props import *
@@ -70,10 +70,10 @@ def setObjectMode(context):
 
 def invokeWithFileCheck(self, context, ftypes):
     try:
-        ob = main.getProxy(context)
+        ob = main.getMhc2(context)
         scn = context.scene
         for ftype in ftypes:
-            (outpath, outfile) = mc.getFileName(ob, scn.MCProxyDir, ftype)
+            (outpath, outfile) = mc.getFileName(ob, scn.MHCDir, ftype)
             filepath = os.path.join(outpath, outfile)
             if os.path.exists(filepath):
                 break
@@ -83,7 +83,7 @@ def invokeWithFileCheck(self, context, ftypes):
         return {'FINISHED'}
 
 #
-#    class MakeProxyPanel(bpy.types.Panel):
+#    class MakeMhc2Panel(bpy.types.Panel):
 #
 
 
@@ -93,21 +93,21 @@ def inset(layout):
     return split.column()
 
 
-class MakeProxyPanel(bpy.types.Panel):
-    bl_label = "Make Proxy version %d.%d.%d" % bl_info["version"]
+class MakeMhc2Panel(bpy.types.Panel):
+    bl_label = "Make Mhc2 version %d.%d" % bl_info["version"]
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
         ob = context.object
 
-        #layout.operator("mhpxy.snap_selected_verts")
+        #layout.operator("mhc2.snap_selected_verts")
 
-        layout.prop(scn, "MCBodyType", text="Type")
-        layout.operator("mhpxy.load_human")
+        layout.prop(scn, "MHCBodyType", text="Type")
+        layout.operator("mhc2.load_human")
 
         if not (ob and ob.type == 'MESH'):
             return
@@ -116,20 +116,18 @@ class MakeProxyPanel(bpy.types.Panel):
         row = layout.row()
         row.label("Mesh Type:")
         if ob and ob.MhHuman:
-            row.operator("mhpxy.set_human", text="Human").isHuman = False
+            row.operator("mhc2.set_human", text="Human").isHuman = False
             layout.separator()
-            layout.operator("mhpxy.auto_vertex_groups", text="Create Vertex Groups From Selection")
+            layout.operator("mhc2.auto_vertex_groups", text="Create Vertex Groups From Selection")
         else:
-            row.operator("mhpxy.set_human", text="Proxy").isHuman = True
+            row.operator("mhc2.set_human", text="Proxy").isHuman = True
             layout.separator()
-            layout.operator("mhpxy.auto_vertex_groups")
+            layout.operator("mhc2.auto_vertex_groups")
 
         layout.separator()
-        layout.prop(scn, "MCProxyType")
+        layout.operator("mhc2.make_clothes")
         layout.separator()
-        layout.operator("mhpxy.make_clothes")
-        layout.separator()
-        layout.operator("mhpxy.test_clothes")
+        layout.operator("mhc2.test_clothes")
         layout.separator()
 
 
@@ -137,17 +135,17 @@ class SelectionPanel(bpy.types.Panel):
     bl_label = "Selection"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        props = layout.operator("mhpxy.select_human_part", text="Select Body")
+        props = layout.operator("mhc2.select_human_part", text="Select Body")
         props.btype = 'Body'
 
         for helper in ["Tights", "Skirt", "Coat", "Hair", "Joints"]:
-            props = layout.operator("mhpxy.select_human_part", text="Select %s" % helper)
+            props = layout.operator("mhc2.select_human_part", text="Select %s" % helper)
             props.btype = 'Helpers'
             props.htype = helper
 
@@ -156,12 +154,12 @@ class MaterialsPanel(bpy.types.Panel):
     bl_label = "Materials"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("mhpxy.export_material")
+        layout.operator("mhc2.export_material")
         layout.separator()
 
 
@@ -169,65 +167,65 @@ class ProjectPanel(bpy.types.Panel):
     bl_label = "Project"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("mhpxy.create_seam_object")
-        layout.operator("mhpxy.auto_seams")
-        layout.operator("mhpxy.project_uvs")
-        layout.operator("mhpxy.reexport_files")
+        layout.operator("mhc2.create_seam_object")
+        layout.operator("mhc2.auto_seams")
+        layout.operator("mhc2.project_uvs")
+        layout.operator("mhc2.reexport_files")
 
 
 class ZDepthPanel(bpy.types.Panel):
     bl_label = "Z Depth"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        layout.prop(scn, "MCZDepthName")
-        layout.operator("mhpxy.set_zdepth")
-        layout.prop(scn, "MCZDepth")
+        layout.prop(scn, "MHCZDepthName")
+        layout.operator("mhc2.set_zdepth")
+        layout.prop(scn, "MHCZDepth")
 
 
 class BoundaryPanel(bpy.types.Panel):
     bl_label = "Boundary"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        layout.prop(scn, "MCUseShearing")
-        layout.prop(scn, "MCUseBoundaryMirror")
+        layout.prop(scn, "MHCUseShearing")
+        layout.prop(scn, "MHCUseBoundaryMirror")
         layout.separator()
-        layout.prop(scn, "MCBodyPart")
+        layout.prop(scn, "MHCBodyPart")
         vnums = main.getBodyPartVerts(scn)
         self.drawXYZ(vnums[0], "X", layout)
         self.drawXYZ(vnums[1], "Y", layout)
         self.drawXYZ(vnums[2], "Z", layout)
-        layout.operator("mhpxy.examine_boundary")
+        layout.operator("mhc2.examine_boundary")
 
         layout.separator()
         layout.label("Custom Boundary")
         row = layout.row()
-        row.prop(scn, "MCCustomX1")
-        row.prop(scn, "MCCustomX2")
+        row.prop(scn, "MHCCustomX1")
+        row.prop(scn, "MHCCustomX2")
         row = layout.row()
-        row.prop(scn, "MCCustomY1")
-        row.prop(scn, "MCCustomY2")
+        row.prop(scn, "MHCCustomY1")
+        row.prop(scn, "MHCCustomY2")
         row = layout.row()
-        row.prop(scn, "MCCustomZ1")
-        row.prop(scn, "MCCustomZ2")
+        row.prop(scn, "MHCCustomZ1")
+        row.prop(scn, "MHCCustomZ2")
         layout.separator()
-        layout.operator("mhpxy.print_vnums")
+        layout.operator("mhc2.print_vnums")
         layout.separator()
 
     def drawXYZ(self, pair, name, layout):
@@ -241,19 +239,19 @@ class SettingsPanel(bpy.types.Panel):
     bl_label = "Settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        layout.operator("mhpxy.factory_settings").prefix = "MC"
-        layout.operator("mhpxy.read_settings").tool = "make_clothes"
-        props = layout.operator("mhpxy.save_settings")
+        layout.operator("mhc2.factory_settings").prefix = "MHC"
+        layout.operator("mhc2.read_settings").tool = "make_clothes"
+        props = layout.operator("mhc2.save_settings")
         props.tool = "make_clothes"
-        props.prefix = "MC"
+        props.prefix = "MHC"
         layout.label("Output Directory")
-        layout.prop(scn, "MCProxyDir", text="")
+        layout.prop(scn, "MHCDir", text="")
         layout.separator()
 
 
@@ -261,21 +259,21 @@ class LicencePanel(bpy.types.Panel):
     bl_label = "Licence"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
-    bl_category = "MakeProxy"
+    bl_category = "MakeMhc2"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
-        layout.prop(scn, "MCAuthor")
-        layout.prop(scn, "MCLicense")
-        layout.prop(scn, "MCHomePage")
+        layout.prop(scn, "MHCAuthor")
+        layout.prop(scn, "MHCLicense")
+        layout.prop(scn, "MHCHomePage")
         layout.label("Tags")
-        layout.prop(scn, "MCTag1")
-        layout.prop(scn, "MCTag2")
-        layout.prop(scn, "MCTag3")
-        layout.prop(scn, "MCTag4")
-        layout.prop(scn, "MCTag5")
+        layout.prop(scn, "MHCTag1")
+        layout.prop(scn, "MHCTag2")
+        layout.prop(scn, "MHCTag3")
+        layout.prop(scn, "MHCTag4")
+        layout.prop(scn, "MHCTag5")
         layout.separator()
 
 
@@ -284,7 +282,7 @@ class LicencePanel(bpy.types.Panel):
 #----------------------------------------------------------
 
 class OBJECT_OT_FactorySettingsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.factory_settings"
+    bl_idname = "mhc2.factory_settings"
     bl_label = "Restore Factory Settings"
 
     prefix = StringProperty()
@@ -295,7 +293,7 @@ class OBJECT_OT_FactorySettingsButton(bpy.types.Operator):
 
 
 class OBJECT_OT_SaveSettingsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.save_settings"
+    bl_idname = "mhc2.save_settings"
     bl_label = "Save Settings"
 
     tool = StringProperty()
@@ -307,7 +305,7 @@ class OBJECT_OT_SaveSettingsButton(bpy.types.Operator):
 
 
 class OBJECT_OT_ReadSettingsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.read_settings"
+    bl_idname = "mhc2.read_settings"
     bl_label = "Read Settings"
 
     tool = StringProperty()
@@ -324,7 +322,7 @@ class OBJECT_OT_ReadSettingsButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_SnapSelectedVertsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.snap_selected_verts"
+    bl_idname = "mhc2.snap_selected_verts"
     bl_label = "Snap Selected"
     bl_options = {'UNDO'}
 
@@ -334,31 +332,31 @@ class OBJECT_OT_SnapSelectedVertsButton(bpy.types.Operator):
         return{'FINISHED'}
 
 #
-#    class OBJECT_OT_MakeProxyButton(bpy.types.Operator):
+#    class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
 #
 
-class OBJECT_OT_MakeProxyButton(bpy.types.Operator):
-    bl_idname = "mhpxy.make_clothes"
-    bl_label = "Make Proxy"
+class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
+    bl_idname = "mhc2.make_clothes"
+    bl_label = "Make Mhc2"
     bl_options = {'UNDO'}
 
     filepath = StringProperty(default="")
 
     def execute(self, context):
-        from .main import makeProxy
+        from .main import makeMhc2
         from .materials import writeMaterial
-        from .write import buildProxy, writeProxy, exportObjFile
+        from .write import buildMhc2, writeMhc2, exportObjFile
 
         setObjectMode(context)
         scn = context.scene
         try:
             initWarnings()
-            hum,pxy,data = makeProxy(context, True)
+            hum,pxy,data = makeMhc2(context, True)
             if True:
-                buildProxy(context, hum, pxy, data)
+                buildMhc2(context, hum, pxy, data)
             else:
-                matfile = writeMaterial(pxy, scn.MCProxyDir)
-                writeProxy(context, hum, pxy, data, matfile)
+                matfile = writeMaterial(pxy, scn.MHCDir)
+                writeMhc2(context, hum, pxy, data, matfile)
                 exportObjFile(context)
             handleWarnings()
         except MHError:
@@ -373,7 +371,7 @@ class OBJECT_OT_MakeProxyButton(bpy.types.Operator):
 
 
 class OBJECT_OT_ExportMaterialButton(bpy.types.Operator):
-    bl_idname = "mhpxy.export_material"
+    bl_idname = "mhc2.export_material"
     bl_label = "Export Material Only"
     bl_options = {'UNDO'}
 
@@ -382,7 +380,7 @@ class OBJECT_OT_ExportMaterialButton(bpy.types.Operator):
     def execute(self, context):
         setObjectMode(context)
         try:
-            matfile = materials.writeMaterial(context.object, context.scene.MCProxyDir)
+            matfile = materials.writeMaterial(context.object, context.scene.MHCDir)
             print("Exported \"%s\"" % matfile)
         except MHError:
             handleMHError(context)
@@ -399,7 +397,7 @@ class OBJECT_OT_ExportMaterialButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_CopyVertLocsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.copy_vert_locs"
+    bl_idname = "mhc2.copy_vert_locs"
     bl_label = "Copy Vertex Locations"
     bl_options = {'UNDO'}
 
@@ -422,7 +420,7 @@ class OBJECT_OT_CopyVertLocsButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_ExportBaseUvsPyButton(bpy.types.Operator):
-    bl_idname = "mhpxy.export_base_uvs_py"
+    bl_idname = "mhc2.export_base_uvs_py"
     bl_label = "Export Base UV Py File"
     bl_options = {'UNDO'}
 
@@ -435,7 +433,7 @@ class OBJECT_OT_ExportBaseUvsPyButton(bpy.types.Operator):
         return{'FINISHED'}
 
 class OBJECT_OT_SelectHelpersButton(bpy.types.Operator):
-    bl_idname = "mhpxy.select_helpers"
+    bl_idname = "mhc2.select_helpers"
     bl_label = "Select Helpers"
     bl_options = {'UNDO'}
 
@@ -452,7 +450,7 @@ class OBJECT_OT_SelectHelpersButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_MakeHumanButton(bpy.types.Operator):
-    bl_idname = "mhpxy.set_human"
+    bl_idname = "mhc2.set_human"
     bl_label = "Make Human"
     bl_options = {'UNDO'}
     isHuman = BoolProperty()
@@ -485,7 +483,7 @@ class OBJECT_OT_MakeHumanButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_LoadHumanButton(bpy.types.Operator):
-    bl_idname = "mhpxy.load_human"
+    bl_idname = "mhc2.load_human"
     bl_label = "Load Human Mesh"
     bl_options = {'UNDO'}
     helpers = BoolProperty()
@@ -503,7 +501,7 @@ class OBJECT_OT_LoadHumanButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_ExamineBoundaryButton(bpy.types.Operator):
-    bl_idname = "mhpxy.examine_boundary"
+    bl_idname = "mhc2.examine_boundary"
     bl_label = "Examine Boundary"
     bl_options = {'UNDO'}
 
@@ -524,7 +522,7 @@ class OBJECT_OT_ExamineBoundaryButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_SetZDepthButton(bpy.types.Operator):
-    bl_idname = "mhpxy.set_zdepth"
+    bl_idname = "mhc2.set_zdepth"
     bl_label = "Set Z Depth"
     bl_options = {'UNDO'}
 
@@ -541,7 +539,7 @@ class OBJECT_OT_SetZDepthButton(bpy.types.Operator):
 #
 
 class VIEW3D_OT_SelectHumanPartButton(bpy.types.Operator):
-    bl_idname = "mhpxy.select_human_part"
+    bl_idname = "mhc2.select_human_part"
     bl_label = "Select Human Part"
     bl_options = {'UNDO'}
 
@@ -565,7 +563,7 @@ class VIEW3D_OT_SelectHumanPartButton(bpy.types.Operator):
 #
 
 class VIEW3D_OT_PrintVnumsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.print_vnums"
+    bl_idname = "mhc2.print_vnums"
     bl_label = "Print Vertex Numbers"
     bl_options = {'UNDO'}
 
@@ -582,7 +580,7 @@ class VIEW3D_OT_PrintVnumsButton(bpy.types.Operator):
 #
 
 class VIEW3D_OT_DeleteHelpersButton(bpy.types.Operator):
-    bl_idname = "mhpxy.delete_helpers"
+    bl_idname = "mhc2.delete_helpers"
     bl_label = "Delete Helpers Until Above"
     bl_options = {'UNDO'}
     answer = StringProperty()
@@ -600,7 +598,7 @@ class VIEW3D_OT_DeleteHelpersButton(bpy.types.Operator):
 #
 
 class VIEW3D_OT_AutoVertexGroupsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.auto_vertex_groups"
+    bl_idname = "mhc2.auto_vertex_groups"
     bl_label = "Create Vertex Groups"
     bl_options = {'UNDO'}
 
@@ -617,7 +615,7 @@ class VIEW3D_OT_AutoVertexGroupsButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_CreateSeamObjectButton(bpy.types.Operator):
-    bl_idname = "mhpxy.create_seam_object"
+    bl_idname = "mhc2.create_seam_object"
     bl_label = "Recover Seams"
     bl_options = {'UNDO'}
 
@@ -631,7 +629,7 @@ class OBJECT_OT_CreateSeamObjectButton(bpy.types.Operator):
 
 
 class OBJECT_OT_AutoSeamsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.auto_seams"
+    bl_idname = "mhc2.auto_seams"
     bl_label = "Auto Seams"
     bl_options = {'UNDO'}
 
@@ -648,7 +646,7 @@ class OBJECT_OT_AutoSeamsButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_ProjectUVsButton(bpy.types.Operator):
-    bl_idname = "mhpxy.project_uvs"
+    bl_idname = "mhc2.project_uvs"
     bl_label = "Project UVs"
     bl_options = {'UNDO'}
 
@@ -669,7 +667,7 @@ class OBJECT_OT_ProjectUVsButton(bpy.types.Operator):
 #
 
 class OBJECT_OT_ReexportFilesButton(bpy.types.Operator):
-    bl_idname = "mhpxy.reexport_files"
+    bl_idname = "mhc2.reexport_files"
     bl_label = "Reexport Files"
     bl_options = {'UNDO'}
 
@@ -697,4 +695,4 @@ def unregister():
 if __name__ == "__main__":
     register()
 
-print("MakeProxy loaded")
+print("MakeMhc2 loaded")

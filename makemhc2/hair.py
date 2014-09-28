@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -63,14 +63,14 @@ def buildHair(struct, context, pxy):
     psys = pxy.particle_systems.active
     pset = psys.settings
 
-    mat = pxy.data.materials[pset.material-1]
-    struct["blender_material"] = dumpBlenderMaterial(mat)
+    #mat = pxy.data.materials[pset.material-1]
+    #struct["blender_material"] = dumpBlenderMaterial(mat)
 
-    slist = dumpData(psys)
-    pstruct = struct["particles"] = OrderedDict(slist)
+    #slist = dumpData(psys)
+    pstruct = struct["particles"] = OrderedDict()
 
-    slist = dumpData(pset, exclude=["material_slot"])
-    pstruct["settings"] = OrderedDict(slist)
+    #slist = dumpData(pset, exclude=["material_slot"])
+    sstruct = pstruct["settings"] = OrderedDict()
 
     vlist = pstruct["hairs"] = []
     for hair in psys.particles:

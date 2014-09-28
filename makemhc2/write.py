@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -31,34 +31,30 @@ from .hair import *
 from .save_json import saveJson
 
 
-def buildProxy(context, hum, pxy, data):
+def buildMhc2(context, hum, pxy, data):
     from .main import theSettings, getBodyPartVerts
     scn = context.scene
     struct = OrderedDict()
 
-    if scn.MCAuthor == "Unknown":
+    if scn.MHCAuthor == "Unknown":
         addWarning("Author unknown")
     astruct = struct["file_info"] = OrderedDict()
-    astruct["author"] = scn.MCAuthor
-    astruct["license"] = scn.MCLicense
-    astruct["homepage"] = scn.MCHomePage
+    astruct["author"] = scn.MHCAuthor
+    astruct["license"] = scn.MHCLicense
+    astruct["homepage"] = scn.MHCHomePage
 
     pstruct = struct["proxy"] = OrderedDict()
     pstruct["name"] = pxy.name.replace(" ","_")
-    pstruct["type"] = scn.MCProxyType
+    pstruct["type"] = scn.MHCType
 
-    if sys.platform == 'win32':
-        # Avoid error message in blender by using a version without ctypes
-        from makeclothes import uuid4 as uuid
-    else:
-        import uuid
-    pstruct["uuid"] = str(uuid.uuid4())
+    from makeclothes import uuid4
+    pstruct["uuid"] = str(uuid4.uuid4())
 
     if theSettings:
         pstruct["base_mesh"] = theSettings.baseMesh
-    pstruct["tags"] = [getattr(scn, "MCTag%d" % n) for n in range(1,6)]
+    pstruct["tags"] = [getattr(scn, "MHCTag%d" % n) for n in range(1,6)]
 
-    sscale = pstruct["sscale"] = OrderedDict()
+    bbox = pstruct["bounding_box"] = OrderedDict()
     vnums = getBodyPartVerts(scn)
     hverts = hum.data.vertices
     yzswitch = [("x",1), ("z",-1), ("y",1)]
@@ -68,7 +64,7 @@ def buildProxy(context, hum, pxy, data):
         if n1 >=0 and n2 >= 0:
             x1 = hverts[n1].co[idx]
             x2 = hverts[n2].co[idx]
-            sscale[cname] = (n1, n2, abs(x1-x2))
+            bbox[cname] = (n1, n2, abs(x1-x2))
 
     if isHair(pxy):
         buildHair(struct, context, pxy)
@@ -89,7 +85,10 @@ def buildProxy(context, hum, pxy, data):
         for vn in killList:
             deletes[vn] = True
 
-    folder = os.path.join(scn.MCProxyDir, scn.MCProxyType.lower())
+    if isHair(pxy):
+        folder = os.path.join(scn.MHCDir, "hair")
+    else:
+        folder = os.path.join(scn.MHCDir, "clothes")
     (outpath, filepath) = mc.getFileName(pxy, folder, "mhc2")
     saveJson(struct, filepath)
     print("Saved", filepath)
@@ -103,7 +102,7 @@ def buildMesh(struct, context, pxy):
     mstruct["faces"] = [tuple(f.vertices) for f in pxy.data.polygons]
     if pxy.data.uv_textures:
         (vertEdges, vertFaces, edgeFaces, faceEdges, faceNeighbors, uvFaceVertsList, texVertsList) = setupTexVerts(pxy)
-        layer = scn.MCTextureLayer
+        layer = scn.MHCTextureLayer
         uvcoord = texVertsList[layer]
         mstruct["uv_coordinates"] = [tuple(uvcoord[n]) for n in range(len(uvcoord))]
         uvfaces = uvFaceVertsList[layer]
@@ -114,20 +113,20 @@ def buildMesh(struct, context, pxy):
 
 
 #
-#    writeProxy(context, hum, pxy, data, matfile):
+#    writeMhc2(context, hum, pxy, data, matfile):
 #
 
 def getHeader(scn):
-    if scn.MCAuthor == "Unknown":
+    if scn.MHCAuthor == "Unknown":
         addWarning("Author unknown")
     return (
-        "# Exported from MakeProxy (TM)\n" +
-        "# author %s\n" % scn.MCAuthor +
-        "# license %s\n" % scn.MCLicense +
-        "# homepage %s\n" % scn.MCHomePage)
+        "# Exported from MakeMhc2 (TM)\n" +
+        "# author %s\n" % scn.MHCAuthor +
+        "# license %s\n" % scn.MHCLicense +
+        "# homepage %s\n" % scn.MHCHomePage)
 
 
-def writeProxyHeader(fp, scn):
+def writeMhc2Header(fp, scn):
     import sys
     from .main import theSettings
 
@@ -142,27 +141,27 @@ def writeProxyHeader(fp, scn):
     if theSettings:
         fp.write("basemesh %s\n" % theSettings.baseMesh)
     for n in range(1,6):
-        tag = getattr(scn, "MCTag%d" % n)
+        tag = getattr(scn, "MHCTag%d" % n)
         if tag:
             fp.write("tag %s\n" % tag)
     fp.write("\n")
 
 
-def writeProxy(context, hum, pxy, data, matfile):
+def writeMhc2(context, hum, pxy, data, matfile):
     from .main import theSettings, getBodyPartVerts
 
     scn = context.scene
     firstVert = 0
-    (outpath, outfile) = mc.getFileName(pxy, scn.MCProxyDir, "mhclo")
+    (outpath, outfile) = mc.getFileName(pxy, scn.MHCDir, "mhclo")
     fp = mc.openOutputFile(outfile)
-    writeProxyHeader(fp, scn)
+    writeMhc2Header(fp, scn)
     fp.write("name %s\n" % pxy.name.replace(" ","_"))
     fp.write("obj_file %s.obj\n" % mc.goodName(pxy.name))
 
     vnums = getBodyPartVerts(scn)
     hverts = hum.data.vertices
-    if scn.MCUseShearing:
-        if scn.MCUseBoundaryMirror:
+    if scn.MHCUseShearing:
+        if scn.MHCUseBoundaryMirror:
             rvnums = {}
             for idx,pair in enumerate(vnums):
                 vn1, vn2 = pair
@@ -184,7 +183,7 @@ def writeProxy(context, hum, pxy, data, matfile):
 
     fp.write("verts %d\n" % (firstVert))
 
-    if scn.MCSelfClothed:
+    if scn.MHCSelfClothed:
         for n in range(theSettings.vertices["Penis"][0]):
             fp.write("%5d\n" % n)
 
@@ -237,13 +236,13 @@ def printMhcloUvLayers(fp, pxy, scn, hasObj, offset=0):
     me = pxy.data
     if me.uv_textures:
         for layer,uvtex in enumerate(me.uv_textures):
-            if hasObj and (layer == scn.MCTextureLayer):
+            if hasObj and (layer == scn.MHCTextureLayer):
                 continue
-            if scn.MCAllUVLayers or not hasObj:
+            if scn.MHCAllUVLayers or not hasObj:
                 printLayer = layer
             else:
                 printLayer = 1
-                if layer != scn.MCMaskLayer:
+                if layer != scn.MHCMaskLayer:
                     continue
             (vertEdges, vertFaces, edgeFaces, faceEdges, faceNeighbors, uvFaceVertsList, texVertsList) = setupTexVerts(pxy)
             texVerts = texVertsList[layer]
@@ -265,12 +264,12 @@ def printMhcloUvLayers(fp, pxy, scn, hasObj, offset=0):
 
 
 def reexportMhclo(context):
-    pxy = getProxy(context)
+    pxy = getMhc2(context)
     scn = context.scene
     scn.objects.active = pxy
     bpy.ops.object.mode_set(mode='OBJECT')
-    (outpath, outfile) = mc.getFileName(pxy, scn.MCProxyDir, "mhc2")
-    matfile = materials.writeMaterial(pxy, scn.MCProxyDir)
+    (outpath, outfile) = mc.getFileName(pxy, scn.MHCDir, "mhc2")
+    matfile = materials.writeMaterial(pxy, scn.MHCDir)
 
     lines = []
     print("Reading clothes file %s" % outfile)
@@ -356,7 +355,7 @@ def printDeleteVerts(fp, hum):
 
 def writeStuff(fp, pxy, context, matfile):
     scn = context.scene
-    fp.write("z_depth %d\n" % scn.MCZDepth)
+    fp.write("z_depth %d\n" % scn.MHCZDepth)
 
     for mod in pxy.modifiers:
         if mod.type == 'SHRINKWRAP':
@@ -375,12 +374,12 @@ def writeStuff(fp, pxy, context, matfile):
 #
 
 def exportObjFile(context):
-    from .main import getProxy
+    from .main import getMhc2
 
     scn = context.scene
-    ob = getProxy(context)
+    ob = getMhc2(context)
     deleteStrayVerts(context, ob)
-    (objpath, objfile) = mc.getFileName(ob, scn.MCProxyDir, "obj")
+    (objpath, objfile) = mc.getFileName(ob, scn.MHCDir, "obj")
     fp = mc.openOutputFile(objfile)
     fp.write(getHeader(scn))
 
@@ -389,7 +388,7 @@ def exportObjFile(context):
 
     if ob.data.uv_textures:
         (vertEdges, vertFaces, edgeFaces, faceEdges, faceNeighbors, uvFaceVertsList, texVertsList) = setupTexVerts(ob)
-        layer = scn.MCTextureLayer
+        layer = scn.MHCTextureLayer
         writeObjTextureData(fp, ob.data, texVertsList[layer], uvFaceVertsList[layer])
     else:
         flist = []

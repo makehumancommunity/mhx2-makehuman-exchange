@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -23,8 +23,8 @@ theMessage = "No message"
 theErrorLines = []
 
 class ErrorOperator(bpy.types.Operator):
-    bl_idname = "mhpxy.error"
-    bl_label = "Error using MakeProxy"
+    bl_idname = "mhc2.error"
+    bl_label = "Error using MakeMhc2"
 
     def execute(self, context):
         return {'RUNNING_MODAL'}
@@ -54,7 +54,7 @@ class MHError(Exception):
         global theMessage
         theMessage = value
         print("ERROR:", theMessage)
-        bpy.ops.mhpxy.error('INVOKE_DEFAULT')
+        bpy.ops.mhc2.error('INVOKE_DEFAULT')
 
     def __str__(self):
         return repr(self.value)

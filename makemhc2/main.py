@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -90,7 +90,7 @@ def loadHuman(context):
     from maketarget.maketarget import afterImport, newTarget, applyTargets
 
     scn = context.scene
-    bodytype = scn.MCBodyType
+    bodytype = scn.MHCBodyType
     if bodytype[:2] == "h-":
         bodytype = bodytype[2:]
         helpers = True
@@ -130,10 +130,10 @@ def loadHuman(context):
 
 
 #
-#    findProxy(context, hum, pxy):
+#    findMhc2(context, hum, pxy):
 #
 
-def findProxy(context, hum, pxy):
+def findMhc2(context, hum, pxy):
     """
     This is where the association between clothes and human verts is made.
     """
@@ -196,7 +196,7 @@ def getVGroupIndices(pv, pxy, humanGroup, pExactIndex):
 
     if pindex < 0:
         selectVerts([pv], pxy)
-        raise MHError("Proxy %s vert %d not member of any group" % (pxy.name, pv.index))
+        raise MHError("Mhc2 %s vert %d not member of any group" % (pxy.name, pv.index))
 
     # Check that human group exists
     try:
@@ -247,7 +247,7 @@ def findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts):
 
         # Find a small number of human verts closest to the clothes vert
         mverts = []
-        for n in range(scn.MCListLength):
+        for n in range(scn.MHCListLength):
             mverts.append((None, 1e6))
 
         exact = False
@@ -263,8 +263,8 @@ def findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts):
                     exact = True
                     break
                 if vec.length < mdist:
-                    for k in range(n+1, scn.MCListLength):
-                        j = scn.MCListLength-k+n
+                    for k in range(n+1, scn.MHCListLength):
+                        j = scn.MHCListLength-k+n
                         mverts[j] = mverts[j-1]
                     mverts[n] = (bv, vec.length)
                     break
@@ -279,7 +279,7 @@ def findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts):
         else:
             msg = (
             "Failed to find vert %d in group %s.\n" % (pv.index, gname) +
-            "Proxy index %d, Human index %d\n" % (pindex, bindex) +
+            "Mhc2 index %d, Human index %d\n" % (pindex, bindex) +
             "Vertex coordinates (%.4f %.4f %.4f)\n" % (pv.co[0], pv.co[1], pv.co[2])
             )
             selectVerts([pv], pxy)
@@ -375,7 +375,7 @@ def findBestFaces(scn, bestVerts, vfaces, hum, pxy):
                 minmax = w
                 bWts = wts
                 bVerts = fverts
-        if False and minmax < scn.MCThreshold:
+        if False and minmax < scn.MHCThreshold:
             badVerts.append(pv.index)
             pv.select = True
             (mv, mdist) = bestVert.mverts[0]
@@ -464,7 +464,7 @@ def cornerWeights(pv, v0, v1, v2, hum, pxy):
 
     det = a00*a11 - a01*a10
     if abs(det) < 1e-20:
-        print("Proxy vert %d mapped to degenerate triangle (det = %g) with corners" % (pv.index, det))
+        print("Mhc2 vert %d mapped to degenerate triangle (det = %g) with corners" % (pv.index, det))
         print("r0 ( %.6f  %.6f  %.6f )" % (r0[0], r0[1], r0[2]))
         print("r1 ( %.6f  %.6f  %.6f )" % (r1[0], r1[1], r1[2]))
         print("r2 ( %.6f  %.6f  %.6f )" % (r2[0], r2[1], r2[2]))
@@ -593,12 +593,12 @@ def restoreData(context):
     return (hum, data)
 
 #
-#    makeProxy(context, doFindProxy):
+#    makeMhc2(context, doFindMhc2):
 #
 
-def makeProxy(context, doFindProxy):
+def makeMhc2(context, doFindMhc2):
     from makeclothes.project import saveClosest
-    from .write import writeProxy
+    from .write import writeMhc2
 
     (hum, pxy) = getObjectPair(context)
     scn = context.scene
@@ -612,8 +612,8 @@ def makeProxy(context, doFindProxy):
     if not isHair(pxy):
         checkSingleVertexGroups(pxy, scn)
     saveClosest({})
-    if doFindProxy:
-        data = findProxy(context, hum, pxy)
+    if doFindMhc2:
+        data = findMhc2(context, hum, pxy)
         storeData(pxy, hum, data)
     else:
         (hum, data) = restoreData(context)
@@ -702,7 +702,7 @@ def checkObjectOK(ob, context, isProxy):
 
     if isProxy and not isHair(ob):
         try:
-            ob.data.uv_layers[scn.MCTextureLayer]
+            ob.data.uv_layers[scn.MHCTextureLayer]
         except:
             word = "no UV maps"
             err = True
@@ -905,14 +905,14 @@ def examineBoundary(ob, scn):
 
 
 def getBodyPartVerts(scn):
-    if scn.MCBodyPart == 'Custom':
+    if scn.MHCBodyPart == 'Custom':
         return (
-            (scn.MCCustomX1, scn.MCCustomX2),
-            (scn.MCCustomY1, scn.MCCustomY2),
-            (scn.MCCustomZ1, scn.MCCustomZ2)
+            (scn.MHCCustomX1, scn.MHCCustomX2),
+            (scn.MHCCustomY1, scn.MHCCustomY2),
+            (scn.MHCCustomZ1, scn.MHCCustomZ2)
             )
     else:
-        return theSettings.bodyPartVerts[scn.MCBodyPart]
+        return theSettings.bodyPartVerts[scn.MHCBodyPart]
 
 ###################################################################################
 #
@@ -949,7 +949,7 @@ def setZDepthItems():
     return
 
 def setZDepth(scn):
-    scn.MCZDepth = 50 + int((ZDepth[scn.MCZDepthName]-50)/2.6)
+    scn.MHCZDepth = 50 + int((ZDepth[scn.MHCZDepthName]-50)/2.6)
     return
 
 
@@ -986,7 +986,7 @@ def deleteHelpers(context):
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='DESELECT')
     bpy.ops.object.mode_set(mode='OBJECT')
-    nmax = theSettings.vertices[scn.MCKeepVertsUntil][1]
+    nmax = theSettings.vertices[scn.MHCKeepVertsUntil][1]
     for v in ob.data.vertices:
         if v.index >= nmax:
             v.select = True
@@ -1202,7 +1202,7 @@ def saveDefaultSettings(context):
     fp = mc.openOutputFile(fname)
     scn = context.scene
     for (prop, value) in scn.items():
-        if prop[0:2] == "MC":
+        if prop[0:2] == "MHC":
             if type(value) == int:
                 fp.write("%s int %s\n" % (prop, value))
             elif type(value) == float:
@@ -1217,22 +1217,22 @@ def saveDefaultSettings(context):
 #
 
 def testMhcloFile(context, filepath):
-    from maketarget.proxy import CProxy
+    from maketarget.mhc2 import CMhc2
     from maketarget.import_obj import importObj
 
     hum = context.object
     if not isOkHuman(hum):
         raise MHError("%s is not a human mesh" % hum.name)
 
-    pxy = CProxy()
+    pxy = CMhc2()
     pxy.read(filepath)
     pxy = importObj(pxy.obj_file, context, addBasisKey=False)
     pxy.update(hum.data.vertices, pxy.data.vertices)
 
 
-class VIEW3D_OT_TestProxyButton(bpy.types.Operator):
-    bl_idname = "mhpxy.test_clothes"
-    bl_label = "Test Proxy"
+class VIEW3D_OT_TestMhc2Button(bpy.types.Operator):
+    bl_idname = "mhc2.test_clothes"
+    bl_label = "Test Mhc2"
     bl_description = "Load a mhc2 file to object"
     bl_options = {'UNDO'}
 
@@ -1264,15 +1264,15 @@ class VIEW3D_OT_TestProxyButton(bpy.types.Operator):
 #   init():
 #
 
-MCIsInited = False
+MHCIsInited = False
 
 def init():
-    global MCIsInited
+    global MHCIsInited
     import maketarget
     if not maketarget.maketarget.MTIsInited:
         maketarget.maketarget.init()
 
-    bpy.types.Scene.MCBodyType = EnumProperty(
+    bpy.types.Scene.MHCBodyType = EnumProperty(
         items = [('None', 'Base Mesh', 'None'),
                  ('caucasian-male-young', 'Average Male', 'caucasian-male-young'),
                  ('caucasian-female-young', 'Average Female', 'caucasian-female-young'),
@@ -1288,82 +1288,82 @@ def init():
         description = "Body Type To Load",
     default='None')
 
-    bpy.types.Scene.MCUseShearing = BoolProperty(
+    bpy.types.Scene.MHCUseShearing = BoolProperty(
         name="Use Shearing",
         description="Allow bounding box to be sheared",
         default=False)
 
-    bpy.types.Scene.MCUseBoundaryMirror = BoolProperty(
+    bpy.types.Scene.MHCUseBoundaryMirror = BoolProperty(
         name="Mirror Bounding Box",
         description="Mirror the bounding box for Left/Right vertex groups",
         default=False)
 
 
-    bpy.types.Scene.MCMaskLayer = IntProperty(
+    bpy.types.Scene.MHCMaskLayer = IntProperty(
         name="Mask UV layer",
         description="UV layer for mask, starting with 0",
         default=0)
 
-    bpy.types.Scene.MCTextureLayer = IntProperty(
+    bpy.types.Scene.MHCTextureLayer = IntProperty(
         name="Texture UV layer",
         description="UV layer for textures, starting with 0",
         default=0)
 
-    bpy.types.Scene.MCAllUVLayers = BoolProperty(
+    bpy.types.Scene.MHCAllUVLayers = BoolProperty(
         name="All UV layers",
         description="Include all UV layers in export",
         default=False)
 
-    bpy.types.Scene.MCThreshold = FloatProperty(
+    bpy.types.Scene.MHCThreshold = FloatProperty(
         name="Threshold",
         description="Minimal allowed value of normal-vector dot product",
         min=-1.0, max=0.0,
         default=-0.2)
 
-    bpy.types.Scene.MCListLength = IntProperty(
+    bpy.types.Scene.MHCListLength = IntProperty(
         name="List length",
         description="Max number of verts considered",
         default=4)
 
-    bpy.types.Scene.MCUseInternal = BoolProperty(
+    bpy.types.Scene.MHCUseInternal = BoolProperty(
         name="Use Internal",
         description="Access internal settings",
         default=False)
 
-    bpy.types.Scene.MCLogging = BoolProperty(
+    bpy.types.Scene.MHCLogging = BoolProperty(
         name="Log",
         description="Write a log file for debugging",
         default=False)
 
-    bpy.types.Scene.MCMHVersion = EnumProperty(
+    bpy.types.Scene.MHCMHVersion = EnumProperty(
         items = [("hm08", "hm08", "hm08"), ("None", "None", "None")],
         name="MakeHuman mesh version",
         description="The human is the MakeHuman base mesh",
         default="hm08")
 
-    bpy.types.Scene.MCSelfClothed = BoolProperty(default=False)
+    bpy.types.Scene.MHCSelfClothed = BoolProperty(default=False)
 
     enums = []
     for name in theSettings.vertices.keys():
         enums.append((name,name,name))
 
-    bpy.types.Scene.MCKeepVertsUntil = EnumProperty(
+    bpy.types.Scene.MHCKeepVertsUntil = EnumProperty(
         items = enums,
         name="Keep verts untils",
         description="Last clothing to keep vertices for",
         default="Tights")
 
-    bpy.types.Scene.MCScaleUniform = BoolProperty(
+    bpy.types.Scene.MHCScaleUniform = BoolProperty(
         name="Uniform Scaling",
         description="Scale offset uniformly in the XYZ directions",
         default=False)
 
-    bpy.types.Scene.MCScaleCorrect = FloatProperty(
+    bpy.types.Scene.MHCScaleCorrect = FloatProperty(
         name="Scale Correction",
         default=1.0,
         min=0.5, max=1.5)
 
-    bpy.types.Scene.MCBodyPart = EnumProperty(
+    bpy.types.Scene.MHCBodyPart = EnumProperty(
         name = "Body Part",
         items = [('Head', 'Head', 'Head'),
                  ('Torso', 'Torso', 'Torso'),
@@ -1382,8 +1382,8 @@ def init():
     x,y,z = theSettings.bodyPartVerts['Body']
 
 
-    bpy.types.Scene.MCProxyType = EnumProperty(
-        name = "Proxy Type",
+    bpy.types.Scene.MHCType = EnumProperty(
+        name = "Mhc2 Type",
         items = [('Clothes', 'Clothes', 'Clothes'),
                  ('Eyes', 'Eyes', 'Eyes'),
                  ('Eyebrows', 'Eyebrows', 'Eyebrows'),
@@ -1392,76 +1392,76 @@ def init():
                  ('Genitals', 'Genitals', 'Genitals'),
                  ('Tongue', 'Tongue', 'Tongue'),
                  ('Hair', 'Hair', 'Hair'),
-                 ('Proxymeshes', 'Proxymeshes', 'Proxymeshes'),
+                 ('Mhc2meshes', 'Mhc2meshes', 'Mhc2meshes'),
                  ],
         default='Clothes')
 
-    bpy.types.Scene.MCCustomX1 = IntProperty(name="X1", default=x[0])
-    bpy.types.Scene.MCCustomX2 = IntProperty(name="X2", default=x[1])
-    bpy.types.Scene.MCCustomY1 = IntProperty(name="Y1", default=y[0])
-    bpy.types.Scene.MCCustomY2 = IntProperty(name="Y2", default=y[1])
-    bpy.types.Scene.MCCustomZ1 = IntProperty(name="Z1", default=z[0])
-    bpy.types.Scene.MCCustomZ2 = IntProperty(name="Z2", default=z[1])
+    bpy.types.Scene.MHCCustomX1 = IntProperty(name="X1", default=x[0])
+    bpy.types.Scene.MHCCustomX2 = IntProperty(name="X2", default=x[1])
+    bpy.types.Scene.MHCCustomY1 = IntProperty(name="Y1", default=y[0])
+    bpy.types.Scene.MHCCustomY2 = IntProperty(name="Y2", default=y[1])
+    bpy.types.Scene.MHCCustomZ1 = IntProperty(name="Z1", default=z[0])
+    bpy.types.Scene.MHCCustomZ2 = IntProperty(name="Z2", default=z[1])
 
     setZDepthItems()
-    bpy.types.Scene.MCZDepthName = EnumProperty(
-        name = "Proxy Type",
+    bpy.types.Scene.MHCZDepthName = EnumProperty(
+        name = "Mhc2 Type",
         items = ZDepthItems,
         default='Sweater')
 
-    bpy.types.Scene.MCZDepth = IntProperty(
+    bpy.types.Scene.MHCZDepth = IntProperty(
         name="Z depth",
         description="Location in the Z buffer",
         default=ZDepth['Sweater'],
         min = MinZDepth,
         max = MaxZDepth)
 
-    bpy.types.Scene.MCAuthor = StringProperty(
+    bpy.types.Scene.MHCAuthor = StringProperty(
         name="Author",
         default="Unknown",
         maxlen=32)
 
-    bpy.types.Scene.MCLicense = StringProperty(
+    bpy.types.Scene.MHCLicense = StringProperty(
         name="License",
         default="AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
         maxlen=256)
 
-    bpy.types.Scene.MCHomePage = StringProperty(
+    bpy.types.Scene.MHCHomePage = StringProperty(
         name="HomePage",
         default="http://www.makehuman.org/",
         maxlen=256)
 
-    bpy.types.Scene.MCTag1 = StringProperty(
+    bpy.types.Scene.MHCTag1 = StringProperty(
         name="Tag1",
         default="",
         maxlen=32)
 
-    bpy.types.Scene.MCTag2 = StringProperty(
+    bpy.types.Scene.MHCTag2 = StringProperty(
         name="Tag2",
         default="",
         maxlen=32)
 
-    bpy.types.Scene.MCTag3 = StringProperty(
+    bpy.types.Scene.MHCTag3 = StringProperty(
         name="Tag3",
         default="",
         maxlen=32)
 
-    bpy.types.Scene.MCTag4 = StringProperty(
+    bpy.types.Scene.MHCTag4 = StringProperty(
         name="Tag4",
         default="",
         maxlen=32)
 
-    bpy.types.Scene.MCTag5 = StringProperty(
+    bpy.types.Scene.MHCTag5 = StringProperty(
         name="Tag5",
         default="",
         maxlen=32)
 
-    folder = os.path.dirname(__file__)
-    proxyDir = os.path.join(folder, "../import_runtime_mhx2/data/hm8/")
-    bpy.types.Scene.MCProxyDir = StringProperty(
-        name="Proxy Directory",
-        default=proxyDir,
+    from maketarget.utils import getMyDocuments
+    mhc2Dir = os.path.join(getMyDocuments(), "mhx2", "data")
+    bpy.types.Scene.MHCDir = StringProperty(
+        name="Mhc2 Directory",
+        default=mhc2Dir,
         maxlen=32)
 
-    MCIsInited = True
+    MHCIsInited = True
 

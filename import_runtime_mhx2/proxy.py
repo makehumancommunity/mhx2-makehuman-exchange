@@ -209,23 +209,22 @@ def getProxyCoordinates(mhHuman, filepath):
 
 
 def addHair(ob, struct, hcoords, scn, cfg=None):
-    from .materials import buildBlenderMaterial
-    mat = buildBlenderMaterial(struct["blender_material"])
-    ob.data.materials.append(mat)
+    from .materials import buildBlenderMaterial, getDefaultHairMaterial
 
     psys = ob.particle_systems.active
     if psys is not None:
         bpy.ops.object.particle_system_remove()
-    bpy.ops.object.particle_system_add()
+        ob.data.materials.pop()
 
+    if "blender_material" in struct.keys():
+        mat = buildBlenderMaterial(struct["blender_material"])
+    else:
+        mat = getDefaultHairMaterial()
+    ob.data.materials.append(mat)
+
+    bpy.ops.object.particle_system_add()
     psys = ob.particle_systems.active
     pstruct = struct["particles"]
-    for key,value in pstruct.items():
-        if key not in ["settings", "vertices"]:
-            try:
-                setattr(psys, key, value)
-            except AttributeError:
-                pass
 
     skull = ob.vertex_groups.new("Skull")
     for vn,w in [(879,1.0)]:
@@ -233,22 +232,14 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     psys.vertex_group_density = "Skull"
 
     pset = psys.settings
-    for key,value in pstruct["settings"].items():
-        if key[0] != "_":
-            try:
-                setattr(pset, key, value)
-            except AttributeError:
-                pass
-
+    pset.type = 'HAIR'
+    #pset.name = struct["name"]
     pset.material = len(ob.data.materials)
+    pset.use_strand_primitive = True
     pset.render_type = 'PATH'
     pset.path_start = 0
     pset.path_end = 1
-
-    if cfg and cfg.useHairDynamics:
-        psys.use_hair_dynamics = True
-        #pset.pin_stiffness = 0.5
-
+    pset.child_type = 'SIMPLE'
     pset.count = int(len(hcoords))
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1

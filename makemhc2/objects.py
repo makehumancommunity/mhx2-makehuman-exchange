@@ -1,5 +1,5 @@
 #
-#    MakeProxy - Utility for making proxy meshes.
+#    MakeMhc2 - Utility for making mhc2 meshes.
 #    Like MakeClothes but slightly newer
 #    Copyright (C) Thomas Larsson 2014
 #
@@ -31,7 +31,7 @@ theSettings = mc.settings["hm08"]
 #
 #   isProxy(ob):
 #   getHuman(context):
-#   getProxy(context):
+#   getMhc2(context):
 #   getObjectPair(context):
 #
 
@@ -70,7 +70,7 @@ def getHuman(context):
     raise MHError("No human selected")
 
 
-def getProxy(context):
+def getMhc2(context):
     for ob in context.scene.objects:
         if ob.select and isProxy(ob):
             return ob

@@ -313,6 +313,53 @@ def buildRamp(ramp, struct):
             setSimple(ramp, key, value)
 
 # ---------------------------------------------------------------------
+#   Default hair material
+# ---------------------------------------------------------------------
+
+def getDefaultHairMaterial():
+    mat = bpy.data.materials.new("Hair")
+    mat.diffuse_color = (0,0,0)
+    mat.specular_color = (0,0,0)
+
+    mat.use_transparency = True
+    mat.transparency_method = 'MASK'
+    mat.alpha = 1.0
+    mat.specular_alpha = 0.0
+
+    mat.use_diffuse_ramp = True
+    mat.diffuse_ramp_blend = 'MIX'
+    mat.diffuse_ramp_factor = 1
+    mat.diffuse_ramp_input = 'SHADER'
+
+    mat.use_specular_ramp = True
+    mat.specular_ramp_blend = 'MIX'
+    mat.specular_ramp_factor = 1
+    mat.specular_ramp_input = 'SHADER'
+
+    color = [0.1, 0, 0]
+    defaultRamp(mat.diffuse_ramp, color)
+    defaultRamp(mat.specular_ramp, color)
+
+    mat.strand.root_size = 2
+    mat.strand.tip_size = 1
+    mat.strand.width_fade = 1
+    return mat
+
+
+def defaultRamp(ramp, color):
+    ramp.interpolation = 'LINEAR'
+    ramp.elements.new(0.1)
+    ramp.elements.new(0.2)
+    for n,data in enumerate([
+        (0, color+[0]),
+        (0.07, color+[1]),
+        (0.6, color+[1]),
+        (1.0, color+[0])
+        ]):
+        elt = ramp.elements[n]
+        elt.position, elt.color = data
+
+# ---------------------------------------------------------------------
 #   Simple materials for helpers
 # ---------------------------------------------------------------------
 
