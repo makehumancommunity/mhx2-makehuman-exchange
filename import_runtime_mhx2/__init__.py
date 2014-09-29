@@ -414,6 +414,49 @@ class MhxFKIKPanel(bpy.types.Panel):
 
 
 #------------------------------------------------------------------------
+#   MHX Control panel
+#------------------------------------------------------------------------
+
+class MhxControlPanel(bpy.types.Panel):
+    bl_label = "MHX Control"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        return (context.object and context.object.MhxRig == 'MHX')
+
+    def draw(self, context):
+        ob = context.object
+        layout = self.layout
+
+        lrProps = []
+        props = []
+        lrFaceProps = []
+        plist = list(ob.keys())
+        plist.sort()
+        for prop in plist:
+            if prop[0:3] == 'Mha':
+                if prop[-2:] == '_L':
+                    lrProps.append(prop[:-2])
+                elif prop[-2:] != '_R':
+                    props.append(prop)
+
+        for prop in props:
+            layout.prop(ob,prop, text=prop[3:])
+
+        layout.separator()
+        row = layout.row()
+        row.label("Left")
+        row.label("Right")
+        for prop in lrProps:
+            row = layout.row()
+            row.prop(ob, prop+"_L", text=prop[3:])
+            row.prop(ob, prop+"_R", text=prop[3:])
+
+#------------------------------------------------------------------------
 #   Visibility panel
 #------------------------------------------------------------------------
 
@@ -578,6 +621,26 @@ def register():
     bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
+
+    # MHX Control properties
+    bpy.types.Object.MhaGazeFollowsHead = FloatProperty(default=1.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaRotationLimits = BoolProperty(default=False)
+
+    bpy.types.Object.MhaArmHinge_L = BoolProperty(default=False)
+    bpy.types.Object.MhaArmIk_L = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    #bpy.types.Object.MhaElbowPlant_L = BoolProperty(default=False)
+    bpy.types.Object.MhaFingerControl_L = BoolProperty(default=False)
+    bpy.types.Object.MhaLegHinge_L = BoolProperty(default=False)
+    bpy.types.Object.MhaLegIkToAnkle_L = BoolProperty(default=False)
+    bpy.types.Object.MhaLegIk_L = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+
+    bpy.types.Object.MhaArmHinge_R = BoolProperty(default=False)
+    bpy.types.Object.MhaArmIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    #bpy.types.Object.MhaElbowPlant_R = BoolProperty(default=False)
+    bpy.types.Object.MhaFingerControl_R = BoolProperty(default=False)
+    bpy.types.Object.MhaLegHinge_R = BoolProperty(default=False)
+    bpy.types.Object.MhaLegIkToAnkle_R = BoolProperty(default=False)
+    bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
 
     from .materials import ColorItems
     bpy.types.Scene.MhxHairColor = EnumProperty(

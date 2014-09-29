@@ -504,17 +504,24 @@ IkLegPropLRDrivers = [
 ]
 
 IkArmPropLRDrivers = [
-    #('shoulder', 'Elbow', ['ElbowPlant'], 'x1'),
-    ('upper_arm', 'ArmIK', ['ArmIk', 'ElbowPlant'], 'x1*(1-x2)'),
-    ('upper_arm', 'ArmFK', ['ArmIk', 'ElbowPlant'], '1-x1*(1-x2)'),
-    #('upper_arm', 'Elbow', ['ElbowPlant'], 'x1'),
-    ('forearm', 'ArmIK', ['ArmIk', 'ElbowPlant'], 'x1*(1-x2)'),
-    ('forearm', 'ArmFK', ['ArmIk', 'ElbowPlant'], '1-x1*(1-x2)'),
-    #('forearm', 'Hand', ['ArmIk', 'ElbowPlant'], 'x1*x2'),
+    ('upper_arm', 'ArmIK', ['ArmIk'], 'x1'),
+    ('upper_arm', 'ArmFK', ['ArmIk'], '1-x1'),
+    ('forearm', 'ArmIK', ['ArmIk'], 'x1'),
+    ('forearm', 'ArmFK', ['ArmIk'], '1-x1'),
     ('hand', 'ArmFK', ['ArmIk'], '1-x1'),
+    ('hand', 'HandRot', ['ArmIk'], 'x1'),
+
+    #('shoulder', 'Elbow', ['ElbowPlant'], 'x1'),
+    #('upper_arm', 'ArmIK', ['ArmIk', 'ElbowPlant'], 'x1*(1-x2)'),
+    #('upper_arm', 'ArmFK', ['ArmIk', 'ElbowPlant'], '1-x1*(1-x2)'),
+    #('upper_arm', 'Elbow', ['ElbowPlant'], 'x1'),
+    #('forearm', 'ArmIK', ['ArmIk', 'ElbowPlant'], 'x1*(1-x2)'),
+    #('forearm', 'ArmFK', ['ArmIk', 'ElbowPlant'], '1-x1*(1-x2)'),
+    #('forearm', 'Hand', ['ArmIk', 'ElbowPlant'], 'x1*x2'),
+    #('hand', 'ArmFK', ['ArmIk'], '1-x1'),
     #('hand', 'FreeIK', ['ArmIk', 'ElbowPlant'], '(1-x1)*(1-x2)'),
     #('hand', 'HandLoc', ['ArmIk'], 'x1'),
-    ('hand', 'HandRot', ['ArmIk'], 'x1'),
+    #('hand', 'HandRot', ['ArmIk'], 'x1'),
     #('HlpLoArm', 'HandRot', ['ArmIk'], 'x1'),
 ]
 
@@ -613,26 +620,3 @@ KneeTargetDrivers = [
 #        [("LoLeg", "DirKneeInv")]),
 ]
 
-
-'''
-    'MCH-hips_rh_ns_ch.L' :          (0, 'root', F_WIR, L_TWEAK),
-    'MCH-knee_hose_parent.L' :          (0, 'MCH-hips_rh_ns_ch.L', F_WIR, L_TWEAK),
-    'knee_hose.L' :          (0, 'MCH-knee_hose_parent.L', F_WIR, L_TWEAK),
-    'MCH-shin_hose_parent.L' :          (0, 'MCH-hips_rh_ns_ch.L', F_WIR, L_TWEAK),
-    'shin_hose.L' :          (0, 'MCH-shin_hose_parent.L', F_WIR, L_TWEAK),
-    'DEF-thigh.01.L' :          (0, 'MCH-hips_rh_ns_ch.L', F_WIR, L_TWEAK),
-    'MCH-thigh_hose_parent.L' :          (0, '', F_WIR, L_TWEAK),
-    'thigh_hose.L' :          (0, 'MCH-thigh_hose_parent.L', F_WIR, L_TWEAK),
-
-    'MCH-hips_ik_ns_ch.L' :          (0, 'root', F_WIR, L_TWEAK),
-    'MCH-shin.stretch.ik.L' :          (0, 'MCH-hips_ik_ns_ch.L', F_WIR, L_TWEAK),
-    'MCH-thigh.ik.L' :          (0, 'MCH-hips_ik_ns_ch.L', F_WIR, L_TWEAK),
-    'MCH-shin.ik.L' :          (0, 'MCH-thigh.ik.L', F_WIR, L_TWEAK),
-    'MCH-thigh.nostr.ik.L' :          (0, 'MCH-hips_ik_ns_ch.L', F_WIR, L_TWEAK),
-    'MCH-shin.nostr.ik.L' :          (0, 'MCH-thigh.nostr.ik.L', F_WIR, L_TWEAK),
-    'MCH-thigh.stretch.ik.L' :          (0, 'MCH-hips_ik_ns_ch.L', F_WIR, L_TWEAK),
-    'knee_target.ik.L' :          (0, 'MCH-hips_ik_ns_ch.L', F_WIR, L_TWEAK),
-
-    'MCH-hips_fk_ns_ch.L' :          (0, 'root', F_WIR, L_TWEAK),
-    'MCH-thigh.fk.L.socket1' :          (0, 'MCH-hips_fk_ns_ch.L', F_WIR, L_TWEAK),
-'''
