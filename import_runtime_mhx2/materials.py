@@ -316,10 +316,28 @@ def buildRamp(ramp, struct):
 #   Default hair material
 # ---------------------------------------------------------------------
 
-def getDefaultHairMaterial():
+ColorItems = [("BLACK", "Black", "Black"),
+              ("WHITE", "White", "White"),
+              ("GREY", "Grey", "Grey"),
+              ("BLOND", "Blond", "Blond"),
+              ("BROWN", "Brown", "Brown"),
+             ]
+
+ColorRGB = {
+    'BLACK' : [0,0,0],
+    'WHITE' : [0.6, 0.6, 0.6],
+    'GREY' : [0.2, 0.2, 0.2],
+    'BLOND' : [0.8, 0.5, 0.2],
+    'BROWN' : [0.035, 0.004, 0.002],
+}
+
+def getDefaultHairMaterial(color):
+    rgb = ColorRGB[color]
+
     mat = bpy.data.materials.new("Hair")
-    mat.diffuse_color = (0,0,0)
-    mat.specular_color = (0,0,0)
+    mat.diffuse_color = rgb
+    mat.diffuse_intensity = 0.1
+    mat.specular_color = rgb
 
     mat.use_transparency = True
     mat.transparency_method = 'MASK'
@@ -336,9 +354,8 @@ def getDefaultHairMaterial():
     mat.specular_ramp_factor = 1
     mat.specular_ramp_input = 'SHADER'
 
-    color = [0.1, 0, 0]
-    defaultRamp(mat.diffuse_ramp, color)
-    defaultRamp(mat.specular_ramp, color)
+    defaultRamp(mat.diffuse_ramp, rgb)
+    defaultRamp(mat.specular_ramp, rgb)
 
     mat.strand.root_size = 2
     mat.strand.tip_size = 1

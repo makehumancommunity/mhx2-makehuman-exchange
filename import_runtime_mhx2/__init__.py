@@ -171,6 +171,13 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         description = "Hair",
         default = "NONE")
 
+    from .materials import ColorItems
+    hairColor = EnumProperty(
+        items = ColorItems,
+        name = "Color",
+        description = "Hair color",
+        default = 'BLACK')
+
     def execute(self, context):
         from .config import Config
         cfg = Config().fromSettings(self)
@@ -219,6 +226,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         box = layout.box()
         box.prop(self, "hairType")
         if self.hairType != 'NONE':
+            box.prop(self, "hairColor")
             box.prop(self, "useHairOnProxy")
             #box.prop(self, "useHairDynamics")
         box.prop(self, "useDeflector")
@@ -256,6 +264,9 @@ class MhxSetupPanel(bpy.types.Panel):
 
         layout.separator()
         layout.operator("mhx2.add_mhc2")
+        layout.prop(scn, "MhxHairColor")
+
+        layout.separator()
         layout.operator("mhx2.add_simple_materials")
         layout.operator("mhx2.merge_objects")
 
@@ -567,6 +578,13 @@ def register():
     bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
+
+    from .materials import ColorItems
+    bpy.types.Scene.MhxHairColor = EnumProperty(
+        items = ColorItems,
+        name = "Hair Color",
+        description = "Hair color",
+        default = 'BLACK')
 
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func)

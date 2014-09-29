@@ -219,7 +219,11 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     if "blender_material" in struct.keys():
         mat = buildBlenderMaterial(struct["blender_material"])
     else:
-        mat = getDefaultHairMaterial()
+        if cfg is None:
+            color = scn.MhxHairColor
+        else:
+            color = cfg.hairColor
+        mat = getDefaultHairMaterial(color)
     ob.data.materials.append(mat)
 
     bpy.ops.object.particle_system_add()
