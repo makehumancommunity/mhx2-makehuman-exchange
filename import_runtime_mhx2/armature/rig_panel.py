@@ -187,52 +187,52 @@ neg = (0,-4)
 
 BoneDrivers = {
     # Brows
-    'brow_squeeze'          : ('p_brow_mid', 'LOC_Z', pos, 0, 1),
-    'brow_mid_up'           : ('p_brow_in', 'LOC_Z', neg, 0, 1),
-    'brow_mid_down'         : ('p_brow_in', 'LOC_Z', pos, 0, 1),
-    'brow_outer_up'         : ('p_brow_out', 'LOC_Z', neg, 0, 1),
-    'brow_outer_down'       : ('p_brow_out', 'LOC_Z', pos, 0, 1),
-    'cheek_squint'          : ('p_brow_out', 'LOC_X', pos, 0, 1),
+    'brow_squeeze'          : ('p_brow_mid', 'LOC_Z', pos, 0, 1.5),
+    'brow_mid_up'           : ('p_brow_in', 'LOC_Z', neg, 0, 1.5),
+    'brow_mid_down'         : ('p_brow_in', 'LOC_Z', pos, 0, 1.5),
+    'brow_outer_up'         : ('p_brow_out', 'LOC_Z', neg, 0, 1.5),
+    'brow_outer_down'       : ('p_brow_out', 'LOC_Z', pos, 0, 1.5),
+    'cheek_squint'          : ('p_brow_out', 'LOC_X', pos, 0, 1.5),
 
 #   Nose and jaw
 
-    'nose_wrinkle'          : ('p_nose', 'LOC_Z', neg, 0, 1),
-    'cheek_balloon'         : ('p_cheek', 'LOC_X', pos, 0, 1),
-    'cheek_narrow'          : ('p_cheek', 'LOC_X', neg, 0, 1),
-    'cheek_up'              : ('p_cheek', 'LOC_Z', neg, 0, 1),
+    'nose_wrinkle'          : ('p_nose', 'LOC_Z', neg, 0, 1.5),
+    'cheek_balloon'         : ('p_cheek', 'LOC_X', pos, 0, 1.5),
+    'cheek_narrow'          : ('p_cheek', 'LOC_X', neg, 0, 1.5),
+    'cheek_up'              : ('p_cheek', 'LOC_Z', neg, 0, 1.5),
 
 #   Jaw and tongue
-    'mouth_open'            : ('p_jaw', 'LOC_Z', pos, 0, 1),
-    'tongue_out'            : ('p_jaw', 'LOC_X', neg, 0, 1),
-    'tongue_in'             : ('p_jaw', 'LOC_X', pos, 0, 1),
-    'tongue_up'             : ('p_tongue', 'LOC_Z', neg, 0, 1),
-    'tongue_wide'           : ('p_tongue', 'LOC_X', pos, 0, 1),
-    'tongue_back_up'        : ('p_tongue', 'LOC_X', neg, 0, 1),
+    'mouth_open'            : ('p_jaw', 'LOC_Z', pos, -0.3, 1.5),
+    'tongue_out'            : ('p_jaw', 'LOC_X', neg, 0, 1.5),
+    'tongue_in'             : ('p_jaw', 'LOC_X', pos, 0, 1.5),
+    'tongue_up'             : ('p_tongue', 'LOC_Z', neg, 0, 1.5),
+    'tongue_wide'           : ('p_tongue', 'LOC_X', pos, 0, 1.5),
+    'tongue_back_up'        : ('p_tongue', 'LOC_X', neg, 0, 1.5),
 
 #   Mouth expressions
-    'mouth_wide'            : ('p_mouth_out', 'LOC_X', pos, 0, 1),
-    'mouth_narrow'          : ('p_mouth_out', 'LOC_X', neg, 0, 1),
-    'mouth_corner_up'       : ('p_mouth_out', 'LOC_Z', neg, 0, 1),
-    'mouth_corner_down'     : ('p_mouth_out', 'LOC_Z', pos, 0, 1),
+    'mouth_wide'            : ('p_mouth_out', 'LOC_X', pos, 0, 1.5),
+    'mouth_narrow'          : ('p_mouth_out', 'LOC_X', neg, 0, 1.5),
+    'mouth_corner_up'       : ('p_mouth_out', 'LOC_Z', neg, 0, 1.5),
+    'mouth_corner_down'     : ('p_mouth_out', 'LOC_Z', pos, 0, 1.5),
 
 #   Lips part
-    'lips_part'             : ('p_mouth_mid', 'LOC_Z', neg, 0, 1),
+    'lips_part'             : ('p_mouth_mid', 'LOC_Z', neg, -0.5, 1.5),
 
-    'mouth_up'              : ('p_mouth_in', 'LOC_Z', neg, 0, 1),
-    'mouth_down'            : ('p_mouth_in', 'LOC_Z', pos, 0, 1),
-    'mouth_corner_in'       : ('p_mouth_in', 'LOC_X', pos, 0, 1),
+    'mouth_up'              : ('p_mouth_in', 'LOC_Z', neg, 0, 1.5),
+    'mouth_down'            : ('p_mouth_in', 'LOC_Z', pos, 0, 1.5),
+    'mouth_corner_in'       : ('p_mouth_in', 'LOC_X', pos, 0, 1.5),
 
 #   Lips in _ out
-    'lips_upper_out'        : ('p_up_lip_mid', 'LOC_Z', neg, 0, 1),
-    'lips_upper_in'         : ('p_up_lip_mid', 'LOC_Z', pos, 0, 1),
-    'lips_lower_out'        : ('p_lo_lip_mid', 'LOC_Z', neg, 0, 1),
-    'lips_lower_in'         : ('p_lo_lip_mid', 'LOC_Z', pos, 0, 1),
+    'lips_upper_out'        : ('p_up_lip_mid', 'LOC_Z', neg, 0, 1.5),
+    'lips_upper_in'         : ('p_up_lip_mid', 'LOC_Z', pos, 0, 1.5),
+    'lips_lower_out'        : ('p_lo_lip_mid', 'LOC_Z', neg, 0, 1.5),
+    'lips_lower_in'         : ('p_lo_lip_mid', 'LOC_Z', pos, 0, 1.5),
 
 #   Lips up _ down
-    'lips_mid_upper_up'     : ('p_up_lip', 'LOC_Z', neg, 0, 1),
-    'lips_mid_upper_down'   : ('p_up_lip', 'LOC_Z', pos, 0, 1),
-    'lips_mid_lower_up'     : ('p_lo_lip', 'LOC_Z', neg, 0, 1),
-    'lips_mid_lower_down'   : ('p_lo_lip', 'LOC_Z', pos, 0, 1),
+    'lips_mid_upper_up'     : ('p_up_lip', 'LOC_Z', neg, 0, 1.5),
+    'lips_mid_upper_down'   : ('p_up_lip', 'LOC_Z', pos, 0, 1.5),
+    'lips_mid_lower_up'     : ('p_lo_lip', 'LOC_Z', neg, 0, 1.5),
+    'lips_mid_lower_down'   : ('p_lo_lip', 'LOC_Z', pos, 0, 1.5),
 
 }
 

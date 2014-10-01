@@ -141,7 +141,7 @@ def addBoneShapeDriver1(rig, ob, sname, bname, data, fac):
         print("No such shape_key: %s" % sname)
         return
 
-    _bname,channel,_coeffs,min,max = data
+    _bname,channel,_coeffs,smin,smax = data
     fcu = skey.driver_add("value")
     drv = fcu.driver
     drv.type = 'AVERAGE'
@@ -158,6 +158,12 @@ def addBoneShapeDriver1(rig, ob, sname, bname, data, fac):
     fmod = fcu.modifiers[0]
     fmod.coefficients[0] = 0
     fmod.coefficients[1] = fac
+
+    fmod = fcu.modifiers.new('LIMITS')
+    fmod.use_min_y = True
+    fmod.min_y = smin
+    fmod.use_max_y = True
+    fmod.max_y = smax
 
 #------------------------------------------------------------------------
 #
