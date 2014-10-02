@@ -26,6 +26,8 @@ import math
 import mathutils
 from mathutils import Vector, Matrix, Quaternion
 from bpy.props import *
+from bpy_extras.io_utils import ImportHelper
+
 from .hm8 import *
 from .error import *
 from .utils import *
@@ -35,11 +37,18 @@ from .utils import *
 # ---------------------------------------------------------------------
 
 def importMhx2File(filepath, cfg, context):
+    filepath = os.path.expanduser(filepath)
+    cfg.folder = os.path.dirname(filepath)
+    struct, time1 = importMhx2Json(filepath)
+    build(struct, cfg, context)
+    time2 = time.clock()
+    print("File %s loaded in %g s" % (filepath, time2-time1))
+
+
+def importMhx2Json(filepath):
     from .load_json import loadJson
     from .__init__ import bl_info
 
-    filepath = os.path.expanduser(filepath)
-    cfg.folder = os.path.dirname(filepath)
     if os.path.splitext(filepath)[1].lower() != ".mhx2":
         print("Error: Not a mhx2 file: %s" % filepath.encode('utf-8', 'strict'))
         return
@@ -62,9 +71,7 @@ def importMhx2File(filepath, cfg, context):
             "MHX2 file: %s" % fileVersion)
             )
 
-    build(struct, cfg, context)
-    time2 = time.clock()
-    print("File %s loaded in %g s" % (filepath, time2-time1))
+    return struct, time1
 
 
 def build(struct, cfg, context):
@@ -91,6 +98,7 @@ def build(struct, cfg, context):
         if mhGeo["human"]:
             mhHuman = mhGeo
             setMhHuman(mhHuman)
+            scn.MhxDesignHuman = getMhHuman()["name"]
 
     parser = None
     rig = None
@@ -320,4 +328,41 @@ def deleteHelpers(human, scn):
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.delete(type='VERT')
     bpy.ops.object.mode_set(mode='OBJECT')
+
+#------------------------------------------------------------------------
+#   Design human
+#------------------------------------------------------------------------
+
+def setDesignHuman(filepath, context):
+    filepath = os.path.expanduser(filepath)
+    struct, _time1 = importMhx2Json(filepath)
+    for mhGeo in struct["geometries"]:
+        if mhGeo["human"]:
+            mhHuman = mhGeo
+            setMhHuman(mhGeo)
+            context.scene.MhxDesignHuman = getMhHuman()["name"]
+            return
+    raise MhxError("Unable to set design human")
+
+
+class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator, ImportHelper):
+    bl_idname = "mhx2.set_design_human"
+    bl_label = "Set Design Human (.mhx2)"
+    bl_description = "Load definition of human to be designed"
+    bl_options = {'UNDO'}
+
+    filename_ext = ".mhx2"
+    filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
+    filepath = StringProperty(name="File Path", description="Filepath to mhx2 file", maxlen=1024, default="")
+
+    def execute(self, context):
+        try:
+            setDesignHuman(self.properties.filepath, context)
+        except MhxError:
+            handleMhxError(context)
+        return{'FINISHED'}
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
 

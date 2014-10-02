@@ -46,7 +46,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None
         if cfg.useRig:
             if mhGeo["human"]:
                 if "proxy" in mhGeo.keys() and not useSeedMesh:
-                    vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
+                    vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman(), parser)
                 else:
                     vgrps = meshVertexGroups(mhMesh, parser, cfg)
             else:

@@ -23,16 +23,20 @@ from mathutils import Vector
 from .error import MhxError
 
 def isBody(ob):
-    return (ob.name.split(":")[-1] in ["Body", "Base"])
+    name = ob.name.rsplit(".",1)[0]
+    return (name.split(":")[-1] in ["Body", "Base"])
 
 def getRigName(ob):
-    return ob.name.split(":")[0]
+    name = ob.name.rsplit(".",1)[0]
+    return name.split(":")[0]
 
 def getProxyName(ob):
-    return ob.name.split(":")[1]
+    name = ob.name.rsplit(".",1)[0]
+    return name.split(":")[1]
 
 def getMaterialName(ob):
-    return ob.name.split(":")[2]
+    name = ob.name.rsplit(".",1)[0]
+    return name.split(":")[2]
 
 def getDeleteName(ob):
     return "Delete:" + getProxyName(ob)
@@ -44,9 +48,9 @@ def getVGProxyName(string):
     return string.split(":",1)[1]
 
 def getClothesName(clo):
-    cloname = clo.name.rsplit(".",1)[0]
+    name = clo.name.rsplit(".",1)[0]
     try:
-        return cloname.split(":",1)[1]
+        return name.split(":",1)[1]
     except IndexError:
         return None
 
@@ -89,5 +93,5 @@ def getMhHuman(ob=None):
     except:
         raise MhxError("No saved human")
     if ob and theMhHuman["uuid"] != ob.MhxUuid:
-        raise MhxError("Saved human %s\ndoes not match current object")
+        raise MhxError("Saved human:\n %s\ndoes not match current object:\n %s" % (theMhHuman["name"], ob.name))
     return theMhHuman

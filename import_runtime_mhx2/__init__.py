@@ -263,32 +263,44 @@ class MhxSetupPanel(bpy.types.Panel):
             return
 
         layout.separator()
-        layout.operator("mhx2.add_mhc2")
-        layout.prop(scn, "MhxHairColor")
-
-        layout.separator()
         layout.operator("mhx2.add_simple_materials")
         layout.operator("mhx2.merge_objects")
 
         layout.separator()
-        layout.operator("mhx2.add_hide_drivers")
-        layout.operator("mhx2.remove_hide_drivers")
+        box = layout.box()
+        box.label("Design Human")
+        box.prop(scn, "MhxDesignHuman", text="")
+        box.operator("mhx2.set_design_human")
 
         layout.separator()
-        layout.operator("mhx2.add_facerig_drivers")
-        layout.operator("mhx2.remove_facerig_drivers")
+        box = layout.box()
+        box.label("Hair And Clothes")
+        box.operator("mhx2.add_mhc2")
+        box.prop(scn, "MhxHairColor")
 
         layout.separator()
-        op = layout.operator("mhx2.add_shapekeys", text="Add Face Shapes")
+        box = layout.box()
+        box.label("Visibility")
+        box.operator("mhx2.add_hide_drivers")
+        box.operator("mhx2.remove_hide_drivers")
+
+        layout.separator()
+        box = layout.box()
+        box.label("Facial Rig")
+        box.operator("mhx2.add_facerig_drivers")
+        box.operator("mhx2.remove_facerig_drivers")
+
+        layout.separator()
+        box = layout.box()
+        box.label("Shapekeys")
+        op = box.operator("mhx2.add_shapekeys", text="Add Face Shapes")
         op.filename="data/hm8/faceshapes/faceshapes.json"
-
-        layout.separator()
-        layout.operator("mhx2.add_face_shape_drivers")
-        layout.operator("mhx2.remove_face_shape_drivers")
-
-        layout.separator()
-        layout.operator("mhx2.add_other_shape_drivers")
-        layout.operator("mhx2.remove_other_shape_drivers")
+        box.separator()
+        box.operator("mhx2.add_face_shape_drivers")
+        box.operator("mhx2.remove_face_shape_drivers")
+        box.separator()
+        box.operator("mhx2.add_other_shape_drivers")
+        box.operator("mhx2.remove_other_shape_drivers")
 
 #------------------------------------------------------------------------
 #    Mhx Layers Panel
@@ -648,6 +660,8 @@ def register():
         name = "Hair Color",
         description = "Hair color",
         default = 'BLACK')
+
+    bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func)

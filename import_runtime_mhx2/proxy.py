@@ -74,10 +74,10 @@ def fitProxy(mhHuman, mhProxy, mhScale):
 # ---------------------------------------------------------------------
 
 def proxifyVertexGroups(mhProxy, mhHuman):
-    parser = mhHuman["parser"]
-    if parser:
+    try:
+        parser = mhHuman["parser"]
         vgrps = parser.vertexGroups
-    else:
+    except KeyError:
         mhSeed = mhHuman["seed_mesh"]
         if "weights" in mhSeed.keys():
             vgrps = mhSeed["weights"]
@@ -121,8 +121,7 @@ def proxifyMask(mhProxy, mhMesh, vnums):
     mhHuman = {
         "seed_mesh" : {
             "weights" : vgrps
-        },
-        "parser" : None
+        }
     }
     ngrps = proxifyVertexGroups(mhProxy, mhHuman)
 
@@ -271,11 +270,11 @@ def addMhc2(context, filepath):
     rig = getArmature(ob)
     scn = context.scene
 
-    if len(ob.data.vertices) not in [NBodyVerts, NTotalVerts]:
-        raise MhxError(
-            "Mhc2 can only be added to a\n" +
-            "MakeHuman mesh with\n" +
-            "%d or %d vertices" % (NBodyVerts, NTotalVerts))
+    #if len(ob.data.vertices) not in [NBodyVerts, NTotalVerts]:
+    #    raise MhxError(
+    #        "Mhc2 can only be added to a\n" +
+    #        "MakeHuman mesh with\n" +
+    #        "%d or %d vertices" % (NBodyVerts, NTotalVerts))
 
     mhHuman = getMhHuman(ob)
     mhGeo,coords = getProxyCoordinates(mhHuman, filepath)
@@ -299,7 +298,7 @@ def addMhc2(context, filepath):
 
 class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
     bl_idname = "mhx2.add_mhc2"
-    bl_label = "Add Mhc2 (.mhc2)"
+    bl_label = "Add Hair Or Clothes (.mhc2)"
     bl_description = "Add clothes, genitalia or hair stored in a mhc2 file"
     bl_options = {'UNDO'}
 
