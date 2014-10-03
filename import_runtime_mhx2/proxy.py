@@ -247,6 +247,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     pset.path_start = 0
     pset.path_end = 1
     pset.child_type = 'SIMPLE'
+    pset.child_radius = 0.1*ob.MhxScale
     pset.count = int(len(hcoords))
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
