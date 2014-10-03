@@ -164,7 +164,7 @@ def build(struct, cfg, context):
         from .proxy import getProxyCoordinates
         folder = os.path.dirname(__file__)
         filepath = os.path.join(folder, "data/hm8/hair", cfg.hairType)
-        hair,hcoords = getProxyCoordinates(mhHuman, filepath)
+        hair,hcoords,_scales = getProxyCoordinates(mhHuman, filepath)
 
     if cfg.useOverride and cfg.useFaceShapes:
         from .shapekeys import addShapeKeys

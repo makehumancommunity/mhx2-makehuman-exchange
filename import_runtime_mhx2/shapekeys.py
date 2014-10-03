@@ -37,20 +37,20 @@ def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
 
     print("Setting up shapekeys")
     struct = loadJsonRelative(filename)
-    scale = getScale(human, struct["bounding_box"], mhHuman)
+    scales = getScales(human, struct["bounding_box"], mhHuman)
     if human:
-        addTargets(human, struct["targets"], scale)
+        addTargets(human, struct["targets"], scales)
         human.MhxHasFaceShapes = True
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
         if mhProxy["type"] in proxyTypes:
             ptargets = proxifyTargets(mhProxy, struct["targets"])
-            addTargets(ob, ptargets, scale)
+            addTargets(ob, ptargets, scales)
             ob.MhxHasFaceShapes = True
 
 
-def addTargets(ob, targets, scale):
+def addTargets(ob, targets, scales):
     targets = list(targets.items())
     targets.sort()
     if not ob.data.shape_keys:
@@ -69,26 +69,27 @@ def addTargets(ob, targets, scale):
         for vn,delta in data[:nVerts]:
             if vn >= nVerts:
                 break
-            skey.data[vn].co += zup2(delta, scale)
+            skey.data[vn].co += zup2(delta, scales)
 
 
-def getScale(human, struct, mhHuman):
-    scale = Vector((1,1,1))
+def getScales(human, struct, mhHuman):
+    scale = mhHuman["scale"]
+    scales = Vector((scale,scale,scale))
     if mhHuman:
         verts = mhHuman["seed_mesh"]["vertices"]
         for comp,idx,idx1 in [("x",0,0), ("y",1,2), ("z",2,1)]:
             vn1,vn2,s0 = struct[comp]
             co1 = verts[vn1]
             co2 = verts[vn2]
-            scale[idx1] = abs((co2[idx] - co1[idx])/s0)
+            scales[idx1] = abs((co2[idx] - co1[idx])/s0*scale)
     else:
         verts = human.data.vertices
         for comp,idx in [("x",0), ("z",1), ("y",2)]:
             vn1,vn2,s0 = struct[comp]
             co1 = verts[vn1].co
             co2 = verts[vn2].co
-            scale[idx] = abs((co2[idx] - co1[idx])/s0)
-    return scale
+            scales[idx] = abs((co2[idx] - co1[idx])/s0*scale)
+    return scales
 
 
 class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):

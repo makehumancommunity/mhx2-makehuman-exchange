@@ -49,7 +49,7 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
         mats[mname] = mat
     else:
         pxyGeo["material"] = mhHuman["material"]
-    pxyGeo["scale"] = mhHuman["scale"]
+    pxyGeo["scale"] = 1.0   # mhHuman["scale"]
     mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
     pxyGeo["bounding_box"] = mhProxy["bounding_box"]
     pverts,scales = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["bounding_box"])
@@ -58,9 +58,10 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
 
 
 def fitProxy(mhHuman, mhProxy, mhScale):
-    from .shapekeys import getScale
-    scales = getScale(None, mhScale, mhHuman)
-    hverts = [Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
+    from .shapekeys import getScales
+    scales = getScales(None, mhScale, mhHuman)
+    scale = mhHuman["scale"]
+    hverts = [scale*Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
     for vnums,weights,offset in mhProxy["fitting"]:
         pco = (weights[0]*hverts[vnums[0]] +
@@ -76,8 +77,11 @@ def fitProxy(mhHuman, mhProxy, mhScale):
 def proxifyVertexGroups(mhProxy, mhHuman):
     try:
         parser = mhHuman["parser"]
-        vgrps = parser.vertexGroups
     except KeyError:
+        parser = None
+    if parser:
+        vgrps = parser.vertexGroups
+    else:
         mhSeed = mhHuman["seed_mesh"]
         if "weights" in mhSeed.keys():
             vgrps = mhSeed["weights"]
@@ -190,12 +194,12 @@ def getProxyCoordinates(mhHuman, filepath):
     from .load_json import loadJson
 
     offset = Vector(zup(mhHuman["offset"]))
-    struct = loadJson(filepath)
-    mhProxy = struct["proxy"]
-    pverts,_sscale = fitProxy(mhHuman, mhProxy, mhProxy["bounding_box"])
+    mhGeo = loadJson(filepath)
+    mhProxy = mhGeo["proxy"]
+    pverts,scales = fitProxy(mhHuman, mhProxy, mhProxy["bounding_box"])
 
-    if isHairStruct(struct):
-        hlist = struct["particles"]["hairs"]
+    if isHairStruct(mhGeo):
+        hlist = mhGeo["particles"]["hairs"]
         nhairs = int(len(hlist))
         hlen = int(len(hlist[0]))
         coords = []
@@ -204,7 +208,7 @@ def getProxyCoordinates(mhHuman, filepath):
     else:
         coords = [Vector(zup(v)) + offset for v in pverts]
 
-    return struct,coords
+    return mhGeo,coords,scales
 
 
 def addHair(ob, struct, hcoords, scn, cfg=None):
@@ -277,7 +281,7 @@ def addMhc2(context, filepath):
     #        "%d or %d vertices" % (NBodyVerts, NTotalVerts))
 
     mhHuman = getMhHuman(ob)
-    mhGeo,coords = getProxyCoordinates(mhHuman, filepath)
+    mhGeo,coords,scales = getProxyCoordinates(mhHuman, filepath)
     if isHairStruct(mhGeo):
         addHair(ob, mhGeo, coords, scn)
     else:
@@ -294,6 +298,9 @@ def addMhc2(context, filepath):
         addMasks(ob, [(mhGeo,pxy)], proxyTypes=[mhProxy["type"]])
         ngrps = proxifyVertexGroups(mhProxy, mhHuman)
         buildVertexGroups(ngrps, pxy, rig)
+        if "targets" in mhGeo.keys():
+            from .shapekeys import addTargets
+            addTargets(pxy, mhGeo["targets"], scales)
 
 
 class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
