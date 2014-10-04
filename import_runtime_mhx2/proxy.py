@@ -74,11 +74,12 @@ def fitProxy(mhHuman, mhProxy, mhScale):
 #   Vertex groups
 # ---------------------------------------------------------------------
 
-def proxifyVertexGroups(mhProxy, mhHuman):
-    try:
-        parser = mhHuman["parser"]
-    except KeyError:
-        parser = None
+def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
+    if parser is None:
+        try:
+            parser = mhHuman["parser"]
+        except KeyError:
+            pass
     if parser:
         vgrps = parser.vertexGroups
     else:

@@ -51,17 +51,19 @@ class RigifyBone:
         self.child = None
         self.connect = False
         self.original = False
+        self.face = False
         self.extra = (eb.name in ["spine-1"])
 
         if eb.layers[10]:   # Face
             self.layer = 0
+            self.face = True
         elif eb.layers[9]:  # Tweak
             self.layer = 2
         else:
             self.layer = 1  # Muscle
 
     def __repr__(self):
-        return ("<RigifyBone %s %s %s>" % (self.name, self.realname, self.realname1))
+        return ("<RigifyBone %s %s %s %d>" % (self.name, self.realname, self.realname1, self.layer))
 
 
 def checkRigifyEnabled(context):
@@ -174,6 +176,8 @@ def rigifyMhx(context):
         if not bone.original:
             if bone.deform:
                 bone.realname = "DEF-" + bone.name
+            elif bone.face:
+                bone.realname = bone.name
             else:
                 bone.realname = "MCH-" + bone.name
             eb = gen.data.edit_bones.new(bone.realname)
@@ -199,6 +203,7 @@ def rigifyMhx(context):
         if not bone.original:
             pb = gen.pose.bones[bone.realname]
             db = rig.pose.bones[bone.name]
+            pb.bone.hide_select = db.bone.hide_select
             pb.rotation_mode = db.rotation_mode
             pb.lock_location = bone.lockLocation
             if bone.customShape:
