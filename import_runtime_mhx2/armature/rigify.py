@@ -152,6 +152,7 @@ def rigifyMhx(context):
             parent.tail = bones[bone.parent].tail
             eb.parent = parent
             eb.use_connect = True
+            eb.layers = list(child.layers)
 
     # Add rigify properties to extra bones
     bpy.ops.object.mode_set(mode='OBJECT')
