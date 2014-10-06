@@ -32,6 +32,9 @@ from .hm8 import *
 from .error import *
 from .utils import *
 
+LowestVersion = 22
+HighestVersion = 29
+
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
@@ -47,7 +50,6 @@ def importMhx2File(filepath, cfg, context):
 
 def importMhx2Json(filepath):
     from .load_json import loadJson
-    from .__init__ import bl_info
 
     if os.path.splitext(filepath)[1].lower() != ".mhx2":
         print("Error: Not a mhx2 file: %s" % filepath.encode('utf-8', 'strict'))
@@ -57,18 +59,24 @@ def importMhx2Json(filepath):
     time1 = time.clock()
     struct = loadJson(filepath)
 
-    print(bl_info["version"])
-    impVersion = ("%d.%d" % bl_info["version"])
     try:
-        fileVersion = struct["mhx2_version"]
+        vstring = struct["mhx2_version"]
     except KeyError:
-        fileVersion = "Unknown"
+        vstring = ""
 
-    if impVersion != fileVersion:
+    if vstring:
+        high,low = vstring.split(".")
+        fileVersion = 100*int(high) + int(low)
+    else:
+        fileVersion = 0
+
+    if (fileVersion > HighestVersion or
+        fileVersion < LowestVersion):
         raise MhxError(
             ("Incompatible MHX2 versions:\n" +
-            "Importer: %s\n" % impVersion +
-            "MHX2 file: %s" % fileVersion)
+            "MHX2 file: %s\n" % vstring +
+            "Must be between\n" +
+            "0.%d and 0.%d" % (LowestVersion, HighestVersion))
             )
 
     return struct, time1
