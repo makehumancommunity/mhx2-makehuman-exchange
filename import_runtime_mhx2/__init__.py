@@ -259,7 +259,16 @@ class MhxSetupPanel(bpy.types.Panel):
         scn = context.scene
 
         layout.operator("import_scene.makehuman_mhx2")
+
         if ob is None:
+            return
+        elif ob.type == 'ARMATURE':
+            if not ob.MhxRig:
+                return
+        elif ob.type == 'MESH':
+            if not ob.MhxUuid:
+                return
+        else:
             return
 
         layout.separator()
