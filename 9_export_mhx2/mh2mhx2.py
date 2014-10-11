@@ -169,6 +169,16 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
 
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
+
+    pxy = mesh.object.proxy
+    if pxy:
+        if pxy.type == 'Proxymeshes':
+            mhGeo["license"] = BaseMeshLicense
+        else:
+            addProxyLicense(mhGeo, pxy)
+    else:
+        mhGeo["license"] = BaseMeshLicense
+
     mhName = mhGeo["name"] = mname
     mhGeo["uuid"] = str(uuid4())
     mhGeo["offset"] = cfg.offset
@@ -183,7 +193,6 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     mhSeed = mhGeo["seed_mesh"] = OrderedDict()
     addMesh(mhSeed, mesh.object.getSeedMesh())
 
-    pxy = mesh.object.proxy
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["human"] = True
@@ -212,6 +221,7 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
                 addWeights(mhSeed, skel, pxySeedWeights)
 
         mhProxy = mhGeo["proxy"] = OrderedDict()
+        addProxyLicense(mhProxy, pxy)
         mhProxy["name"] = pxy.name.capitalize()
         mhProxy["type"] = pxy.type
         mhProxy["uuid"] = pxy.uuid
@@ -271,3 +281,43 @@ def getGeoName(name, meshname):
 
 def getMaterialName(name, meshname, matname):
     return ("%s:%s" % (getGeoName(name, meshname), matname.capitalize()))
+
+
+#-----------------------------------------------------------------------
+#   Licensing
+#-----------------------------------------------------------------------
+
+
+BaseMeshLicense = (
+    ["MakeHuman 3d morphing modelled by Manuel Bastioni"],
+    ["Copyright (C) 2014 Manuel Bastioni (mb@makehuman.org)"],
+    ["homepage http://www.makehuman.org"],
+    ["basemesh hm08"],
+    ["license AGPL3 (http://www.makehuman.org/doc/node/makehuman_mesh_license.html)"],
+    ["   This file is part of MakeHuman (www.makehuman.org)."],
+    [""],
+    ["   This program is free software: you can redistribute it and/or modify"],
+    ["   it under the terms of the GNU Affero General Public License as"],
+    ["   published by the Free Software Foundation, either version 3 of the"],
+    ["   License, or (at your option) any later version."],
+    [""],
+    ["   This program is distributed in the hope that it will be useful,"],
+    ["   but WITHOUT ANY WARRANTY; without even the implied warranty of"],
+    ["   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"],
+    ["   GNU Affero General Public License for more details."],
+    [""],
+    ["   You should have received a copy of the GNU Affero General Public License"],
+    ["   along with this program.  If not, see <http://www.gnu.org/licenses/>."],
+)
+
+def addProxyLicense(mhGeo, pxy):
+    mhLicense = mhGeo["license"] = OrderedDict()
+    if hasattr(pxy, "license"):
+        for key in ["author", "license", "homepage"]:
+            mhLicense[key] = getattr(pxy.license, key)
+    else:
+        mhLicense["author"] = "MakeHuman Team"
+        mhLicense["license"] = "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)"
+        mhLicense["homepage"] = "http://www.makehuman.org/"
+
+

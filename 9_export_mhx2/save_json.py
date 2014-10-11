@@ -77,6 +77,7 @@ def encodeJsonData(data, pad=""):
         else:
             return string + "\n%s}" % pad
     else:
+        log.debug(data)
         raise RuntimeError("Can't encode: %s %s" % (data, data.type))
 
 
