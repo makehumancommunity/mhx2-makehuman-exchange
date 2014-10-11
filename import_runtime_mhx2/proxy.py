@@ -257,10 +257,11 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     pedit = scn.tool_settings.particle_edit
     pedit.use_preserve_length = False
     pedit.use_preserve_root = False
-    pedit.select_mode = 'PATH'
-    pedit.tool = 'COMB'
-    bpy.ops.particle.brush_edit(stroke=[{"name":"", "location":(0, 0, 0), "mouse":(577, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(578, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(580, 595), "pressure":0, "pen_flip":False, "time":0, "is_start":False}])
+    #pedit.select_mode = 'PATH'
+    #pedit.tool = 'COMB'
+    #bpy.ops.particle.brush_edit(stroke=[{"name":"", "location":(0, 0, 0), "mouse":(577, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(578, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(580, 595), "pressure":0, "pen_flip":False, "time":0, "is_start":False}])
     pedit.select_mode = 'POINT'
+    bpy.ops.transform.translate()
 
     for m,hair in enumerate(psys.particles):
         verts = hcoords[m]
