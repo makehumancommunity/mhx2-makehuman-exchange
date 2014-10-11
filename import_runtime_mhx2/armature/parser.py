@@ -366,9 +366,11 @@ class Parser:
             ])
             if cfg.usePenisRig:
                 addDict(rig_bones.PenisArmature, generic)
+            for key,value in rig_muscle.CustomShapes.items():
+                generic[key] = value
             if cfg.useDeformBones:
                 self.addDeformBones(generic)
-                self.renameDeformBones(rig_muscle.Armature, rig_muscle.CustomShapes)
+                self.renameDeformBones(rig_muscle.Armature)
                 if cfg.useConstraints:
                     self.renameConstraints(rig_muscle.Constraints)
             custom = {}
@@ -835,10 +837,8 @@ class Parser:
                         bone.parent = defName1
 
 
-    def renameDeformBones(self, muscles, custom):
+    def renameDeformBones(self, muscles):
         for bname in muscles.keys():
-            if bname in custom.keys():
-                continue
             try:
                 bone = self.bones[bname]
             except KeyError:
