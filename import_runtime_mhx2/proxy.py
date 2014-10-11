@@ -213,7 +213,7 @@ def getProxyCoordinates(mhHuman, filepath):
 
 
 def addHair(ob, struct, hcoords, scn, cfg=None):
-    from .materials import buildBlenderMaterial, getDefaultHairMaterial
+    from .materials import buildBlenderMaterial, buildHairMaterial
 
     psys = ob.particle_systems.active
     if psys is not None:
@@ -227,7 +227,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             color = scn.MhxHairColor
         else:
             color = cfg.hairColor
-        mat = getDefaultHairMaterial(color)
+        mat = buildHairMaterial(color, scn)
     ob.data.materials.append(mat)
 
     bpy.ops.object.particle_system_add()

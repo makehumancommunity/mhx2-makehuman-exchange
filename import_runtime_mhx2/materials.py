@@ -21,6 +21,8 @@
 
 import bpy
 import os
+import math
+D = math.pi/180
 
 # ---------------------------------------------------------------------
 #
@@ -35,6 +37,16 @@ def buildMaterial(mhMaterial, scn, cfg):
         buildMaterialInternal(mat, mhMaterial, scn, cfg)
     return mname, mat
 
+
+def buildHairMaterial(color, scn):
+    rgb = ColorRGB[color]
+    mat = bpy.data.materials.new("Hair")
+    if scn.render.engine == 'CYCLES':
+        buildHairMaterialCycles(mat, rgb)
+    else:
+        buildHairMaterialInternal(mat, rgb)
+    return mat
+
 # ---------------------------------------------------------------------
 #   Cycles
 # ---------------------------------------------------------------------
@@ -43,46 +55,90 @@ class NodeTree:
     def __init__(self, tree):
         self.nodes = tree.nodes
         self.links = tree.links
-        self.texco = None
-
         self.ycoord1 = 1
         self.ycoord2 = 1
         self.ycoord3 = 1
         self.ycoord4 = 1
-        self.dy1 = 300
-        self.dy2 = 300
-        self.dy3 = 200
-        self.dy4 = 200
+        self.dy1 = -250
+        self.dy2 = -250
+        self.dy3 = -250
+        self.dy4 = -250
 
-    def addTexcoNode(self):
-        texco = self.texco = self.nodes.new(type = 'ShaderNodeTexCoord')
-        texco.location = (1, self.ycoord1)
+    def addNode1(self, stype):
+        node = self.nodes.new(type = stype)
+        node.location = (1, self.ycoord1)
         self.ycoord1 += self.dy1
-        return texco
+        return node
 
-    def addTexImageNode(self, mhMat, channel, cfg):
-        try:
-            filepath = mhMat[channel]
-        except KeyError:
-            return None
-        tex = self.nodes.new(type = 'ShaderNodeTexImage')
-        tex.image = loadImage(filepath, cfg)
-        self.links.new(self.texco.outputs['UV'], tex.inputs['Vector'])
-        tex.location = (251, self.ycoord2)
+    def addNode2(self, stype):
+        node = self.nodes.new(type = stype)
+        node.location = (251, self.ycoord2)
         self.ycoord2 += self.dy2
-        return tex
+        return node
 
-    def addBsdfNode(self, stype):
+    def addNode3(self, stype):
         node = self.nodes.new(type = stype)
         node.location = (501, self.ycoord3)
         self.ycoord3 += self.dy3
         return node
 
-    def addMixNode(self):
-        mix = self.nodes.new(type = 'ShaderNodeMixShader')
-        mix.location = (751, self.ycoord4)
+    def addNode4(self, stype):
+        node = self.nodes.new(type = stype)
+        node.location = (751, self.ycoord4)
         self.ycoord4 += self.dy4
-        return mix
+        return node
+
+    def addTexImageNode(self, mhMat, texco, channel, cfg):
+        try:
+            filepath = mhMat[channel]
+        except KeyError:
+            return None
+        tex = self.addNode2('ShaderNodeTexImage')
+        tex.image = loadImage(filepath, cfg)
+        self.links.new(texco.outputs['UV'], tex.inputs['Vector'])
+        return tex
+
+
+def buildHairMaterialCycles(mat, rgb):
+    print("Creating CYCLES HAIR material", mat.name)
+    mat.use_nodes= True
+    mat.node_tree.nodes.clear()
+    tree = NodeTree(mat.node_tree)
+    links = mat.node_tree.links
+
+    refl = tree.addNode1('ShaderNodeBsdfHair')
+    refl.component = 'Reflection'
+    refl.inputs['Color'].default_value[0:3] = rgb
+    refl.inputs['Offset'].default_value = -4.0*D
+    refl.inputs[2].default_value = 1.0
+    refl.inputs[3].default_value = 0.3
+
+    trans = tree.addNode1('ShaderNodeBsdfHair')
+    trans.component = 'Transmission'
+    trans.inputs['Color'].default_value[0:3] = rgb
+    trans.inputs['Offset'].default_value = 0*D
+    trans.inputs[2].default_value = 0.2
+    trans.inputs[3].default_value = 1.0
+
+    add = tree.addNode2('ShaderNodeAddShader')
+    links.new(refl.outputs['BSDF'], add.inputs[0])
+    links.new(trans.outputs['BSDF'], add.inputs[1])
+
+    refl2 = tree.addNode2('ShaderNodeBsdfHair')
+    refl2.component = 'Reflection'
+    refl2.inputs['Color'].default_value[0:3] = (1,1,1)
+    refl2.inputs['Offset'].default_value = 4*D
+    refl2.inputs[2].default_value = 0.05
+    refl2.inputs[3].default_value = 0.87
+
+    mix = tree.addNode3('ShaderNodeMixShader')
+    mix.inputs[0].default_value = 0.6
+    links.new(add.outputs['Shader'], mix.inputs[1])
+    links.new(refl2.outputs['BSDF'], mix.inputs[2])
+
+    output = mat.node_tree.nodes.new(type = 'ShaderNodeOutputMaterial')
+    links.new(mix.outputs['Shader'], output.inputs['Surface'])
+    output.location = (751, 1)
 
 
 def buildMaterialCycles(mat, mhMat, scn, cfg):
@@ -91,41 +147,41 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     mat.node_tree.nodes.clear()
     tree = NodeTree(mat.node_tree)
     links = mat.node_tree.links
-    texco = tree.addTexcoNode()
+    texco = tree.addNode1('ShaderNodeTexCoord')
 
-    diffuse = tree.addBsdfNode('ShaderNodeBsdfDiffuse')
+    diffuse = tree.addNode3('ShaderNodeBsdfDiffuse')
     diffuse.inputs["Color"].default_value[0:3] =  mhMat["diffuse_color"]
     diffuse.inputs["Roughness"].default_value = 0
-    diffuseTex = tree.addTexImageNode(mhMat, "diffuse_texture", cfg)
+    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg)
     if diffuseTex:
         links.new(diffuseTex.outputs['Color'], diffuse.inputs['Color'])
-        transparent = tree.addBsdfNode('ShaderNodeBsdfTransparent')
+        transparent = tree.addNode3('ShaderNodeBsdfTransparent')
     else:
         transparent = None
 
-    glossy = tree.addBsdfNode('ShaderNodeBsdfGlossy')
+    glossy = tree.addNode3('ShaderNodeBsdfGlossy')
     glossy.inputs["Color"].default_value[0:3] = mhMat["diffuse_color"]
     glossy.inputs["Roughness"].default_value = 0
-    glossyTex = tree.addTexImageNode(mhMat, "specular_map_texture", cfg)
+    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
     if glossyTex:
         links.new(glossyTex.outputs['Color'], glossy.inputs['Color'])
 
-    normalTex = tree.addTexImageNode(mhMat, "normal_map_texture", cfg)
+    normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg)
     if normalTex:
-        normalMap = tree.addBsdfNode('ShaderNodeNormalMap')
+        normalMap = tree.addNode3('ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
         links.new(normalTex.outputs['Color'], normalMap.inputs['Color'])
         links.new(normalMap.outputs['Normal'], glossy.inputs['Normal'])
     else:
         normalMap = None
 
-    mixGloss = tree.addMixNode()
+    mixGloss = tree.addNode4('ShaderNodeMixShader')
     mixGloss.inputs['Fac'].default_value = 0.02
     links.new(diffuse.outputs['BSDF'], mixGloss.inputs[1])
     links.new(glossy.outputs['BSDF'], mixGloss.inputs[2])
 
     if transparent is not None:
-        mixTrans = tree.addMixNode()
+        mixTrans = tree.addNode4('ShaderNodeMixShader')
         links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
         links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
         links.new(mixGloss.outputs['Shader'], mixTrans.inputs[2])
@@ -331,10 +387,7 @@ ColorRGB = {
     'BROWN' : [0.035, 0.004, 0.002],
 }
 
-def getDefaultHairMaterial(color):
-    rgb = ColorRGB[color]
-
-    mat = bpy.data.materials.new("Hair")
+def buildHairMaterialInternal(rgb):
     mat.diffuse_color = rgb
     mat.diffuse_intensity = 0.1
     mat.specular_color = rgb
