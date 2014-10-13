@@ -85,6 +85,19 @@ import os
 #
 # ---------------------------------------------------------------------
 
+HairColorProperty = FloatVectorProperty(
+    name = "Hair Color",
+    subtype = "COLOR",
+    size = 4,
+    min = 0.0,
+    max = 1.0,
+    default = (0.15, 0.03, 0.005, 1.0)
+    )
+
+# ---------------------------------------------------------------------
+#
+# ---------------------------------------------------------------------
+
 class ImportMHX2(bpy.types.Operator, ImportHelper):
     """Import from MHX2 file format (.mhx2)"""
     bl_idname = "import_scene.makehuman_mhx2"
@@ -171,12 +184,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         description = "Hair",
         default = "NONE")
 
-    from .materials import ColorItems
-    hairColor = EnumProperty(
-        items = ColorItems,
-        name = "Color",
-        description = "Hair color",
-        default = 'BLACK')
+    hairColor = HairColorProperty
 
     def execute(self, context):
         from .config import Config
@@ -304,6 +312,7 @@ class MhxSetupPanel(bpy.types.Panel):
         box.separator()
         box.operator("mhx2.add_other_shape_drivers")
         box.operator("mhx2.remove_other_shape_drivers")
+
 
 #------------------------------------------------------------------------
 #    Mhx Layers Panel
@@ -612,6 +621,7 @@ class MhxVisemesPanel(bpy.types.Panel):
         self.layout.operator("mhx2.load_moho")
         self.layout.operator("mhx2.delete_lipsync")
 
+
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
@@ -657,12 +667,7 @@ def register():
     bpy.types.Object.MhaLegIkToAnkle_R = BoolProperty(default=False)
     bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
 
-    from .materials import ColorItems
-    bpy.types.Scene.MhxHairColor = EnumProperty(
-        items = ColorItems,
-        name = "Hair Color",
-        description = "Hair color",
-        default = 'BLACK')
+    bpy.types.Scene.MhxHairColor = HairColorProperty
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 

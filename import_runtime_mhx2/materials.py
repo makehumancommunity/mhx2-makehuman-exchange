@@ -39,12 +39,11 @@ def buildMaterial(mhMaterial, scn, cfg):
 
 
 def buildHairMaterial(color, scn):
-    rgb = ColorRGB[color]
     mat = bpy.data.materials.new("Hair")
     if scn.render.engine == 'CYCLES':
-        buildHairMaterialCycles(mat, rgb)
+        buildHairMaterialCycles(mat, list(color[0:3]))
     else:
-        buildHairMaterialInternal(mat, rgb)
+        buildHairMaterialInternal(mat, list(color[0:3]))
     return mat
 
 # ---------------------------------------------------------------------
@@ -387,7 +386,7 @@ ColorRGB = {
     'BROWN' : [0.035, 0.004, 0.002],
 }
 
-def buildHairMaterialInternal(rgb):
+def buildHairMaterialInternal(mat, rgb):
     mat.diffuse_color = rgb
     mat.diffuse_intensity = 0.1
     mat.specular_color = rgb
@@ -416,15 +415,15 @@ def buildHairMaterialInternal(rgb):
     return mat
 
 
-def defaultRamp(ramp, color):
+def defaultRamp(ramp, rgb):
     ramp.interpolation = 'LINEAR'
     ramp.elements.new(0.1)
     ramp.elements.new(0.2)
     for n,data in enumerate([
-        (0, color+[0]),
-        (0.07, color+[1]),
-        (0.6, color+[1]),
-        (1.0, color+[0])
+        (0, rgb+[0]),
+        (0.07, rgb+[1]),
+        (0.6, rgb+[1]),
+        (1.0, rgb+[0])
         ]):
         elt = ramp.elements[n]
         elt.position, elt.color = data
