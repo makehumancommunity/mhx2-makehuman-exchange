@@ -18,25 +18,16 @@
 
 
 from export import Exporter
-from exportutils.config import Config
+try:
+    from exportutils.config import Config as ExportConfig
+except ImportError:
+    from export import ExportConfig
 
 
-class Mhx2Config(Config):
-
+class Mhx2Config(ExportConfig):
     def __init__(self):
-        Config.__init__(self)
-
+        ExportConfig.__init__(self)
         self.useBinary     = False
-
-        self.useRelPaths     = False
-        self.useMaterials    = True # for debugging
-
-        # Used by Collada, needed for armature access
-        self.useTPose = False
-
-    def __repr__(self):
-        return("<Mhx2Config %s e %s>" % (
-            self.expressions,))
 
 
 class ExporterMhx2(Exporter):

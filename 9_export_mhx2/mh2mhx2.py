@@ -23,9 +23,9 @@ import sys
 import codecs
 from collections import OrderedDict
 import numpy as np
+import shutil
 
 from core import G
-import exportutils
 import log
 
 import skeleton
@@ -43,8 +43,8 @@ def exportMhx2(filepath, cfg):
     G.app.progress(0.1, text="Exporting %s" % filepath)
 
     filename = os.path.basename(filepath)
-    folder = os.path.dirname(filepath)
     name = cfg.goodName(os.path.splitext(filename)[0])
+    texhandler = TextureHandler(filepath)
 
     # Collect objects, scale meshes and filter out hidden faces/verts, scale rig
     objects = human.getObjects(excludeZeroFaceObjs=True)
@@ -65,12 +65,11 @@ def exportMhx2(filepath, cfg):
         mhSkel = mhFile["skeleton"] = OrderedDict()
         addSkeleton(mhSkel, skel, name, cfg)
 
-    if cfg.useMaterials:
-        mhMaterials = mhFile["materials"] = []
-        mats = {}
-        for mesh in meshes:
-            mats[mesh.name] = mname = getMaterialName(name, mesh.name, mesh.material.name)
-            addMaterial(mhMaterials, mesh.material, mname, folder, cfg)
+    mhMaterials = mhFile["materials"] = []
+    mats = {}
+    for mesh in meshes:
+        mats[mesh.name] = mname = getMaterialName(name, mesh.name, mesh.material.name)
+        addMaterial(mhMaterials, mesh.material, mname, texhandler)
 
     mhGeos = mhFile["geometries"] = []
     for mesh in meshes:
@@ -86,7 +85,7 @@ def exportMhx2(filepath, cfg):
 #   Materials
 #-----------------------------------------------------------------------
 
-def addMaterial(mhMaterials, mat, mname, folder, cfg):
+def addMaterial(mhMaterials, mat, mname, texhandler):
     mhMat = OrderedDict()
     mhMaterials.append(mhMat)
     mhMat["name"] = mname
@@ -116,24 +115,66 @@ def addMaterial(mhMaterials, mat, mname, folder, cfg):
     mhMat["sssGScale"] = mat.sssBScale
     mhMat["sssBScale"] = mat.sssBScale
 
-    addTexture(mhMat, "diffuse_texture", mat.diffuseTexture, folder, cfg)
-    addTexture(mhMat, "specular_map_texture", mat.specularMapTexture, folder, cfg)
-    addTexture(mhMat, "normal_map_texture", mat.normalMapTexture, folder, cfg)
-    addTexture(mhMat, "transparency_map_texture", mat.transparencyMapTexture, folder, cfg)
-    addTexture(mhMat, "bump_map_texture", mat.bumpMapTexture, folder, cfg)
-    addTexture(mhMat, "displacement_map_texture", mat.displacementMapTexture, folder, cfg)
-    addTexture(mhMat, "ao_map_texture", mat.aoMapTexture, folder, cfg)
+    texhandler.addTexture(mhMat, "diffuse_texture", mat.diffuseTexture)
+    texhandler.addTexture(mhMat, "specular_map_texture", mat.specularMapTexture)
+    texhandler.addTexture(mhMat, "normal_map_texture", mat.normalMapTexture)
+    texhandler.addTexture(mhMat, "transparency_map_texture", mat.transparencyMapTexture)
+    texhandler.addTexture(mhMat, "bump_map_texture", mat.bumpMapTexture)
+    texhandler.addTexture(mhMat, "displacement_map_texture", mat.displacementMapTexture)
+    texhandler.addTexture(mhMat, "ao_map_texture", mat.aoMapTexture)
 
 
-def addTexture(mhMat, key, filepath, folder, cfg):
-    if not filepath:
-        #mhMat[key] = None
-        return
-    newpath = cfg.copyTextureToNewLocation(filepath)
-    texfile = os.path.basename(newpath)
-    relpath = os.path.relpath(os.path.abspath(newpath), folder)
-    #relpath = os.path.join("textures", os.path.basename(newpath))
-    mhMat[key] = relpath.replace("\\","/")
+class TextureHandler:
+
+    def __init__(self, filepath):
+        self.outFolder = os.path.realpath(os.path.dirname(filepath))
+        self.texFolder = self.getSubFolder(self.outFolder, "textures")
+        self._copiedFiles = {}
+
+
+    def getSubFolder(self, path, name):
+        folder = os.path.join(path, name)
+        if not os.path.exists(folder):
+            log.message("Creating folder %s", folder)
+            try:
+                os.mkdir(folder)
+            except:
+                log.error("Unable to create separate folder:", exc_info=True)
+                return None
+        return folder
+
+
+    def copyTextureToNewLocation(self, filepath):
+        srcDir = os.path.abspath(os.path.expanduser(os.path.dirname(filepath)))
+        filename = os.path.basename(filepath)
+
+        newpath = os.path.abspath( os.path.join(self.texFolder, filename) )
+        try:
+            self._copiedFiles[filepath]
+            done = True
+        except:
+            done = False
+        if not done:
+            try:
+                shutil.copyfile(filepath, newpath)
+            except:
+                log.message("Unable to copy \"%s\" -> \"%s\"" % (filepath, newpath))
+            self._copiedFiles[filepath] = True
+
+        relpath = os.path.relpath(newpath, self.outFolder)
+        return str(os.path.normpath(relpath))
+
+
+    def addTexture(self, mhMat, key, filepath):
+        if not filepath:
+            return
+        newpath = self.copyTextureToNewLocation(filepath)
+        mhMat[key] = newpath.replace("\\","/")
+
+
+    def goodName(self, name):
+        string = name.replace(" ", "_").replace("-","_").lower()
+        return string
 
 #-----------------------------------------------------------------------
 #   Skeletons

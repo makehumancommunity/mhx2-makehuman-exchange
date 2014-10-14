@@ -240,41 +240,46 @@ def buildMaterialInternal(mat, mhMaterial, scn, cfg):
         elif key == "diffuse_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.use_map_color_diffuse = True
-                mtex.use_map_alpha = True
-                mtex.diffuse_color_factor = mhMaterial["diffuse_map_intensity"]
-                mtex.alpha_factor = 1.0
-                setTransparent(mat, scn)
-                mat.alpha = 0
-                mat.specular_alpha = 0
+                if mtex:
+                    mtex.use_map_color_diffuse = True
+                    mtex.use_map_alpha = True
+                    mtex.diffuse_color_factor = mhMaterial["diffuse_map_intensity"]
+                    mtex.alpha_factor = 1.0
+                    setTransparent(mat, scn)
+                    mat.alpha = 0
+                    mat.specular_alpha = 0
         elif key == "specular_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.use_map_specular = True
-                mtex.specular_factor = mhMaterial["specular_map_intensity"]
-                mtex.use_map_reflect = True
-                mtex.reflection_factor = 1.0
+                if mtex:
+                    mtex.use_map_specular = True
+                    mtex.specular_factor = mhMaterial["specular_map_intensity"]
+                    mtex.use_map_reflect = True
+                    mtex.reflection_factor = 1.0
         elif key == "normal_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.normal_factor = cfg.scale # mhMaterial["normal_map_intensity"]
-                mtex.use_map_normal = True
-                tex = mtex.texture
-                tex.use_normal_map = True
+                if mtex:
+                    mtex.normal_factor = cfg.scale # mhMaterial["normal_map_intensity"]
+                    mtex.use_map_normal = True
+                    tex = mtex.texture
+                    tex.use_normal_map = True
         elif key == "bump_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.use_map_normal = True
-                mtex.normal_factor = cfg.scale #mhMaterial["bump_map_intensity"]
-                mtex.use_rgb_to_intensity = True
-                tex = mtex.texture
-                tex.use_normal_map = False
+                if mtex:
+                    mtex.use_map_normal = True
+                    mtex.normal_factor = cfg.scale #mhMaterial["bump_map_intensity"]
+                    mtex.use_rgb_to_intensity = True
+                    tex = mtex.texture
+                    tex.use_normal_map = False
         elif key == "displacement_map_texture":
             if value:
                 mtex = addTexture(mat, value, cfg)
-                mtex.use_map_displacement = True
-                mtex.displacement_factor = cfg.scale #mhMaterial["displacement_map_intensity"]
-                mtex.use_rgb_to_intensity = True
+                if mtex:
+                    mtex.use_map_displacement = True
+                    mtex.displacement_factor = cfg.scale #mhMaterial["displacement_map_intensity"]
+                    mtex.use_rgb_to_intensity = True
 
 
 
@@ -288,7 +293,11 @@ def setTransparent(mat, scn):
 
 def loadImage(filepath, cfg):
     abspath = os.path.join(cfg.folder, filepath)
-    img = bpy.data.images.load(abspath)
+    try:
+        img = bpy.data.images.load(abspath)
+    except RuntimeError:
+        print("Unable to load \"%s\"" % abspath)
+        return None
     img.name = os.path.splitext(os.path.basename(filepath))[0]
     #img.use_premultiply = True
     return img
@@ -296,6 +305,8 @@ def loadImage(filepath, cfg):
 
 def addTexture(mat, filepath, cfg):
     img = loadImage(filepath, cfg)
+    if img is None:
+        return None
     tex = bpy.data.textures.new(img.name, 'IMAGE')
     tex.image = img
 

@@ -76,3 +76,43 @@ def buildHair(struct, context, pxy):
     for hair in psys.particles:
         vlist.append([hv.co for hv in hair.hair_keys])
 
+
+def hair2mesh(context):
+    for psys in context.object.particle_systems:
+        verts = []
+        edges = []
+        m = 0
+        for hair in psys.particles:
+            npoints = len(hair.hair_keys)
+            verts += [hv.co for hv in hair.hair_keys]
+            edges += [(n,n+1) for n in range(m, m+npoints-1)]
+            m += npoints
+
+        pset = psys.settings
+        me = bpy.data.meshes.new(pset.name)
+        me.from_pydata(verts, edges, [])
+        ob = bpy.data.objects.new(pset.name, me)
+        context.scene.objects.link(ob)
+
+        for aname in dir(pset):
+            attr = getattr(pset, aname)
+            if isinstance(attr, (int, float, str, bool)):
+                ob["PSET_" + aname] = attr
+
+
+class OBJECT_OT_Hair2MeshButton(bpy.types.Operator):
+    bl_idname = "mhc2.hair_to_mesh"
+    bl_label = "Hair To Mesh"
+
+    def execute(self, context):
+        hair2mesh(context)
+        print("Hair converted to mesh")
+        return{'FINISHED'}
+
+class OBJECT_OT_Mesh2HairButton(bpy.types.Operator):
+    bl_idname = "mhc2.mesh_to_hair"
+    bl_label = "Mesh To Hair"
+
+    def execute(self, context):
+        mesh2hair(context)
+        return{'FINISHED'}

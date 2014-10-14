@@ -253,6 +253,11 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
 
+    ccset = psys.cycles_curve_settings
+    ccset.root_width = 0.1*ob.MhxScale
+    ccset.tip_width = 0
+    ccset.radius_scale = 0.01
+
     bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
     pedit = scn.tool_settings.particle_edit
     pedit.use_preserve_length = False

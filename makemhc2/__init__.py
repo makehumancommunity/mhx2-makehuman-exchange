@@ -150,6 +150,19 @@ class SelectionPanel(bpy.types.Panel):
             props.htype = helper
 
 
+class HairPanel(bpy.types.Panel):
+    bl_label = "Hair"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MakeMhc2"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("mhc2.hair_to_mesh")
+        layout.operator("mhc2.mesh_to_hair")
+
+
 class MaterialsPanel(bpy.types.Panel):
     bl_label = "Materials"
     bl_space_type = "VIEW_3D"
@@ -160,7 +173,6 @@ class MaterialsPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         layout.operator("mhc2.export_material")
-        layout.separator()
 
 
 class ProjectPanel(bpy.types.Panel):
