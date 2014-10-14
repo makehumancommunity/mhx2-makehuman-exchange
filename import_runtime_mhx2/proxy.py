@@ -253,7 +253,10 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     hlen = int(len(hcoords[0]))
     pset.hair_step = hlen-1
 
-    ccset = psys.cycles_curve_settings
+    if hasattr(psys, "cycles_curve_settings"):
+        ccset = psys.cycles_curve_settings
+    else:
+        ccset = pset.cycles
     ccset.root_width = 0.1*ob.MhxScale
     ccset.tip_width = 0
     ccset.radius_scale = 0.01
