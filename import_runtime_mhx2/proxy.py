@@ -57,13 +57,13 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
     return pxyGeo,scales
 
 
-def fitProxy(mhHuman, mhProxy, mhScale):
+def fitProxy(mhHuman, mhFitting, mhScale):
     from .shapekeys import getScales
     scales = getScales(None, mhScale, mhHuman)
     scale = mhHuman["scale"]
     hverts = [scale*Vector(co) for co in mhHuman["seed_mesh"]["vertices"]]
     pverts = []
-    for vnums,weights,offset in mhProxy["fitting"]:
+    for vnums,weights,offset in mhFitting:
         pco = (weights[0]*hverts[vnums[0]] +
                weights[1]*hverts[vnums[1]] +
                weights[2]*hverts[vnums[2]])
@@ -188,7 +188,7 @@ def proxifyTargets(mhProxy, targets):
 # ---------------------------------------------------------------------
 
 def isHairStruct(struct):
-    return ("particles" in struct.keys())
+    return ("particle_systems" in struct.keys())
 
 
 def getProxyCoordinates(mhHuman, filepath):
@@ -197,16 +197,20 @@ def getProxyCoordinates(mhHuman, filepath):
     offset = Vector(zup(mhHuman["offset"]))
     mhGeo = loadJson(filepath)
     mhProxy = mhGeo["proxy"]
-    pverts,scales = fitProxy(mhHuman, mhProxy, mhProxy["bounding_box"])
 
     if isHairStruct(mhGeo):
-        hlist = mhGeo["particles"]["hairs"]
-        nhairs = int(len(hlist))
-        hlen = int(len(hlist[0]))
         coords = []
-        for m in range(nhairs):
-            coords.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
+        for mhSystem in mhGeo["particle_systems"]:
+            pverts,scales = fitProxy(mhHuman, mhSystem["fitting"], mhProxy["bounding_box"])
+            hlist = mhSystem["hairs"]
+            nhairs = int(len(hlist))
+            hlen = int(len(hlist[0]))
+            coord = []
+            for m in range(nhairs):
+                coord.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
+            coords.append(coord)
     else:
+        pverts,scales = fitProxy(mhHuman, mhProxy["fitting"], mhProxy["bounding_box"])
         coords = [Vector(zup(v)) + offset for v in pverts]
 
     return mhGeo,coords,scales
@@ -215,9 +219,10 @@ def getProxyCoordinates(mhHuman, filepath):
 def addHair(ob, struct, hcoords, scn, cfg=None):
     from .materials import buildBlenderMaterial, buildHairMaterial
 
-    psys = ob.particle_systems.active
-    if psys is not None:
+    nsys = len(ob.particle_systems)
+    for n in range(nsys):
         bpy.ops.object.particle_system_remove()
+    if nsys > 0:
         ob.data.materials.pop()
 
     if "blender_material" in struct.keys():
@@ -230,51 +235,67 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
         mat = buildHairMaterial(color, scn)
     ob.data.materials.append(mat)
 
-    bpy.ops.object.particle_system_add()
-    psys = ob.particle_systems.active
-    pstruct = struct["particles"]
+    for n,mhSystem in enumerate(struct["particle_systems"]):
+        hcoord = hcoords[n]
+        bpy.ops.object.particle_system_add()
+        psys = ob.particle_systems.active
+        psys.name = mhSystem["name"]
+        for key,val in mhSystem["particles"].items():
+            if hasattr(psys, key):
+                setattr(psys, key, val)
 
-    skull = ob.vertex_groups.new("Skull")
-    for vn,w in [(879,1.0)]:
-        skull.add([vn], w, 'REPLACE')
-    psys.vertex_group_density = "Skull"
+        skull = ob.vertex_groups.new("Skull")
+        for vn,w in [(879,1.0)]:
+            skull.add([vn], w, 'REPLACE')
+        psys.vertex_group_density = "Skull"
 
-    pset = psys.settings
-    pset.type = 'HAIR'
-    #pset.name = struct["name"]
-    pset.material = len(ob.data.materials)
-    pset.use_strand_primitive = True
-    pset.render_type = 'PATH'
-    pset.path_start = 0
-    pset.path_end = 1
-    pset.child_type = 'SIMPLE'
-    pset.child_radius = 0.1*ob.MhxScale
-    pset.count = int(len(hcoords))
-    hlen = int(len(hcoords[0]))
-    pset.hair_step = hlen-1
+        pset = psys.settings
+        if "settings" in mhSystem.keys():
+            for key,val in mhSystem["settings"].items():
+                try:
+                    print(key,val)
+                    setattr(pset, key, val)
+                except AttributeError:
+                    print("Miss")
+                    pass
+            pset.child_radius *= ob.MhxScale
+        else:
+            pset.type = 'HAIR'
+            pset.material = len(ob.data.materials)
+            pset.use_strand_primitive = True
+            pset.render_type = 'PATH'
+            pset.child_type = 'SIMPLE'
+            pset.child_radius = 0.1*ob.MhxScale
 
-    ccset = psys.cycles_curve_settings
-    ccset.root_width = 0.1*ob.MhxScale
-    ccset.tip_width = 0
-    ccset.radius_scale = 0.01
+        pset.path_start = 0
+        pset.path_end = 1
+        pset.count = int(len(hcoord))
+        hlen = int(len(hcoord[0]))
+        pset.hair_step = hlen-1
 
-    bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
-    pedit = scn.tool_settings.particle_edit
-    pedit.use_preserve_length = False
-    pedit.use_preserve_root = False
-    #pedit.select_mode = 'PATH'
-    #pedit.tool = 'COMB'
-    #bpy.ops.particle.brush_edit(stroke=[{"name":"", "location":(0, 0, 0), "mouse":(577, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(578, 594), "pressure":0, "pen_flip":False, "time":0, "is_start":False}, {"name":"", "location":(0, 0, 0), "mouse":(580, 595), "pressure":0, "pen_flip":False, "time":0, "is_start":False}])
-    pedit.select_mode = 'POINT'
-    bpy.ops.transform.translate()
+        if hasattr(pset, "cycles_curve_settings"):
+            ccset = pset.cycles_curve_settings
+        else:
+            ccset = pset.cycles
+        ccset.root_width = 0.1*ob.MhxScale
+        ccset.tip_width = 0
+        ccset.radius_scale = 0.01
 
-    for m,hair in enumerate(psys.particles):
-        verts = hcoords[m]
-        hair.location = verts[0]
-        for n,v in enumerate(hair.hair_keys):
-            v.co = verts[n]
+        bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
+        pedit = scn.tool_settings.particle_edit
+        pedit.use_preserve_length = False
+        pedit.use_preserve_root = False
+        pedit.select_mode = 'POINT'
+        bpy.ops.transform.translate()
 
-    #bpy.ops.object.mode_set(mode='OBJECT')
+        print(psys.name, len(hcoord))
+        for m,hair in enumerate(psys.particles):
+            verts = hcoord[m]
+            hair.location = verts[0]
+            for n,v in enumerate(hair.hair_keys):
+                v.co = verts[n]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def addMhc2(context, filepath):
