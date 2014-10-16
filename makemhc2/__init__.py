@@ -364,12 +364,7 @@ class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
         try:
             initWarnings()
             hum,pxy,data = makeMhc2(context, True)
-            if True:
-                buildMhc2(context, hum, pxy, data)
-            else:
-                matfile = writeMaterial(pxy, scn.MHCDir)
-                writeMhc2(context, hum, pxy, data, matfile)
-                exportObjFile(context)
+            buildMhc2(context, hum, pxy, data)
             handleWarnings()
         except MHError:
             handleMHError(context)

@@ -181,7 +181,7 @@ def dumpRamp(ramp):
 
 def dumpData(rna, exclude=[]):
     slist = []
-    print("Skipping", rna)
+    print("Dump", rna)
     for key in dir(rna):
         if (key[0] != "_") and (key not in exclude):
             attr = getattr(rna, key)

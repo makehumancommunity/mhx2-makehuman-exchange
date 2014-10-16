@@ -19,6 +19,7 @@
 
 
 from makeclothes import mc
+from .error import *
 
 #
 #   Global variables

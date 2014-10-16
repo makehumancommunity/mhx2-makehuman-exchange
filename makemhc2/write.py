@@ -38,7 +38,7 @@ def buildMhc2(context, hum, pxy, data):
 
     if scn.MHCAuthor == "Unknown":
         addWarning("Author unknown")
-    astruct = struct["file_info"] = OrderedDict()
+    astruct = struct["license"] = OrderedDict()
     astruct["author"] = scn.MHCAuthor
     astruct["license"] = scn.MHCLicense
     astruct["homepage"] = scn.MHCHomePage
@@ -67,31 +67,32 @@ def buildMhc2(context, hum, pxy, data):
             bbox[cname] = (n1, n2, abs(x1-x2))
 
     if isHair(pxy):
-        buildHair(struct, context, pxy)
+        buildHair(struct, context, pxy, data)
+        folder = os.path.join(scn.MHCDir, "hair")
     else:
         buildMesh(struct, context, pxy)
+        buildFitting(pstruct, data)
 
-    fitting = pstruct["fitting"] = []
+        killList = getKillList(hum)
+        if killList:
+            deletes = pstruct["delete_verts"] = len(hum.data.vertices)*[False]
+            for vn in killList:
+                deletes[vn] = True
+        folder = os.path.join(scn.MHCDir, "clothes")
+
+    (outpath, filepath) = mc.getFileName(pxy, folder, "mhc2")
+    saveJson(struct, filepath)
+    print("Saved", filepath)
+
+
+def buildFitting(struct, data):
+    fitting = struct["fitting"] = []
     for (pv, exact, verts, wts, diff) in data:
         if exact:
             (bv, dist) = verts[0]
             fitting.append((Vector((bv.index,0,0)), Vector((1,0,0)), Vector((0,0,0))))
         elif len(verts) == 3:
             fitting.append([Vector(verts),Vector(wts),Vector(diff)])
-
-    killList = getKillList(hum)
-    if killList:
-        deletes = pstruct["delete_verts"] = len(hum.data.vertices)*[False]
-        for vn in killList:
-            deletes[vn] = True
-
-    if isHair(pxy):
-        folder = os.path.join(scn.MHCDir, "hair")
-    else:
-        folder = os.path.join(scn.MHCDir, "clothes")
-    (outpath, filepath) = mc.getFileName(pxy, folder, "mhc2")
-    saveJson(struct, filepath)
-    print("Saved", filepath)
 
 
 def buildMesh(struct, context, pxy):

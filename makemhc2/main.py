@@ -29,8 +29,6 @@ from maketarget.utils import getMHBlenderDirectory
 from .error import MHError, handleMHError, addWarning
 from makeclothes import mc
 from .objects import *
-from . import materials
-from .hair import *
 
 
 def selectHelpers(context):
@@ -140,18 +138,25 @@ def findMhc2(context, hum, pxy):
 
     scn = context.scene
     if isHair(pxy):
+        from .hair import getHairVerts
         humanGroup = {}
         hvnums = theSettings.vertices["Hair"]
         hverts = [hum.data.vertices[vn] for vn in range(hvnums[0], hvnums[1])]
         humanGroup[0] = (VertexGroup("Hair"), hverts)
         pExactIndex = None
-        pverts = getHairVerts(pxy)
+        pVertList = getHairVerts(pxy)
+        data = []
+        for pverts in pVertList:
+            bestVerts,vfaces = findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts)
+            bestFaces = findBestFaces(scn, bestVerts, vfaces, hum, pxy)
+            data.append(bestFaces)
+        return data
     else:
         humanGroup,pExactIndex = findVertexGroups(hum, pxy)
         pverts = pxy.data.vertices
-    bestVerts,vfaces = findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts)
-    bestFaces = findBestFaces(scn, bestVerts, vfaces, hum, pxy)
-    return bestFaces
+        bestVerts,vfaces = findBestVerts(scn, humanGroup, pExactIndex, hum, pxy, pverts)
+        bestFaces = findBestFaces(scn, bestVerts, vfaces, hum, pxy)
+        return bestFaces
 
 
 def findVertexGroups(hum, pxy):
@@ -612,7 +617,9 @@ def makeMhc2(context, doFindMhc2):
     if not isHair(pxy):
         checkSingleVertexGroups(pxy, scn)
     saveClosest({})
-    if doFindMhc2:
+    if isHair(pxy):
+        data = findMhc2(context, hum, pxy)
+    elif doFindMhc2:
         data = findMhc2(context, hum, pxy)
         storeData(pxy, hum, data)
     else:
@@ -714,11 +721,6 @@ def checkObjectOK(ob, context, isProxy):
         if len(ob.data.materials) >= 2:
             word = "%d materials. Must be at most one." % len(ob.data.materials)
             err = True
-
-        #if not materials.checkObjectHasDiffuseTexture(ob):
-        #    word = "no diffuse image texture"
-        #    line2 = "Create texture or delete material before proceeding.\n"
-        #    err = True
 
     if word:
         msg = "Object %s\ncan not be used for clothes creation because\nit has %s.\n" % (ob.name, word)
