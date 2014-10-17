@@ -53,7 +53,6 @@ def getHairVerts(pxy):
             for hv in hair.hair_keys:
                 co = psys.co_hair(pxy, m, n)
                 pverts.append(ParticleVertex(hv.co, idx))
-                print(m,n,idx,co,hv.co)
                 idx += 1
                 n += 1
             m += 1

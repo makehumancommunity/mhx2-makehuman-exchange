@@ -138,7 +138,7 @@ def findMhc2(context, hum, pxy):
 
     scn = context.scene
     if isHair(pxy):
-        from .hair import getHairVerts
+        from .hair import getHairVerts, VertexGroup
         humanGroup = {}
         hvnums = theSettings.vertices["Hair"]
         hverts = [hum.data.vertices[vn] for vn in range(hvnums[0], hvnums[1])]
@@ -368,7 +368,6 @@ def findBestFaces(scn, bestVerts, vfaces, hum, pxy):
     badVerts = []
     for bestVert in bestVerts:
         pv = bestVert.pv
-        #print(pv.index)
         pv.select = False
         if bestVert.exact:
             bestFaces.append((pv, True, bestVert.mverts, 0, 0))
@@ -488,7 +487,6 @@ def cornerWeights(pv, v0, v1, v2, hum, pxy):
 #
 
 def midWeights(pv, bindex, v0, v1, v2, hum, pxy):
-    print("Mid", pv.index, bindex)
     pv.select = True
     if isInGroup(v0, bindex):
         v0.select = True
@@ -504,7 +502,6 @@ def midWeights(pv, bindex, v0, v1, v2, hum, pxy):
         v1.select = True
         v2.select = True
         return (w0, w1, w2)
-    print("  Failed mid")
     return cornerWeights(pv, v0, v1, v2, hum, pxy)
 
 
@@ -555,7 +552,6 @@ def restoreData(context):
     status = 0
     data = []
     for line in fp:
-        #print(line)
         words = line.split()
         if status == 0:
             pname = line.rstrip()
@@ -598,16 +594,21 @@ def restoreData(context):
     return (hum, data)
 
 #
-#    makeMhc2(context, doFindMhc2):
+#    makeMhc2(context, proxytype, doFindMhc2):
 #
 
-def makeMhc2(context, doFindMhc2):
+def makeMhc2(context, proxytype, doFindMhc2):
     from makeclothes.project import saveClosest
     from .write import writeMhc2
 
     (hum, pxy) = getObjectPair(context)
     scn = context.scene
-    if not isHair(pxy):
+    if proxytype == 'HAIR':
+        if not isHair(pxy):
+            raise MHError("Object %s has no hair" % pxy.name)
+    else:
+        if isHair(pxy):
+            raise MHError("Clothes object %s has hair" % pxy.name)
         checkNoTriangles(scn, pxy)
     checkObjectOK(hum, context, False)
     autoVertexGroupsIfNecessary(hum, 'Selected')
@@ -617,7 +618,8 @@ def makeMhc2(context, doFindMhc2):
     if not isHair(pxy):
         checkSingleVertexGroups(pxy, scn)
     saveClosest({})
-    if isHair(pxy):
+    #if isHair(pxy):
+    if proxytype == 'HAIR':
         data = findMhc2(context, hum, pxy)
     elif doFindMhc2:
         data = findMhc2(context, hum, pxy)
@@ -741,7 +743,6 @@ def checkSingleVertexGroups(pxy, scn):
     for v in pxy.data.vertices:
         n = 0
         for g in v.groups:
-            #print("Key", g.group, g.weight)
             n += 1
         if n != 1:
             for g in v.groups:

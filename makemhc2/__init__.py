@@ -68,12 +68,13 @@ def setObjectMode(context):
             return
 
 
-def invokeWithFileCheck(self, context, ftypes):
+def invokeWithFileCheck(self, context, proxytype, ftypes):
     try:
         ob = main.getMhc2(context)
         scn = context.scene
+        folder = os.path.join(scn.MHCDir, proxytype.lower())
         for ftype in ftypes:
-            (outpath, outfile) = mc.getFileName(ob, scn.MHCDir, ftype)
+            (outpath, outfile) = mc.getFileName(ob, folder, ftype)
             filepath = os.path.join(outpath, outfile)
             if os.path.exists(filepath):
                 break
@@ -125,7 +126,8 @@ class MakeMhc2Panel(bpy.types.Panel):
             layout.operator("mhc2.auto_vertex_groups")
 
         layout.separator()
-        layout.operator("mhc2.make_clothes")
+        layout.operator("mhc2.make_clothes", text="Make Clothes").proxytype = "CLOTHES"
+        layout.operator("mhc2.make_clothes", text="Make Hair").proxytype = "HAIR"
         layout.separator()
         layout.operator("mhc2.test_clothes")
         layout.separator()
@@ -353,6 +355,7 @@ class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
     bl_options = {'UNDO'}
 
     filepath = StringProperty(default="")
+    proxytype = StringProperty(default="")
 
     def execute(self, context):
         from .main import makeMhc2
@@ -363,7 +366,7 @@ class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
         scn = context.scene
         try:
             initWarnings()
-            hum,pxy,data = makeMhc2(context, True)
+            hum,pxy,data = makeMhc2(context, self.proxytype, True)
             buildMhc2(context, hum, pxy, data)
             handleWarnings()
         except MHError:
@@ -371,7 +374,7 @@ class OBJECT_OT_MakeMhc2Button(bpy.types.Operator):
         return{'FINISHED'}
 
     def invoke(self, context, event):
-        return invokeWithFileCheck(self, context, ["mhc2", "obj"])
+        return invokeWithFileCheck(self, context, self.proxytype, ["mhc2"])
 
     def draw(self, context):
         drawFileCheck(self)
@@ -383,6 +386,7 @@ class OBJECT_OT_ExportMaterialButton(bpy.types.Operator):
     bl_options = {'UNDO'}
 
     filepath = StringProperty(default="")
+    proxytype = ""
 
     def execute(self, context):
         setObjectMode(context)
@@ -394,7 +398,7 @@ class OBJECT_OT_ExportMaterialButton(bpy.types.Operator):
         return{'FINISHED'}
 
     def invoke(self, context, event):
-        return invokeWithFileCheck(self, context, ["mhmat"])
+        return invokeWithFileCheck(self, context, self.proxytype, ["mhmat"])
 
     def draw(self, context):
         drawFileCheck(self)
@@ -693,9 +697,11 @@ class OBJECT_OT_ReexportFilesButton(bpy.types.Operator):
 
 def register():
     main.init()
+    bpy.utils.register_class(error.ErrorOperator)
     bpy.utils.register_module(__name__)
 
 def unregister():
+    bpy.utils.unregister_class(error.ErrorOperator)
     bpy.utils.unregister_module(__name__)
     maketarget.unregister()
 

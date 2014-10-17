@@ -283,8 +283,10 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
 
         bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
         pedit = scn.tool_settings.particle_edit
+        pedit.use_emitter_deflect = False
         pedit.use_preserve_length = False
         pedit.use_preserve_root = False
+        ob.data.use_mirror_x = False
         pedit.select_mode = 'POINT'
         bpy.ops.transform.translate()
 
