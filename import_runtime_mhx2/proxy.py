@@ -261,12 +261,12 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             pset.child_radius *= ob.MhxScale
         else:
             pset.type = 'HAIR'
-            pset.material = len(ob.data.materials)
             pset.use_strand_primitive = True
             pset.render_type = 'PATH'
             pset.child_type = 'SIMPLE'
             pset.child_radius = 0.1*ob.MhxScale
 
+        pset.material = len(ob.data.materials)
         pset.path_start = 0
         pset.path_end = 1
         pset.count = int(len(hcoord))
