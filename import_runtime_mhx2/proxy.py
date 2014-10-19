@@ -253,10 +253,8 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
         if "settings" in mhSystem.keys():
             for key,val in mhSystem["settings"].items():
                 try:
-                    print(key,val)
                     setattr(pset, key, val)
                 except AttributeError:
-                    print("Miss")
                     pass
             pset.child_radius *= ob.MhxScale
         else:
@@ -290,7 +288,6 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
         pedit.select_mode = 'POINT'
         bpy.ops.transform.translate()
 
-        print(psys.name, len(hcoord))
         for m,hair in enumerate(psys.particles):
             verts = hcoord[m]
             hair.location = verts[0]

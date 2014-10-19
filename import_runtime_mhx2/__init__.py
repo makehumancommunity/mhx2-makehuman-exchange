@@ -685,10 +685,15 @@ def register():
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
+    bpy.utils.register_class(ErrorOperator)
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func)
 
 def unregister():
+    try:
+        bpy.utils.register_class(ErrorOperator)
+    except:
+        pass
     try:
         bpy.utils.unregister_module(__name__)
     except:

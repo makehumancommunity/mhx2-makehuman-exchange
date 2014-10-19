@@ -119,7 +119,6 @@ def build(struct, cfg, context):
                 rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
-        rig.MhxRig = "Exported"
     if rig:
         rig.MhxScale = mhHuman["scale"]
         rig.MhxOffset = str(list(zup(mhHuman["offset"])))
@@ -206,7 +205,8 @@ def build(struct, cfg, context):
     if cfg.deleteHelpers:
         selectHelpers(human)
 
-    deleteAllSelected(human, proxies, scn)
+    if cfg.useOverride:
+        deleteAllSelected(human, proxies, scn)
 
     grp = bpy.data.groups.new(groupName)
     if rig:
@@ -216,7 +216,7 @@ def build(struct, cfg, context):
     for _,ob in proxies:
         grp.objects.link(ob)
 
-    if cfg.mergeBodyParts:
+    if cfg.useOverride and cfg.mergeBodyParts:
         from .merge import mergeBodyParts
         proxyTypes = ["Eyes", "Eyebrows", "Eyelashes", "Teeth", "Tongue", "Genitals"]
         if cfg.mergeMaxType == 'HAIR':
@@ -227,7 +227,7 @@ def build(struct, cfg, context):
         if ob:
             mergeBodyParts(ob, proxies, scn, proxyTypes=proxyTypes)
 
-    if cfg.hairType != "NONE":
+    if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import addHair
         ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
         if ob:
@@ -290,6 +290,7 @@ def buildSkeleton(mhSkel, scn, cfg):
             eb.parent = amt.edit_bones[mhBone["parent"]]
 
     bpy.ops.object.mode_set(mode='OBJECT')
+    rig.MhxRig = "Exported"
     return rig
 
 #------------------------------------------------------------------------
@@ -361,10 +362,11 @@ def selectMaskVGroups(ob):
 #------------------------------------------------------------------------
 
 def deselectAll(human, proxies, scn):
-    scn.objects.active = human
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.select_all(action='DESELECT')
-    bpy.ops.object.mode_set(mode='OBJECT')
+    if human:
+        scn.objects.active = human
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
         scn.objects.active = pxy
         bpy.ops.object.mode_set(mode='EDIT')
@@ -373,10 +375,11 @@ def deselectAll(human, proxies, scn):
 
 
 def deleteAllSelected(human, proxies, scn):
-    scn.objects.active = human
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.delete(type='VERT')
-    bpy.ops.object.mode_set(mode='OBJECT')
+    if human:
+        scn.objects.active = human
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.delete(type='VERT')
+        bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
         scn.objects.active = pxy
         bpy.ops.object.mode_set(mode='EDIT')

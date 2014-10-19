@@ -65,7 +65,6 @@ def buildHair(struct, context, pxy, data):
 
     context.scene.objects.active = pxy
     systems = struct["particle_systems"] = []
-    print("SYSTEMS", len(data))
     for n,psys in enumerate(pxy.particle_systems):
         pset = psys.settings
         system = OrderedDict()
@@ -79,7 +78,8 @@ def buildHair(struct, context, pxy, data):
             if key[0:10] in ["invert_ver", "vertex_gro"]:
                 particles[key] = getattr(psys,key)
 
-        slist = dumpData(pset, exclude=["material_slot"])
+        exclude = ["material", "material_slot", "path_start", "path_end"]
+        slist = dumpData(pset, exclude=exclude)
         settings = system["settings"] = OrderedDict()
         for key,val in slist:
             settings[key] = val
