@@ -58,10 +58,12 @@ class NodeTree:
         self.ycoord2 = 1
         self.ycoord3 = 1
         self.ycoord4 = 1
+        self.ycoord5 = 1
         self.dy1 = -250
         self.dy2 = -250
         self.dy3 = -250
         self.dy4 = -250
+        self.dy5 = -250
 
     def addNode1(self, stype):
         node = self.nodes.new(type = stype)
@@ -85,6 +87,12 @@ class NodeTree:
         node = self.nodes.new(type = stype)
         node.location = (751, self.ycoord4)
         self.ycoord4 += self.dy4
+        return node
+
+    def addNode5(self, stype):
+        node = self.nodes.new(type = stype)
+        node.location = (1001, self.ycoord5)
+        self.ycoord5 += self.dy5
         return node
 
     def addTexImageNode(self, mhMat, texco, channel, cfg):
@@ -148,15 +156,15 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     links = mat.node_tree.links
     texco = tree.addNode1('ShaderNodeTexCoord')
 
+    fresnel = tree.addNode3('ShaderNodeFresnel')
+    #fresnel.input['IOR'] = 1.45
+
     diffuse = tree.addNode3('ShaderNodeBsdfDiffuse')
     diffuse.inputs["Color"].default_value[0:3] =  mhMat["diffuse_color"]
     diffuse.inputs["Roughness"].default_value = 0
     diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg)
     if diffuseTex:
         links.new(diffuseTex.outputs['Color'], diffuse.inputs['Color'])
-        transparent = tree.addNode3('ShaderNodeBsdfTransparent')
-    else:
-        transparent = None
 
     glossy = tree.addNode3('ShaderNodeBsdfGlossy')
     glossy.inputs["Color"].default_value[0:3] = mhMat["diffuse_color"]
@@ -167,29 +175,38 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
 
     normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg)
     if normalTex:
-        normalMap = tree.addNode3('ShaderNodeNormalMap')
+        normalTex.color_space = 'NONE'
+        normalMap = tree.addNode2('ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
+        normalMap.uv_map = "UVMap"
         links.new(normalTex.outputs['Color'], normalMap.inputs['Color'])
+        links.new(normalMap.outputs['Normal'], fresnel.inputs['Normal'])
+        links.new(normalMap.outputs['Normal'], diffuse.inputs['Normal'])
         links.new(normalMap.outputs['Normal'], glossy.inputs['Normal'])
     else:
         normalMap = None
 
+    if diffuseTex:
+        transparent = tree.addNode4('ShaderNodeBsdfTransparent')
+    else:
+        transparent = None
+
     mixGloss = tree.addNode4('ShaderNodeMixShader')
-    mixGloss.inputs['Fac'].default_value = 0.02
+    links.new(fresnel.outputs['Fac'], mixGloss.inputs['Fac'])
     links.new(diffuse.outputs['BSDF'], mixGloss.inputs[1])
     links.new(glossy.outputs['BSDF'], mixGloss.inputs[2])
 
-    if transparent is not None:
-        mixTrans = tree.addNode4('ShaderNodeMixShader')
+    output = tree.addNode5('ShaderNodeOutputMaterial')
+
+    if transparent:
+        mixTrans = tree.addNode5('ShaderNodeMixShader')
         links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
         links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
         links.new(mixGloss.outputs['Shader'], mixTrans.inputs[2])
     else:
         mixTrans = mixGloss
 
-    output = mat.node_tree.nodes.new(type = 'ShaderNodeOutputMaterial')
     links.new(mixTrans.outputs['Shader'], output.inputs['Surface'])
-    output.location = (1001, 1)
 
 # ---------------------------------------------------------------------
 #   Blender Internal
