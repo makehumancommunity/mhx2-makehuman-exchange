@@ -252,8 +252,12 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
             mhProxySeed = None
 
         if skel:
-            pxySeedWeights = skeleton.getProxyWeights(pxy, rawWeights)
-            weights = mesh.getWeights(pxySeedWeights)
+            if hasattr(mesh, "getVertexWeights"):
+                pxySeedWeights = pxy.getVertexWeights(rawWeights)
+                weights = mesh.getVertexWeights(pxySeedWeights)
+            else:
+                pxySeedWeights = skeleton.getProxyWeights(pxy, rawWeights)
+                weights = mesh.getWeights(pxySeedWeights)
             addWeights(mhMesh, skel, weights)
             if mhProxySeed:
                 addWeights(mhSeed, skel, rawWeights)
@@ -279,7 +283,10 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
         mhGeo["human"] = True
         if skel:
             addWeights(mhSeed, skel, rawWeights)
-            weights = mesh.getWeights(rawWeights)
+            if hasattr(mesh, "getVertexWeights"):
+                weights = mesh.getVertexWeights(rawWeights)
+            else:
+                weights = mesh.getWeights(rawWeights)
             addWeights(mhMesh, skel, weights)
 
 
@@ -287,7 +294,10 @@ def addWeights(mhMesh, skel, vertexWeights):
     mhWeights = mhMesh["weights"] = OrderedDict()
     for bone in skel.getBones():
         try:
-            idxs,weights = vertexWeights[bone.name]
+            if hasattr(vertexWeights, "data"):
+                idxs,weights = vertexWeights.data[bone.name]
+            else:
+                idxs,weights = vertexWeights[bone.name]
         except KeyError:
             continue
         if idxs[0] < 0:

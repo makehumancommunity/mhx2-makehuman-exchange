@@ -119,9 +119,12 @@ def build(struct, cfg, context):
                 rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         rig = buildSkeleton(struct["skeleton"], scn, cfg)
+        rig.MhxRig = "Exported"
     if rig:
         rig.MhxScale = mhHuman["scale"]
         rig.MhxOffset = str(list(zup(mhHuman["offset"])))
+        if "levator02.L" in rig.data.bones.keys():
+            rig.MhxFaceRig = True
     mhHuman["parser"] = parser
 
     human = None
@@ -224,6 +227,13 @@ def build(struct, cfg, context):
         if ob:
             mergeBodyParts(ob, proxies, scn, proxyTypes=proxyTypes)
 
+    if cfg.hairType != "NONE":
+        from .proxy import addHair
+        ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
+        if ob:
+            scn.objects.active = ob
+            addHair(ob, hair, hcoords, scn, cfg)
+
     if rig:
         scn.objects.active = rig
         bpy.ops.object.mode_set(mode='POSE')
@@ -233,13 +243,6 @@ def build(struct, cfg, context):
     elif proxy:
         scn.objects.active = proxy
         bpy.ops.object.mode_set(mode='OBJECT')
-
-    if cfg.hairType != "NONE":
-        from .proxy import addHair
-        ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
-        if ob:
-            scn.objects.active = ob
-            addHair(ob, hair, hcoords, scn, cfg)
 
 
 def getEffectiveHuman(human, proxy, useProxy):
@@ -285,8 +288,6 @@ def buildSkeleton(mhSkel, scn, cfg):
         eb.roll = mhBone["roll"]
         if "parent" in mhBone.keys():
             eb.parent = amt.edit_bones[mhBone["parent"]]
-        if mhBone["name"] == "levator02.L":
-            rig.MhxFaceRig = True
 
     bpy.ops.object.mode_set(mode='OBJECT')
     return rig
