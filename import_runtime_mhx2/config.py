@@ -27,6 +27,7 @@ Attributes = [
     "hairType", "hairColor", "useHairOnProxy", "useDeflector",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
+    "useMasks",
 ]
 
 class Config:

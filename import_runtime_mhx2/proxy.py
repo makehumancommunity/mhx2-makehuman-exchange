@@ -52,7 +52,7 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
     pxyGeo["scale"] = 1.0   # mhHuman["scale"]
     mhMesh = pxyGeo["seed_mesh"] = pxyGeo["mesh"] = mhGeo["mesh"]
     pxyGeo["bounding_box"] = mhProxy["bounding_box"]
-    pverts,scales = fitProxy(mhHuman, pxyGeo["proxy"], pxyGeo["bounding_box"])
+    pverts,scales = fitProxy(mhHuman, mhProxy["fitting"], pxyGeo["bounding_box"])
     mhMesh["vertices"] = pverts
     return pxyGeo,scales
 

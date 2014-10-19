@@ -124,6 +124,15 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
     useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
 
+    useMasks = EnumProperty(
+        items = [('IGNORE', "Ignore", "Ignore masks"),
+                 ('APPLY', "Apply", "Apply masks (delete vertices permanently)"),
+                 ('MODIFIER', "Modifier", "Create mask modifier"),
+                 ],
+        name = "Masks",
+        description = "How to deal with masks",
+        default = 'MODIFIER')
+
     useHumanType = EnumProperty(
         items = [('BASE', "Base", "Base mesh"),
                  ('PROXY', "Proxy", "Exported topology (if exists)"),
@@ -217,6 +226,10 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if (self.useFaceShapes and
             not self.useFacePanel):
             layout.prop(self, "useFaceDrivers")
+
+        layout.separator()
+        layout.label("Masking:")
+        layout.prop(self, "useMasks", expand=True)
 
         layout.separator()
         box = layout.box()

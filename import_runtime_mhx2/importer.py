@@ -188,12 +188,22 @@ def build(struct, cfg, context):
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 
+    deselectAll(human, proxies, scn)
+
     if cfg.useOverride and cfg.useHelpers:
         proxyTypes = ["Proxymeshes", "Genitals"]
-        addMasks(human, proxies, proxyTypes=proxyTypes)
+        if cfg.useMasks == 'MODIFIER':
+            addMasks(human, proxies, proxyTypes=proxyTypes)
+        elif cfg.useMasks == 'APPLY':
+            addMasks(human, proxies, proxyTypes=proxyTypes)
+            selectAllMaskVGroups(human, proxies)
+        elif cfg.useMasks == 'IGNORE':
+            pass
 
     if cfg.deleteHelpers:
-        deleteHelpers(human, scn)
+        selectHelpers(human)
+
+    deleteAllSelected(human, proxies, scn)
 
     grp = bpy.data.groups.new(groupName)
     if rig:
@@ -281,6 +291,9 @@ def buildSkeleton(mhSkel, scn, cfg):
     bpy.ops.object.mode_set(mode='OBJECT')
     return rig
 
+#------------------------------------------------------------------------
+#   Masking
+#------------------------------------------------------------------------
 
 def addMasks(human, proxies, proxyTypes=[]):
     from .proxy import proxifyMask
@@ -290,7 +303,6 @@ def addMasks(human, proxies, proxyTypes=[]):
         if "delete_verts" not in mhProxy.keys():
             continue
         vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
-        #pname = mhProxy["name"]
         pname = getProxyName(ob)
         if human:
             addMask(human, vnums, pname)
@@ -318,24 +330,73 @@ def addMask(ob, vnums, pname):
             vgrp.add([vn], 1, 'REPLACE')
 
 
-def makeCollision(ob):
-    ob.draw_type = 'WIRE'
-    mod = ob.modifiers.new("Collision", 'COLLISION')
-    print(ob.collision, ob.collision.use)
+def selectAllMaskVGroups(human, proxies):
+    selectMaskVGroups(human)
+    for _,pxy in proxies:
+        selectMaskVGroups(pxy)
 
 
-def deleteHelpers(human, scn):
-    if human is None:
-        return
+def selectMaskVGroups(ob):
+    delMods = []
+    for mod in ob.modifiers:
+        if mod.type == 'MASK':
+            delMods.append(mod)
+            try:
+                vgrp = ob.vertex_groups[mod.vertex_group]
+            except KeyError:
+                vgrp = None
+                print("Did not find vertex group %s" % grpname)
+            if vgrp:
+                for v in ob.data.vertices:
+                    for g in v.groups:
+                        if g.group == vgrp.index:
+                            v.select = True
+                ob.vertex_groups.remove(vgrp)
+    for mod in delMods:
+        ob.modifiers.remove(mod)
+
+#------------------------------------------------------------------------
+#   Selecting and deleting verts
+#------------------------------------------------------------------------
+
+def deselectAll(human, proxies, scn):
     scn.objects.active = human
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='DESELECT')
     bpy.ops.object.mode_set(mode='OBJECT')
-    for vn in range(NBodyVerts, NTotalVerts):
-        human.data.vertices[vn].select = True
+    for _,pxy in proxies:
+        scn.objects.active = pxy
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def deleteAllSelected(human, proxies, scn):
+    scn.objects.active = human
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.delete(type='VERT')
     bpy.ops.object.mode_set(mode='OBJECT')
+    for _,pxy in proxies:
+        scn.objects.active = pxy
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.delete(type='VERT')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def selectHelpers(human):
+    if human is None:
+        return
+    for vn in range(NBodyVerts, NTotalVerts):
+        human.data.vertices[vn].select = True
+
+#------------------------------------------------------------------------
+#
+#------------------------------------------------------------------------
+
+def makeCollision(ob):
+    ob.draw_type = 'WIRE'
+    mod = ob.modifiers.new("Collision", 'COLLISION')
+    print(ob.collision, ob.collision.use)
 
 #------------------------------------------------------------------------
 #   Design human
