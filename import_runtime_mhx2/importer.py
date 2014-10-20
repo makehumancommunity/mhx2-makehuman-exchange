@@ -135,13 +135,13 @@ def build(struct, cfg, context):
             if mhGeo["human"]:
                 if cfg.useHelpers:
                     if cfg.useHumanType != 'BASE':
-                        proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True, "proxy_seed_mesh")
+                        proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "proxy_seed_mesh")
                         proxy.MhxHuman = True
                     if cfg.useHumanType != 'PROXY':
-                        human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True, "seed_mesh")
+                        human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "seed_mesh")
                         human.MhxHuman = True
                 else:
-                    proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, False, "mesh")
+                    proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "mesh")
                     proxy.MhxHuman = True
                 if proxy:
                     proxies.append((mhGeo, proxy))
@@ -150,10 +150,16 @@ def build(struct, cfg, context):
             elif mhProxy["type"] == "Genitals" and cfg.genitalia != 'NONE':
                 pass
             else:
-                ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
+                if cfg.useHelpers:
+                    ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "seed_mesh")
+                else:
+                    ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "mesh")
                 proxies.append((mhGeo, ob))
         elif mhGeo["human"]:
-            human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
+            if cfg.useHelpers:
+                ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "seed_mesh")
+            else:
+                ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "mesh")
             human.MhxHuman = True
 
     if proxy:
@@ -255,18 +261,21 @@ def getEffectiveHuman(human, proxy, useProxy):
 
 
 def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
-        from .proxy import addProxy
-        from .geometries import buildGeometry
+    from .proxy import addProxy
+    from .geometries import buildGeometry
 
-        filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
-        print("Adding %s:" % pname, filepath)
-        mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
-        ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
-        ob.MhxScale = mhHuman["scale"]
-        if "targets" in mhGeo.keys():
-            from .shapekeys import addTargets
-            addTargets(ob, mhGeo["targets"], scales)
-        return mhGeo,ob
+    filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
+    print("Adding %s:" % pname, filepath)
+    mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
+    if cfg.useHelpers:
+        ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "seed_mesh")
+    else:
+        ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, "mesh")
+    ob.MhxScale = mhHuman["scale"]
+    if "targets" in mhGeo.keys():
+        from .shapekeys import addTargets
+        addTargets(ob, mhGeo["targets"], scales)
+    return mhGeo,ob
 
 
 def buildSkeleton(mhSkel, scn, cfg):

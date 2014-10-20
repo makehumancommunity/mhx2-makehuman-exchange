@@ -27,28 +27,26 @@ from .hm8 import *
 #
 # ---------------------------------------------------------------------
 
-def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, useSeedMesh, meshType=None):
+def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
     from .proxy import proxifyVertexGroups
 
-    if meshType is None:
-        if useSeedMesh:
-            meshType = "seed_mesh"
-        else:
-            meshType = "mesh"
     mhMesh = mhGeo[meshType]
 
-    ob = buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh)
-    ob.MhxSeedMesh = useSeedMesh
+    if meshType == "proxy_seed_mesh" or meshType == "seed_mesh":
+        ob = buildMesh(mhGeo, mhMesh, scn, cfg, True)
+        ob.MhxSeedMesh = True
+    else:
+        ob = buildMesh(mhGeo, mhMesh, scn, cfg, False)
+        ob.MhxSeedMesh = False
     ob.MhxUuid = mhGeo["uuid"]
 
     vgrps = None
     if cfg.useOverride:
         if cfg.useRig:
-            if mhGeo["human"]:
-                if "proxy" in mhGeo.keys() and not useSeedMesh:
-                    vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman(), parser)
-                else:
-                    vgrps = meshVertexGroups(mhMesh, parser, cfg)
+            if meshType == "proxy_seed_mesh":
+                vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman(), parser)
+            elif mhGeo["human"]:
+                vgrps = meshVertexGroups(mhMesh, parser, cfg)
             else:
                 vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
 
