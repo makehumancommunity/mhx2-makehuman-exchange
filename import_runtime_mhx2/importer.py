@@ -135,7 +135,7 @@ def build(struct, cfg, context):
             if mhGeo["human"]:
                 if cfg.useHelpers:
                     if cfg.useHumanType != 'BASE':
-                        proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, False, "proxy_seed_mesh")
+                        proxy = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True, "proxy_seed_mesh")
                         proxy.MhxHuman = True
                     if cfg.useHumanType != 'PROXY':
                         human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, True, "seed_mesh")
@@ -262,6 +262,7 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
         print("Adding %s:" % pname, filepath)
         mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
         ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.useHelpers)
+        ob.MhxScale = mhHuman["scale"]
         if "targets" in mhGeo.keys():
             from .shapekeys import addTargets
             addTargets(ob, mhGeo["targets"], scales)
