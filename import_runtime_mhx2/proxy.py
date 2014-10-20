@@ -222,8 +222,8 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     nsys = len(ob.particle_systems)
     for n in range(nsys):
         bpy.ops.object.particle_system_remove()
-    if nsys > 0:
-        ob.data.materials.pop()
+    #if nsys > 0:
+    #    ob.data.materials.pop()
 
     if "blender_material" in struct.keys():
         mat = buildBlenderMaterial(struct["blender_material"])
@@ -275,9 +275,9 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             ccset = pset.cycles_curve_settings
         else:
             ccset = pset.cycles
-        ccset.root_width = 0.1*ob.MhxScale
+        ccset.root_width = 1.0
         ccset.tip_width = 0
-        ccset.radius_scale = 0.01
+        ccset.radius_scale = 0.01*ob.MhxScale
 
         bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
         pedit = scn.tool_settings.particle_edit
