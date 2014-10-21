@@ -42,6 +42,7 @@ if "bpy" in locals():
     imp.reload(importer)
     imp.reload(materials)
     imp.reload(proxy)
+    imp.reload(hair)
     imp.reload(geometries)
     imp.reload(layers)
     imp.reload(fkik)
@@ -63,6 +64,7 @@ else:
     from . import importer
     from . import materials
     from . import proxy
+    from . import hair
     from . import geometries
     from . import layers
     from . import fkik
@@ -249,7 +251,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if self.hairType != 'NONE':
             box.prop(self, "hairColor")
             box.prop(self, "useHairOnProxy")
-            #box.prop(self, "useHairDynamics")
+            box.prop(self, "useHairDynamics")
         box.prop(self, "useDeflector")
 
         layout.separator()
@@ -302,6 +304,8 @@ class MhxSetupPanel(bpy.types.Panel):
         box.label("Hair And Clothes")
         box.operator("mhx2.add_mhc2")
         box.prop(scn, "MhxHairColor")
+        box.prop(scn, "MhxUseHairDynamics")
+        box.prop(scn, "MhxUseDeflector")
 
         layout.separator()
         box = layout.box()
@@ -682,6 +686,9 @@ def register():
     bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
 
     bpy.types.Scene.MhxHairColor = HairColorProperty
+    bpy.types.Scene.MhxUseDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
+    bpy.types.Scene.MhxUseHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
+
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
