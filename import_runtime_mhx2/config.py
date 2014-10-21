@@ -44,6 +44,12 @@ class Config:
             string += "  %s: %s\n" % (attr, getattr(self, attr))
         return string + ">"
 
+    def getMeshType(self):
+        if self.useHelpers:
+            return "seed_mesh"
+        else:
+            return "mesh"
+
     def fromSettings(self, settings):
         for attr in Attributes:
             setattr(self, attr, getattr(settings, attr))
