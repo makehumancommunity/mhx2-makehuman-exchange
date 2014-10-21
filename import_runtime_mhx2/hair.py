@@ -153,15 +153,17 @@ def makeDeflector(pair, rig, bname, cfg):
 
     center = getCenter(ob)
     shiftOffset(ob, center)
+    print(ob.matrix_basis)
     if rig:
-        center = getCenter(ob)
+        gmat = ob.matrix_basis.copy()
         ob.parent = rig
         ob.parent_type = 'BONE'
         ob.parent_bone = bname
         pb = rig.pose.bones[bname]
-        offset = center - pb.tail
-        print("CCC", center, pb.tail, offset)
-        shiftOffset(ob, offset)
+        print(ob.matrix_basis)
+        print(pb.matrix)
+        ob.matrix_basis = pb.matrix.inverted() * gmat
+        print(ob.matrix_basis)
 
     ob.draw_type = 'WIRE'
     ob.field.type = 'FORCE'
