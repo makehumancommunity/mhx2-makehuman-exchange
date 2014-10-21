@@ -188,18 +188,17 @@ def proxifyTargets(mhProxy, targets):
 def getProxyCoordinates(mhHuman, filepath):
     from .load_json import loadJson
 
-    offset = Vector(zup(mhHuman["offset"]))
     mhGeo = loadJson(filepath)
-    mhProxy = mhGeo["proxy"]
 
     if isHairStruct(mhGeo):
         from .hair import getHairCoords
-        coords = getHairCoords(mhHuman, mhGeo)
+        return getHairCoords(mhHuman, mhGeo)
     else:
+        offset = Vector(zup(mhHuman["offset"]))
+        mhProxy = mhGeo["proxy"]
         pverts,scales = fitProxy(mhHuman, mhProxy["fitting"], mhProxy["bounding_box"])
         coords = [Vector(zup(v)) + offset for v in pverts]
-
-    return mhGeo,coords,scales
+        return mhGeo,coords,scales
 
 
 def addMhc2(context, filepath):

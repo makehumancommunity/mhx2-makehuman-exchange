@@ -305,7 +305,7 @@ class MhxSetupPanel(bpy.types.Panel):
         box.operator("mhx2.add_mhc2")
         box.prop(scn, "MhxHairColor")
         box.prop(scn, "MhxUseHairDynamics")
-        box.prop(scn, "MhxUseDeflector")
+        #box.prop(scn, "MhxUseDeflector")
 
         layout.separator()
         box = layout.box()

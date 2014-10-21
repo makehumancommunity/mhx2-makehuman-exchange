@@ -25,12 +25,15 @@ from .error import *
 from .utils import *
 
 
-
 def isHairStruct(struct):
     return ("particle_systems" in struct.keys())
 
 
 def getHairCoords(mhHuman, mhGeo):
+    from .proxy import fitProxy
+
+    mhProxy = mhGeo["proxy"]
+    offset = Vector(zup(mhHuman["offset"]))
     coords = []
     for mhSystem in mhGeo["particle_systems"]:
         pverts,scales = fitProxy(mhHuman, mhSystem["fitting"], mhProxy["bounding_box"])
@@ -41,7 +44,7 @@ def getHairCoords(mhHuman, mhGeo):
         for m in range(nhairs):
             coord.append( [Vector(zup(v)) + offset for v in pverts[m*hlen:(m+1)*hlen]] )
         coords.append(coord)
-        return coords
+    return mhGeo,coords,scales
 
 # ---------------------------------------------------------------------
 #
@@ -141,6 +144,26 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             print("DEFL", deflector)
 
 
+#------------------------------------------------------------------------
+#   Deflector
+#------------------------------------------------------------------------
+
+def makeDeflector(ob, scn):
+    scn.objects.active = ob
+    #bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
+
+    ob.draw_type = 'WIRE'
+    ob.field.type = 'FORCE'
+    print("FIELD", ob.field, ob.field.type)
+    ob.field.shape = 'SURFACE'
+    ob.field.strength = 240.0
+    ob.field.falloff_type = 'SPHERE'
+    ob.field.z_direction = 'POSITIVE'
+    ob.field.falloff_power = 2.0
+    ob.field.use_max_distance = True
+    ob.field.distance_max = 0.125*ob.MhxScale
+    print("DONE")
+
 
 def findDeflector(human):
     rig = human.parent
@@ -149,9 +172,8 @@ def findDeflector(human):
     else:
         children = human.children
     for ob in children:
-        for mod in ob.modifiers:
-            if mod.type == 'COLLISION':
-                return ob
+        if ob.field.type == 'FORCE':
+            return ob
     print("No deflector mesh found")
     return None
 

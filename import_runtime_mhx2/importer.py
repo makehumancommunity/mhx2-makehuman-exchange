@@ -153,7 +153,7 @@ def build(struct, cfg, context):
                 ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.getMeshType())
                 proxies.append((mhGeo, ob))
         elif mhGeo["human"]:
-            ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.getMeshType())
+            human = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.getMeshType())
             human.MhxHuman = True
 
     if proxy:
@@ -166,8 +166,9 @@ def build(struct, cfg, context):
         proxies.append(genitalia)
 
     if cfg.useOverride and cfg.useDeflector:
+        from .hair import makeDeflector
         deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
-        makeCollision(deflector[1])
+        makeDeflector(deflector[1], scn)
         proxies.append(deflector)
 
     if cfg.useOverride and cfg.hairType != "NONE":
@@ -228,7 +229,7 @@ def build(struct, cfg, context):
             mergeBodyParts(ob, proxies, scn, proxyTypes=proxyTypes)
 
     if cfg.useOverride and cfg.hairType != "NONE":
-        from .proxy import addHair
+        from .hair import addHair
         ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
         if ob:
             scn.objects.active = ob
@@ -393,15 +394,6 @@ def selectHelpers(human):
         return
     for vn in range(NBodyVerts, NTotalVerts):
         human.data.vertices[vn].select = True
-
-#------------------------------------------------------------------------
-#
-#------------------------------------------------------------------------
-
-def makeCollision(ob):
-    ob.draw_type = 'WIRE'
-    mod = ob.modifiers.new("Collision", 'COLLISION')
-    print(ob.collision, ob.collision.use)
 
 #------------------------------------------------------------------------
 #   Design human
