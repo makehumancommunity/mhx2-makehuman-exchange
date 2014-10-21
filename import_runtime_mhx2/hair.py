@@ -148,9 +148,20 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
 #   Deflector
 #------------------------------------------------------------------------
 
-def makeDeflector(ob, scn):
-    scn.objects.active = ob
-    #bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
+def makeDeflector(pair, rig, bname, cfg):
+    _,ob = pair
+
+    center = getCenter(ob)
+    shiftOffset(ob, center)
+    if rig:
+        center = getCenter(ob)
+        ob.parent = rig
+        ob.parent_type = 'BONE'
+        ob.parent_bone = bname
+        pb = rig.pose.bones[bname]
+        offset = center - pb.tail
+        print("CCC", center, pb.tail, offset)
+        shiftOffset(ob, offset)
 
     ob.draw_type = 'WIRE'
     ob.field.type = 'FORCE'
@@ -163,6 +174,19 @@ def makeDeflector(ob, scn):
     ob.field.use_max_distance = True
     ob.field.distance_max = 0.125*ob.MhxScale
     print("DONE")
+
+
+def getCenter(ob):
+    sum = Vector()
+    for v in ob.data.vertices:
+        sum += v.co
+    return sum/len(ob.data.vertices)
+
+
+def shiftOffset(ob, offset):
+    for v in ob.data.vertices:
+        v.co -= offset
+    ob.location = offset
 
 
 def findDeflector(human):

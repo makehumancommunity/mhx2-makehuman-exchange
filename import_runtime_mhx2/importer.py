@@ -167,9 +167,12 @@ def build(struct, cfg, context):
 
     if cfg.useOverride and cfg.useDeflector:
         from .hair import makeDeflector
-        deflector = addMeshProxy("deflector", "deflector", mhHuman, mats, rig, parser, scn, cfg)
-        makeDeflector(deflector[1], scn)
-        proxies.append(deflector)
+        deflHead = addMeshProxy("deflector", "deflector_head", mhHuman, mats, None, None, scn, cfg)
+        makeDeflector(deflHead, rig, "head", cfg)
+        proxies.append(deflHead)
+        deflTorso = addMeshProxy("deflector", "deflector_torso", mhHuman, mats, None, None, scn, cfg)
+        makeDeflector(deflTorso, rig, "chest", cfg)
+        proxies.append(deflTorso)
 
     if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates

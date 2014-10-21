@@ -4,6 +4,7 @@
         "license" : "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
         "homepage" : "http://www.makehuman.org/"
     },
+    "uuid" : "cf9f5627-ef48-441e-8224-c77fc8b2b4b6",
     "proxy" : {
         "name" : "Deflector_Torso",
         "type" : "Clothes",
