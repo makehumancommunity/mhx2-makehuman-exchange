@@ -140,6 +140,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             psys.use_hair_dynamics = True
             cset = psys.cloth.settings
             cset.pin_stiffness = 1.0
+            cset.mass = 0.05
             deflector = findDeflector(ob)
             print("DEFL", deflector)
 
@@ -151,19 +152,14 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
 def makeDeflector(pair, rig, bname, cfg):
     _,ob = pair
 
-    center = getCenter(ob)
-    shiftOffset(ob, center)
-    print(ob.matrix_basis)
+    shiftToCenter(ob)
     if rig:
-        gmat = ob.matrix_basis.copy()
         ob.parent = rig
         ob.parent_type = 'BONE'
         ob.parent_bone = bname
         pb = rig.pose.bones[bname]
-        print(ob.matrix_basis)
-        print(pb.matrix)
-        ob.matrix_basis = pb.matrix.inverted() * gmat
-        print(ob.matrix_basis)
+        ob.matrix_basis = pb.matrix.inverted()*ob.matrix_basis
+        ob.matrix_basis.col[3] -= Vector((0,pb.bone.length,0,0))
 
     ob.draw_type = 'WIRE'
     ob.field.type = 'FORCE'
@@ -178,14 +174,11 @@ def makeDeflector(pair, rig, bname, cfg):
     print("DONE")
 
 
-def getCenter(ob):
+def shiftToCenter(ob):
     sum = Vector()
     for v in ob.data.vertices:
         sum += v.co
-    return sum/len(ob.data.vertices)
-
-
-def shiftOffset(ob, offset):
+    offset = sum/len(ob.data.vertices)
     for v in ob.data.vertices:
         v.co -= offset
     ob.location = offset
