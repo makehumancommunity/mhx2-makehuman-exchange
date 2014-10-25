@@ -373,13 +373,7 @@ class Parser:
                 self.renameDeformBones(rig_muscle.Armature)
                 if cfg.useConstraints:
                     self.renameConstraints(rig_muscle.Constraints)
-            custom = {}
-            if cfg.useCustomShapes:
-                if cfg.useCustomShapes == 'ALL':
-                    if cfg.useMuscles:
-                        addDict(rig_muscle.CustomShapes, custom)
-            self.addDeformVertexGroups(vgroups, custom)
-            #self.renameDeformVertexGroups(rig_muscle.Armature)
+            self.addDeformVertexGroups(vgroups)
 
         if cfg.useSplitBones or cfg.useSplitNames:
             if cfg.useSplitBones:
@@ -884,14 +878,12 @@ class Parser:
             del self.constraints[bname]
 
 
-    def addDeformVertexGroups(self, vgroups, custom):
+    def addDeformVertexGroups(self, vgroups):
         cfg = self.config
         useSplit = (cfg.useSplitBones or cfg.useSplitNames)
         for bname,vgroup in vgroups.items():
             base = splitBoneName(bname)[0]
             if useSplit and base in self.splitBones.keys():
-                pass
-            elif bname in custom.keys():
                 pass
             elif bname[0:4] == "hair":
                 pass
