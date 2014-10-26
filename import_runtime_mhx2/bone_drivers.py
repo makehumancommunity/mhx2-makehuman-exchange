@@ -22,9 +22,13 @@
 import os
 import json
 import bpy
+import math
 from bpy.props import *
 from mathutils import *
 from .drivers import *
+from .utils import *
+from .error import *
+
 
 #------------------------------------------------------------------------
 #   Bone drivers
@@ -143,11 +147,26 @@ def getStruct(filename, struct):
 
 _FacePoses = None
 
-def getFacePoses():
+def getFacePoses(rig = None):
+    from collections import OrderedDict
     global _FacePoses
-    _FacePoses = getStruct("data/hm8/faceshapes/faceposes.json", _FacePoses)
+    if _FacePoses is None:
+        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.json")
+        _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
+    if rig:
+        checkRoll(rig)
     return _FacePoses
 
+
+def checkRoll(rig):
+    try:
+        jaw = rig.data.bones["jaw"]
+    except KeyError:
+        return
+    if abs(getRoll(jaw)) > math.pi/2:
+        raise MhxError(
+            "Jaw bone has wrong roll value\n" +
+            "Export from newrig repo")
 
 def addBoneDrivers(rig, prefix, struct):
     initRnaProperties(rig)
@@ -196,7 +215,7 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     def execute(self, context):
         global _FacePoses
         rig = context.object
-        addBoneDrivers(rig, "Mfa", getFacePoses())
+        addBoneDrivers(rig, "Mfa", getFacePoses(rig))
         rig.MhxFaceRigDrivers = True
         return{'FINISHED'}
 
@@ -209,14 +228,17 @@ def removeBoneDrivers(rig, prefix, struct):
         for bname in bones.keys():
             bnames[bname] = True
     for bname in bnames:
-        pb = rig.pose.bones[bname]
+        try:
+            pb = rig.pose.bones[bname]
+        except KeyError:
+            continue
         pb.driver_remove("rotation_quaternion")
 
 
 class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
     bl_idname = "mhx2.remove_facerig_drivers"
     bl_label = "Remove Facerig Drivers"
-    bl_description = "Control face rig with rig properties."
+    bl_description = "Remove rig property control of face rig."
     bl_options = {'UNDO'}
 
     @classmethod

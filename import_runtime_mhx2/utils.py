@@ -95,3 +95,16 @@ def getMhHuman(ob=None):
     if ob and theMhHuman["uuid"] != ob.MhxUuid:
         raise MhxError("Saved human:\n %s\ndoes not match current object:\n %s" % (theMhHuman["name"], ob.name))
     return theMhHuman
+
+# ---------------------------------------------------------------------
+#   Roll angle
+# ---------------------------------------------------------------------
+
+def getRoll(bone):
+    import math
+    quat = bone.matrix_local.to_3x3().to_quaternion()
+    if abs(quat.w) < 1e-4:
+        roll = math.pi
+    else:
+        roll = -2*math.atan(quat.y/quat.w)
+    return roll

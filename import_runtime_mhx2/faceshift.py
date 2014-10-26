@@ -32,9 +32,13 @@ from .error import *
 #    Quick and dirty BVH load.
 #------------------------------------------------------------------------
 
-def faceshiftBvhLoad(filepath, useHead):
+def faceshiftBvhLoad(filepath, useHead, context):
+    rig = context.object
     readingBlendShapes = False
     readingMotion = False
+    isFaceshift13 = False
+    firstUnknown = ""
+
     props = {}
     bones = {}
     pmotion = {}
@@ -63,19 +67,27 @@ def faceshiftBvhLoad(filepath, useHead):
                         try:
                             prop = "Mfa%s" % FaceShiftShapes[joint]
                         except KeyError:
-                            raise MhxError("Unknown Blendshape %s.\nThis is not a FaceShift BVH file" % joint)
+                            if firstUnknown == "":
+                                firstUnknown = joint
+                            if joint == "LipsTogether":
+                                isFaceshift13 = True
                         props[idx] = prop
                         pmotion[prop] = []
                     elif joint == "Blendshapes":
                         readingBlendShapes = True
                     elif useHead:
                         try:
-                            bone = FaceShiftBones[joint]
+                            bnames = FaceShiftBones[joint]
                         except KeyError:
-                            bone = None
-                        if bone:
-                            bones[idx] = bone
-                            bmotion[bone] = []
+                            bnames = []
+                        for bname in bnames:
+                            try:
+                                bone = rig.data.bones[bname]
+                            except:
+                                bone = None
+                            if bone:
+                                bones[idx] = bname
+                                bmotion[bname] = []
                 elif key == "MOTION":
                     if not readingBlendShapes:
                         raise MhxError("This is not a FaceShift BVH file")
@@ -83,16 +95,27 @@ def faceshiftBvhLoad(filepath, useHead):
                 elif key == "Frame":
                     readingMotion = True
 
-    return bmotion,pmotion
+    if isFaceshift13:
+        warning = (
+            "Warning: This seems to be a Faceshift 1.3 file.\n" +
+            "MHX2 only supports Faceshift 1.2 and lower.")
+    elif firstUnknown:
+        warning = (
+            "Warning: This does not seem to be a Faceshift BVH file.\n" +
+            "First unknown shape: %s" % firstUnknown)
+    else:
+        warning = ""
+
+    return bmotion,pmotion,warning
 
 #------------------------------------------------------------------------
 #    Faceshift translation table
 #------------------------------------------------------------------------
 
 FaceShiftBones = {
-    "Neck" : "neck",
-    "eye_left" : "eye.L",
-    "eye_right" : "eye.R",
+    "Neck" : ["neck", "neck02"],
+    "eye_left" : ["eye.L"],
+    "eye_right" : ["eye.R"],
 }
 
 FaceShiftShapes = {
@@ -151,12 +174,11 @@ FaceShiftShapes = {
 #    Assign motion to rig properties and bones
 #------------------------------------------------------------------------
 
-def assignMotion(context, motion):
+def assignMotion(context, bmotion, pmotion):
     rig = context.object
     if (rig.animation_data and rig.animation_data.action):
         rig.animation_data.action = None
 
-    bmotion,pmotion = motion
     for bname in bmotion.keys():
         pb = rig.pose.bones[bname]
         pb.keyframe_insert(data_path="rotation_quaternion", frame=1)
@@ -219,9 +241,11 @@ class VIEW3D_OT_LoadFaceshiftBvhButton(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         try:
-            motion = faceshiftBvhLoad(self.properties.filepath, self.useHead)
-            assignMotion(context, motion)
+            bmotion,pmotion,warning = faceshiftBvhLoad(self.properties.filepath, self.useHead, context)
+            assignMotion(context, bmotion, pmotion)
             print("Faceshift file %s loaded." % self.properties.filepath)
+            if warning:
+                raise MhxError(warning)
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}
