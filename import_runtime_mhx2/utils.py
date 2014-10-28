@@ -22,20 +22,34 @@
 from mathutils import Vector
 from .error import MhxError
 
+def getOriginalName(ob):
+    words = ob.name.rsplit(".",1)
+    if len(words) == 1:
+        return words[0]
+    elif len(words[1]) == 4:    # .001
+        try:
+            int(words[1])
+            return words[0]
+        except KeyError:
+            return ob.name
+    else:
+        return ob.name
+
+
 def isBody(ob):
-    name = ob.name.rsplit(".",1)[0]
+    name = getOriginalName(ob)
     return (name.split(":")[-1] in ["Body", "Base"])
 
 def getRigName(ob):
-    name = ob.name.rsplit(".",1)[0]
+    name = getOriginalName(ob)
     return name.split(":")[0]
 
 def getProxyName(ob):
-    name = ob.name.rsplit(".",1)[0]
+    name = getOriginalName(ob)
     return name.split(":")[1]
 
 def getMaterialName(ob):
-    name = ob.name.rsplit(".",1)[0]
+    name = getOriginalName(ob)
     return name.split(":")[2]
 
 def getDeleteName(ob):
@@ -48,7 +62,7 @@ def getVGProxyName(string):
     return string.split(":",1)[1]
 
 def getClothesName(clo):
-    name = clo.name.rsplit(".",1)[0]
+    name = getOriginalName(clo)
     try:
         return name.split(":",1)[1]
     except IndexError:
