@@ -107,6 +107,7 @@ def buildHairMaterialCycles(mat, rgb):
     links.new(trans.outputs['BSDF'], mix1.inputs[2])
 
     diffuse = tree.addNode(2, 'ShaderNodeBsdfDiffuse')
+    diffuse.inputs["Roughness"].default_value = 0
     links.new(val2rgb.outputs['Color'], diffuse.inputs['Color'])
 
     mix2 = tree.addNode(3, 'ShaderNodeMixShader')
@@ -117,7 +118,7 @@ def buildHairMaterialCycles(mat, rgb):
     aniso = tree.addNode(3, 'ShaderNodeBsdfAnisotropic')
 
     mix3 = tree.addNode(4, 'ShaderNodeMixShader')
-    mix3.inputs[0].default_value = 0.1
+    mix3.inputs[0].default_value = 0.05
     links.new(mix2.outputs['Shader'], mix3.inputs[1])
     links.new(aniso.outputs['BSDF'], mix3.inputs[2])
 
@@ -145,7 +146,7 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
 
     glossy = tree.addNode(3, 'ShaderNodeBsdfGlossy')
     glossy.inputs["Color"].default_value[0:3] = mhMat["diffuse_color"]
-    glossy.inputs["Roughness"].default_value = 0
+    glossy.inputs["Roughness"].default_value = 0.2
     glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
     if glossyTex:
         links.new(glossyTex.outputs['Color'], glossy.inputs['Color'])
