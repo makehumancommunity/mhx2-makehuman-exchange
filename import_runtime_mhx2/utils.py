@@ -30,7 +30,7 @@ def getOriginalName(ob):
         try:
             int(words[1])
             return words[0]
-        except KeyError:
+        except ValueError:
             return ob.name
     else:
         return ob.name
