@@ -26,7 +26,7 @@ def getOriginalName(ob):
     words = ob.name.rsplit(".",1)
     if len(words) == 1:
         return words[0]
-    elif len(words[1]) == 4:    # .001
+    elif len(words[1]) == 3:    # .001
         try:
             int(words[1])
             return words[0]
