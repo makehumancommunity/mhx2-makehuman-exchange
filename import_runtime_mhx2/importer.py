@@ -200,9 +200,9 @@ def build(struct, cfg, context):
         from .masks import addMasks
         proxyTypes = ["Proxymeshes", "Genitals"]
         if cfg.useMasks == 'MODIFIER':
-            addMasks(human, proxies, proxyTypes=proxyTypes)
+            addMasks(mhHuman, human, proxies, proxyTypes, cfg.useConservativeMasks)
         elif cfg.useMasks == 'APPLY':
-            addMasks(human, proxies, proxyTypes=proxyTypes)
+            addMasks(mhHuman, human, proxies, proxyTypes, cfg.useConservativeMasks)
             selectAllMaskVGroups(human, proxies)
         elif cfg.useMasks == 'IGNORE':
             pass

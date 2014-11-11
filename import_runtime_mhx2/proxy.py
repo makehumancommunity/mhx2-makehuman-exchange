@@ -194,7 +194,7 @@ def addMhc2(context, filepath):
         addHair(ob, mhGeo, coords, scn)
     else:
         from .geometries import addMeshToScene, getVertexGroupsFromObject, buildVertexGroups
-        from .importer import addMasks
+        from .masks import addMasks
 
         mhProxy = mhGeo["proxy"]
         gname = ("%s:%s" % (getRigName(ob), mhProxy["name"]))
@@ -203,7 +203,7 @@ def addMhc2(context, filepath):
             pxy.parent = rig
         else:
             pxy.parent = ob
-        addMasks(ob, [(mhGeo,pxy)], proxyTypes=[mhProxy["type"]])
+        addMasks(mhHuman, ob, [(mhGeo,pxy)], [mhProxy["type"]], scn.MhxUseConservativeMasks)
         ngrps = proxifyVertexGroups(mhProxy, mhHuman)
         buildVertexGroups(ngrps, pxy, rig)
         if "targets" in mhGeo.keys():

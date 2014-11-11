@@ -20,17 +20,18 @@
 # ##### END GPL LICENSE BLOCK #####
 
 from .utils import *
+from .hm8 import *
 
 #------------------------------------------------------------------------
 #   Masking
 #------------------------------------------------------------------------
 
-def addMasks(human, proxies, proxyTypes=[]):
+def addMasks(mhHuman, human, proxies, proxyTypes, useConservativeMasks):
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]
         if "delete_verts" not in mhProxy.keys():
             continue
-        vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
+        vnums = getDeleteVerts(mhHuman, mhProxy, useConservativeMasks)
         pname = getProxyName(ob)
         if human:
             addMask(human, vnums, pname)
@@ -83,11 +84,50 @@ def selectMaskVGroups(ob):
     for mod in delMods:
         ob.modifiers.remove(mod)
 
+
+# ---------------------------------------------------------------------
+#
+# ---------------------------------------------------------------------
+
+def getDeleteVerts(mhHuman, mhProxy, useConservativeMasks):
+    vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
+    if not useConservativeMasks:
+        return vnums
+    if ("conservative" in mhProxy.keys() and
+        not mhProxy["conservative"]):
+        return vnums
+
+    mhMesh = mhHuman["seed_mesh"]
+    nVerts = len(mhMesh["vertices"])
+    nFaces = len(mhMesh["faces"])
+    vertsFaces = dict([(vn, []) for vn in range(nVerts)])
+    facesVerts = {}
+    for fn,f in enumerate(mhMesh["faces"]):
+        facesVerts[fn] = f
+        for vn in f:
+            vertsFaces[vn].append(fn)
+
+    nFaceVerts = dict([(fn,0) for fn in range(nFaces)])
+    for vn in vnums:
+        for fn in vertsFaces[vn]:
+            nFaceVerts[fn] += 1
+
+    delVerts = dict([(vn,True) for vn in range(nVerts)])
+    for fn,ndel in nFaceVerts.items():
+        if ndel <= 2:
+            for vn in facesVerts[fn]:
+                delVerts[vn] = False
+
+    vnums = [vn for vn,delete in delVerts.items() if delete]
+    return vnums
+
 # ---------------------------------------------------------------------
 #   Proxify masks
 # ---------------------------------------------------------------------
 
 def proxifyMask(mhProxy, mhMesh, vnums):
+    from .proxy import proxifyVertexGroups
+
     vgrps = { "Mask" : [(vn,1.0) for vn in vnums] }
     mhHuman = {
         "seed_mesh" : {

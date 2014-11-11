@@ -127,6 +127,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
     useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
+    useConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
 
     useMasks = EnumProperty(
         items = [('IGNORE', "Ignore", "Ignore masks"),
@@ -234,6 +235,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         layout.separator()
         layout.label("Masking:")
         layout.prop(self, "useMasks", expand=True)
+        layout.prop(self, "useConservativeMasks")
 
         layout.separator()
         box = layout.box()
@@ -305,6 +307,7 @@ class MhxSetupPanel(bpy.types.Panel):
         box = layout.box()
         box.label("Hair And Clothes")
         box.operator("mhx2.add_mhc2")
+        box.prop(scn, "MhxUseConservativeMasks")
         box.prop(scn, "MhxHairColor")
         box.prop(scn, "MhxUseHairDynamics")
         #box.prop(scn, "MhxUseDeflector")
@@ -690,6 +693,8 @@ def register():
     bpy.types.Scene.MhxHairColor = HairColorProperty
     bpy.types.Scene.MhxUseDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     bpy.types.Scene.MhxUseHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
+
+    bpy.types.Scene.MhxUseConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
 
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
