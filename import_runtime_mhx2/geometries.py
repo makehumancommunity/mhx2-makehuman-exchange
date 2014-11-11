@@ -38,7 +38,14 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
     else:
         ob = buildMesh(mhGeo, mhMesh, scn, cfg, False)
         ob.MhxSeedMesh = False
+
     ob.MhxUuid = mhGeo["uuid"]
+    if "license" in mhGeo.keys():
+        mhLicense = mhGeo["license"]
+        if isinstance(mhLicense, dict):
+            ob.MhxAuthor = mhLicense["author"]
+            ob.MhxLicense = mhLicense["license"]
+            ob.MhxHomePage = mhLicense["homepage"]
 
     vgrps = None
     if cfg.useOverride:

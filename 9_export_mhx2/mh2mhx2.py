@@ -338,7 +338,7 @@ def getMaterialName(name, meshname, matname):
 #   Licensing
 #-----------------------------------------------------------------------
 
-
+'''
 BaseMeshLicense = (
     ["MakeHuman 3d morphing modelled by Manuel Bastioni"],
     ["Copyright (C) 2014 Manuel Bastioni (mb@makehuman.org)"],
@@ -360,6 +360,13 @@ BaseMeshLicense = (
     ["   You should have received a copy of the GNU Affero General Public License"],
     ["   along with this program.  If not, see <http://www.gnu.org/licenses/>."],
 )
+'''
+
+BaseMeshLicense = OrderedDict([
+    ("author",  "Manuel Bastioni"),
+    ("license", "AGPL3 (http://www.makehuman.org/doc/node/makehuman_mesh_license.html)"),
+    ("homepage", "http://www.makehuman.org/")
+])
 
 def addProxyLicense(mhGeo, pxy):
     mhLicense = mhGeo["license"] = OrderedDict()

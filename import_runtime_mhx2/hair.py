@@ -59,6 +59,15 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
     #if nsys > 0:
     #    ob.data.materials.pop()
 
+    if "license" in struct.keys():
+        mhLicense = struct["license"]
+        if "author" in mhLicense.keys():
+            ob.MhxHairAuthor = mhLicense["author"]
+            ob.MhxHairLicense = mhLicense["license"]
+            ob.MhxHairHomePage = mhLicense["homepage"]
+        else:
+            ob.MhxHairAuthor = ob.MhxHairLicense = ob.MhxHairHomePage = ""
+
     if "blender_material" in struct.keys():
         mat = buildBlenderMaterial(struct["blender_material"])
     else:

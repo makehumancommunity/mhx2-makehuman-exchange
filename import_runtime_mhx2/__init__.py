@@ -338,6 +338,33 @@ class MhxSetupPanel(bpy.types.Panel):
 
 
 #------------------------------------------------------------------------
+#    Mhx License Panel
+#------------------------------------------------------------------------
+
+class MhxLicensePanel(bpy.types.Panel):
+    bl_label = "License"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    def draw(self, context):
+        layout = self.layout
+        ob = context.object
+        if ob:
+            layout.label("Mesh:")
+            layout.prop(ob, "MhxAuthor", text="Author")
+            layout.prop(ob, "MhxLicense", text="License")
+            layout.prop(ob, "MhxHomePage", text="Homepage")
+
+            if ob.particle_systems:
+                layout.separator()
+                layout.label("Hair:")
+                layout.prop(ob, "MhxHairAuthor", text="Author")
+                layout.prop(ob, "MhxHairLicense", text="License")
+                layout.prop(ob, "MhxHairHomePage", text="Homepage")
+
+#------------------------------------------------------------------------
 #    Mhx Layers Panel
 #------------------------------------------------------------------------
 
@@ -669,6 +696,14 @@ def register():
     bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
+
+    # License properties
+    bpy.types.Object.MhxAuthor = StringProperty(default="")
+    bpy.types.Object.MhxLicense = StringProperty(default="")
+    bpy.types.Object.MhxHomePage = StringProperty(default="")
+    bpy.types.Object.MhxHairAuthor = StringProperty(default="")
+    bpy.types.Object.MhxHairLicense = StringProperty(default="")
+    bpy.types.Object.MhxHairHomePage = StringProperty(default="")
 
     # MHX Control properties
     bpy.types.Object.MhaGazeFollowsHead = FloatProperty(default=1.0, soft_min=0.0, soft_max=1.0)
