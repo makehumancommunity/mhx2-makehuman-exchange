@@ -197,6 +197,7 @@ def build(struct, cfg, context):
     deselectAll(human, proxies, scn)
 
     if cfg.useOverride and cfg.useHelpers:
+        from .masks import addMasks
         proxyTypes = ["Proxymeshes", "Genitals"]
         if cfg.useMasks == 'MODIFIER':
             addMasks(human, proxies, proxyTypes=proxyTypes)
@@ -297,70 +298,6 @@ def buildSkeleton(mhSkel, scn, cfg):
     bpy.ops.object.mode_set(mode='OBJECT')
     rig.MhxRig = "Exported"
     return rig
-
-#------------------------------------------------------------------------
-#   Masking
-#------------------------------------------------------------------------
-
-def addMasks(human, proxies, proxyTypes=[]):
-    from .proxy import proxifyMask
-
-    for mhGeo,ob in proxies:
-        mhProxy = mhGeo["proxy"]
-        if "delete_verts" not in mhProxy.keys():
-            continue
-        vnums = [vn for vn,delete in enumerate(mhProxy["delete_verts"]) if delete]
-        pname = getProxyName(ob)
-        if human:
-            addMask(human, vnums, pname)
-        for mhGeo1,ob1 in proxies:
-            if ob == ob1:
-                continue
-            mhProxy1 = mhGeo1["proxy"]
-            if mhProxy1["type"] in proxyTypes:
-                if "proxy_seed_mesh" in mhGeo1.keys():
-                    mhMesh = mhGeo1["proxy_seed_mesh"]
-                else:
-                    mhMesh = mhGeo1["seed_mesh"]
-                pvnums = proxifyMask(mhProxy1, mhMesh, vnums)
-                if pvnums:
-                    addMask(ob1, pvnums, pname)
-
-
-def addMask(ob, vnums, pname):
-    if vnums:
-        mod = ob.modifiers.new("Mask:%s" % pname, 'MASK')
-        vgrp = ob.vertex_groups.new("Delete:%s" % pname)
-        mod.vertex_group = vgrp.name
-        mod.invert_vertex_group = True
-        for vn in vnums:
-            vgrp.add([vn], 1, 'REPLACE')
-
-
-def selectAllMaskVGroups(human, proxies):
-    selectMaskVGroups(human)
-    for _,pxy in proxies:
-        selectMaskVGroups(pxy)
-
-
-def selectMaskVGroups(ob):
-    delMods = []
-    for mod in ob.modifiers:
-        if mod.type == 'MASK':
-            delMods.append(mod)
-            try:
-                vgrp = ob.vertex_groups[mod.vertex_group]
-            except KeyError:
-                vgrp = None
-                print("Did not find vertex group %s" % grpname)
-            if vgrp:
-                for v in ob.data.vertices:
-                    for g in v.groups:
-                        if g.group == vgrp.index:
-                            v.select = True
-                ob.vertex_groups.remove(vgrp)
-    for mod in delMods:
-        ob.modifiers.remove(mod)
 
 #------------------------------------------------------------------------
 #   Selecting and deleting verts

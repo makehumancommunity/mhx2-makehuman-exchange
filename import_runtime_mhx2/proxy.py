@@ -120,31 +120,6 @@ def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
                 ngrps[gname] = ngrp
     return ngrps
 
-
-def proxifyMask(mhProxy, mhMesh, vnums):
-    vgrps = { "Mask" : [(vn,1.0) for vn in vnums] }
-    mhHuman = {
-        "seed_mesh" : {
-            "weights" : vgrps
-        }
-    }
-    ngrps = proxifyVertexGroups(mhProxy, mhHuman)
-
-    if "Mask" in ngrps.keys():
-        nverts = len(mhMesh["vertices"])
-        vmask = dict([(vn,0) for vn in range(nverts)])
-        for vn,w in ngrps["Mask"]:
-            vmask[vn] = w
-        vclear = dict([(vn,False) for vn in range(nverts)])
-        for f in mhMesh["faces"]:
-            if vmask[f[0]]*vmask[f[1]]*vmask[f[2]]*vmask[f[3]] < 0.5:
-                vclear[f[0]] = vclear[f[1]] = vclear[f[2]] = vclear[f[3]] = True
-        pvnums = [vn for vn,test in vclear.items() if not test]
-        pvnums.sort()
-    else:
-        pvnums = []
-    return pvnums
-
 # ---------------------------------------------------------------------
 #   Targets
 # ---------------------------------------------------------------------

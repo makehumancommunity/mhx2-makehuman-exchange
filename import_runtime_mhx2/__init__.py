@@ -39,7 +39,7 @@ if "bpy" in locals():
     imp.reload(error)
     imp.reload(config)
     imp.reload(load_json)
-    imp.reload(importer)
+    imp.reload(masks)
     imp.reload(materials)
     imp.reload(proxy)
     imp.reload(hair)
@@ -53,6 +53,7 @@ if "bpy" in locals():
     imp.reload(shapekeys)
     imp.reload(visemes)
     imp.reload(merge)
+    imp.reload(importer)
 else:
     print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     from . import armature
@@ -61,7 +62,7 @@ else:
     from . import error
     from . import config
     from . import load_json
-    from . import importer
+    from . import masks
     from . import materials
     from . import proxy
     from . import hair
@@ -75,6 +76,7 @@ else:
     from . import shapekeys
     from . import visemes
     from . import merge
+    from . import importer
 
 import bpy
 from bpy.props import *
