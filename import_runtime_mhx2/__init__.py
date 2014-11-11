@@ -351,7 +351,7 @@ class MhxLicensePanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         ob = context.object
-        if ob:
+        if ob and ob.type == 'MESH':
             layout.label("Mesh:")
             layout.prop(ob, "MhxAuthor", text="Author")
             layout.prop(ob, "MhxLicense", text="License")
