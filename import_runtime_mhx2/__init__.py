@@ -189,7 +189,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
     for file in os.listdir(folder):
         fname,ext = os.path.splitext(file)
-        if ext == ".mhc2":
+        if ext == ".mxa":
             hairlist.append((file, fname, fname))
 
     hairType = EnumProperty(
@@ -305,8 +305,8 @@ class MhxSetupPanel(bpy.types.Panel):
 
         layout.separator()
         box = layout.box()
-        box.label("Hair And Clothes")
-        box.operator("mhx2.add_mhc2")
+        box.label("Assets")
+        box.operator("mhx2.add_mxa")
         box.prop(scn, "MhxUseConservativeMasks")
         box.prop(scn, "MhxHairColor")
         box.prop(scn, "MhxUseHairDynamics")

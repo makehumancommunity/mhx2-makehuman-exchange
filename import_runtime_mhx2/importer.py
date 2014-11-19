@@ -263,7 +263,7 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
     from .proxy import addProxy
     from .geometries import buildGeometry
 
-    filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mhc2")
+    filepath = os.path.join("data/hm8/%s" % type, pname.lower() + ".mxa")
     print("Adding %s:" % pname, filepath)
     mhGeo,scales = addProxy(filepath, mhHuman, mats, scn, cfg)
     ob = buildGeometry(mhGeo, mats, rig, parser, scn, cfg, cfg.getMeshType())

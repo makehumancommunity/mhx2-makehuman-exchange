@@ -176,14 +176,14 @@ def getProxyCoordinates(mhHuman, filepath):
         return mhGeo,coords,scales
 
 
-def addMhc2(context, filepath):
+def addMxa(context, filepath):
     ob = context.object
     rig = getArmature(ob)
     scn = context.scene
 
     #if len(ob.data.vertices) not in [NBodyVerts, NTotalVerts]:
     #    raise MhxError(
-    #        "Mhc2 can only be added to a\n" +
+    #        "Mxa can only be added to a\n" +
     #        "MakeHuman mesh with\n" +
     #        "%d or %d vertices" % (NBodyVerts, NTotalVerts))
 
@@ -211,14 +211,14 @@ def addMhc2(context, filepath):
             addTargets(pxy, mhGeo["targets"], scales)
 
 
-class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
-    bl_idname = "mhx2.add_mhc2"
-    bl_label = "Add Hair Or Clothes (.mhc2)"
-    bl_description = "Add clothes, genitalia or hair stored in a mhc2 file"
+class VIEW3D_OT_AddMxaButton(bpy.types.Operator, ImportHelper):
+    bl_idname = "mhx2.add_mxa"
+    bl_label = "Add Hair Or Clothes (.mxa)"
+    bl_description = "Add clothes, genitalia or hair stored in a mxa file"
     bl_options = {'UNDO'}
 
-    filename_ext = ".mhc2"
-    filter_glob = StringProperty(default="*.mhc2", options={'HIDDEN'})
+    filename_ext = ".mxa"
+    filter_glob = StringProperty(default="*.mxa", options={'HIDDEN'})
     filepath = StringProperty(name="File Path", description="Filepath used for loading the hair file", maxlen=1024, default="")
 
     @classmethod
@@ -228,7 +228,7 @@ class VIEW3D_OT_AddMhc2Button(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         try:
-            addMhc2(context, self.properties.filepath)
+            addMxa(context, self.properties.filepath)
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}

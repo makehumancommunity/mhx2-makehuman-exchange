@@ -314,7 +314,7 @@ def addTexture(mat, filepath, cfg):
     return mtex
 
 # ---------------------------------------------------------------------
-#   Get material from mhc2 file
+#   Get material from mxa file
 # ---------------------------------------------------------------------
 
 def getMaterial(mhMaterial, gname):
