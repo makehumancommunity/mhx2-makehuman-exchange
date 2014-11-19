@@ -302,11 +302,12 @@ class MhxSetupPanel(bpy.types.Panel):
         box.label("Design Human")
         box.prop(scn, "MhxDesignHuman", text="")
         box.operator("mhx2.set_design_human")
+        box.operator("mhx2.clear_design_human")
 
         layout.separator()
         box = layout.box()
         box.label("Assets")
-        box.operator("mhx2.add_mxa")
+        box.operator("mhx2.add_asset")
         box.prop(scn, "MhxUseConservativeMasks")
         box.prop(scn, "MhxHairColor")
         box.prop(scn, "MhxUseHairDynamics")
@@ -328,7 +329,7 @@ class MhxSetupPanel(bpy.types.Panel):
         box = layout.box()
         box.label("Shapekeys")
         op = box.operator("mhx2.add_shapekeys", text="Add Face Shapes")
-        op.filename="data/hm8/faceshapes/faceshapes.json"
+        op.filename="data/hm8/faceshapes/faceshapes.mxa"
         box.separator()
         box.operator("mhx2.add_face_shape_drivers")
         box.operator("mhx2.remove_face_shape_drivers")

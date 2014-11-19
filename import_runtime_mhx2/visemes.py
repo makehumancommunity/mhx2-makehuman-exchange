@@ -40,9 +40,9 @@ class VisemeData:
     def load(self):
         from .load_json import loadJsonRelative
         if self._moho is None:
-            struct = loadJsonRelative("data/hm8/faceshapes/faceshapes.json")
+            struct = loadJsonRelative("data/hm8/faceshapes/faceshapes.mxa")
             self._mouthShapes = [key for key in struct["targets"].keys() if key[0:4] in ["mout", "lips", "tong"]]
-            struct = loadJsonRelative("data/hm8/faceshapes/visemes.json")
+            struct = loadJsonRelative("data/hm8/faceshapes/visemes.mxa")
             self._layout = struct["layout"]
             self._visemes = struct["visemes"]
             self._moho = struct["moho"]

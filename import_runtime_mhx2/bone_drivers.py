@@ -151,7 +151,7 @@ def getFacePoses(rig = None):
     from collections import OrderedDict
     global _FacePoses
     if _FacePoses is None:
-        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.json")
+        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
         _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
     if rig:
         checkRoll(rig)

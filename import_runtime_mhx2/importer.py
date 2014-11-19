@@ -182,7 +182,7 @@ def build(struct, cfg, context):
 
     if cfg.useOverride and cfg.useFaceShapes:
         from .shapekeys import addShapeKeys
-        path = "data/hm8/faceshapes/faceshapes.json"
+        path = "data/hm8/faceshapes/faceshapes.mxa"
         proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
         addShapeKeys(human, path, mhHuman=mhHuman, proxies=proxies, proxyTypes=proxyTypes)
 
@@ -372,3 +372,14 @@ class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator, ImportHelper):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
+
+class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator):
+    bl_idname = "mhx2.clear_design_human"
+    bl_label = "Clear Design Human"
+    bl_description = "Clear definition of human to be designed"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        mhHuman = None
+        context.scene.MhxDesignHuman = "None"
+        return{'FINISHED'}
