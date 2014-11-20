@@ -104,6 +104,8 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
                 except AttributeError:
                     pass
             pset.child_radius *= ob.MhxScale
+            pset.kink_amplitude *= ob.MhxScale
+            pset.roughness_2_size /= ob.MhxScale
         else:
             pset.type = 'HAIR'
             pset.use_strand_primitive = True

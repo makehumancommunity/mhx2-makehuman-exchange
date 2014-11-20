@@ -373,7 +373,7 @@ class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator, ImportHelper):
         return {'RUNNING_MODAL'}
 
 
-class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator):
+class VIEW3D_OT_ClearDesignHumanButton(bpy.types.Operator):
     bl_idname = "mhx2.clear_design_human"
     bl_label = "Clear Design Human"
     bl_description = "Clear definition of human to be designed"

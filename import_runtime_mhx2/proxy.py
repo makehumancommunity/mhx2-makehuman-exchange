@@ -211,7 +211,7 @@ def addMxa(context, filepath):
             addTargets(pxy, mhGeo["targets"], scales)
 
 
-class VIEW3D_OT_AddMxaButton(bpy.types.Operator, ImportHelper):
+class VIEW3D_OT_AddAssetButton(bpy.types.Operator, ImportHelper):
     bl_idname = "mhx2.add_asset"
     bl_label = "Add Asset (.mxa)"
     bl_description = "Add clothes, genitalia or hair stored in am .mxa file"
