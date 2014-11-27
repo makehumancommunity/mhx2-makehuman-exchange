@@ -166,7 +166,7 @@ def buildRig(mhHuman, cfg, context):
         else:
             raise RuntimeError("Unknown property type: %s" % data["type"])
         setattr(bpy.types.Object, key, prop)
-        rig[key] = default
+        setattr(rig, key, default)
 
     addPropDrivers(rig, parser.lrPropDrivers, ".L", "Mha")
     addPropDrivers(rig, parser.lrPropDrivers, ".R", "Mha")
@@ -189,7 +189,7 @@ def buildRig(mhHuman, cfg, context):
 
     rig.MhxRig = cfg.rigType
     rig["MhxVersion"] = 20
-    rig["MhaRotationLimits"] = cfg.useRotationLimits
+    rig.MhaRotationLimits = cfg.useRotationLimits
     rig.MhxFacePanel = cfg.useFacePanel
     return rig, parser
 

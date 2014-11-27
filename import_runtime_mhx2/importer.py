@@ -95,7 +95,7 @@ def build(struct, cfg, context):
         cfg.rigType == 'RIGIFY' and
         not checkRigifyEnabled(context)):
         pass
-        raise MhxError("The Rigify add-on is not enabled. It is found under rigging.")
+        #raise MhxError("The Rigify add-on is not enabled. It is found under rigging.")
 
     mats = {}
     for mhMaterial in struct["materials"]:

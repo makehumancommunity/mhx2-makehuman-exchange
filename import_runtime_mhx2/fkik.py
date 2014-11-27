@@ -259,7 +259,7 @@ def snapFkLeg(context, data):
 
     restoreSnapProp(rig, prop, old, context)
 
-    if not rig["MhaLegIkToAnkle" + suffix]:
+    if not getattr(rig, "MhaLegIkToAnkle" + suffix):
         matchPoseReverse(footFk, footRev, auto)
         matchPoseReverse(toeFk, toeRev, auto)
 
@@ -280,7 +280,7 @@ def snapIkLeg(context, data):
     (uplegFk, lolegFk, footFk, toeFk) = snapFk
     muteConstraints(cnsIk, True)
 
-    legIkToAnkle = rig["MhaLegIkToAnkle" + suffix]
+    legIkToAnkle = getattr(rig, "MhaLegIkToAnkle" + suffix)
     if legIkToAnkle:
         matchPoseTranslation(ankleIk, footFk, auto)
     else:
@@ -363,7 +363,7 @@ class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='POSE')
         rig = context.object
         if rig.MhxSnapExact:
-            rig["MhaRotationLimits"] = 0.0
+            setattr(rig, "MhaRotationLimits", 0.0)
         if self.data[:6] == "MhaArm":
             snapFkArm(context, self.data)
         elif self.data[:6] == "MhaLeg":
@@ -381,7 +381,7 @@ class VIEW3D_OT_MhxSnapIk2FkButton(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='POSE')
         rig = context.object
         if rig.MhxSnapExact:
-            rig["MhaRotationLimits"] = 0.0
+            setattr(rig, "MhaRotationLimits", 0.0)
         if self.data[:6] == "MhaArm":
             snapIkArm(context, self.data)
         elif self.data[:6] == "MhaLeg":
@@ -392,8 +392,8 @@ class VIEW3D_OT_MhxSnapIk2FkButton(bpy.types.Operator):
 def setSnapProp(rig, data, value, context, isIk):
     words = data.split()
     prop = words[0]
-    oldValue = rig[prop]
-    rig[prop] = value
+    oldValue = getattr(rig, prop)
+    setattr(rig, prop, value)
     ik = int(words[1])
     fk = int(words[2])
     extra = int(words[3])
@@ -419,7 +419,7 @@ def setSnapProp(rig, data, value, context, isIk):
 def restoreSnapProp(rig, prop, old, context):
     updatePose(context)
     (oldValue, ik, fk, extra, oldIk, oldFk, oldExtra) = old
-    rig[prop] = oldValue
+    setattr(rig, prop,  oldValue)
     rig.data.layers[ik] = oldIk
     rig.data.layers[fk] = oldFk
     rig.data.layers[extra] = oldExtra
@@ -442,7 +442,8 @@ class VIEW3D_OT_MhxToggleFkIkButton(bpy.types.Operator):
         offLayer = int(words[3])
         rig.data.layers[onLayer] = True
         rig.data.layers[offLayer] = False
-        rig[prop] = value
+        print("GL", prop, value)
+        setattr(rig, prop, value)
         # Don't do autokey - confusing.
         #if context.tool_settings.use_keyframe_insert_auto:
         #    rig.keyframe_insert('["%s"]' % prop, frame=scn.frame_current)

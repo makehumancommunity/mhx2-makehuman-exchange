@@ -457,7 +457,7 @@ class MhxFKIKPanel(bpy.types.Panel):
         layout.label("Snapping")
         row = layout.row()
         row.label("Rotation Limits")
-        row.prop(rig, '["MhaRotationLimits"]', text="")
+        row.prop(rig, "MhaRotationLimits", text="")
         #row.prop(rig, "MhxSnapExact", text="Exact Snapping")
 
         layout.label("Snap Arm bones")
@@ -482,7 +482,7 @@ class MhxFKIKPanel(bpy.types.Panel):
 
 
     def toggleButton(self, row, rig, prop, fk, ik):
-        if rig[prop] > 0.5:
+        if getattr(rig, prop) > 0.5:
             row.operator("mhx2.toggle_fk_ik", text="IK").toggle = prop + " 0" + fk + ik
         else:
             row.operator("mhx2.toggle_fk_ik", text="FK").toggle = prop + " 1" + ik + fk
