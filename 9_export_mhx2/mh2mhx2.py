@@ -53,6 +53,8 @@ def exportMhx2(filepath, cfg):
     skel = human.getSkeleton()
     if skel:
         skel = skel.scaled(cfg.scale)
+        if not skel.isInRestPose():
+            skel = skel.createFromPose()
         rawWeights = human.getVertexWeights()  # Basemesh weights
     else:
         rawWeights = None
