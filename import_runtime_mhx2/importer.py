@@ -197,7 +197,7 @@ def build(struct, cfg, context):
     deselectAll(human, proxies, scn)
 
     if cfg.useOverride and cfg.useHelpers:
-        from .masks import addMasks
+        from .masks import addMasks, selectAllMaskVGroups
         proxyTypes = ["Proxymeshes", "Genitals"]
         if cfg.useMasks == 'MODIFIER':
             addMasks(mhHuman, human, proxies, proxyTypes, cfg.useConservativeMasks)
