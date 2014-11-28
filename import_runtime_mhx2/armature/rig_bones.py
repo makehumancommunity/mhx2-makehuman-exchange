@@ -48,13 +48,67 @@ Joints = [
     ('r-palm-04',           'vl', ((0.5, 3226), (0.5, 3829))),
     ('r-palm-05',           'vl', ((0.5, 3232), (0.5, 3828))),
 
+    ('l-plane-arm-1',       'v', 8049),
+    ('l-plane-arm-2',       'v', 10058),
+    ('l-plane-arm-3',       'v', 10235),
+
+    ('l-plane-hand-1',      'v', 10164),
+    ('l-plane-hand-2',      'v', 10576),
+    ('l-plane-hand-3',      'v', 9779),
+
+    ('l-plane-leg-1',       'v', 10867),
+    ('l-plane-leg-2',       'v', 11223),
+
+    ('r-plane-arm-1',       'v', 1357),
+    ('r-plane-arm-2',       'v', 3390),
+    ('r-plane-arm-3',       'v', 3567),
+
+    ('r-plane-hand-1',      'v', 3496),
+    ('r-plane-hand-2',      'v', 3911),
+    ('r-plane-hand-3',      'v', 3111),
+
+    ('r-plane-leg-1',       'v', 4233),
+    ('r-plane-leg-2',       'v', 4605),
+
     ('l-plane-thumb-1',     'v', 10291),
     ('l-plane-thumb-2',     'v', 9401),
     ('l-plane-thumb-3',     'v', 9365),
 
+    ('l-plane-index-1',     'v', 9773),
+    ('l-plane-index-2',     'v', 8638),
+    ('l-plane-index-3',     'v', 8694),
+
+    ('l-plane-middle-1',     'v', 9779),
+    ('l-plane-middle-2',     'v', 8798),
+    ('l-plane-middle-3',     'v', 8886),
+
+    ('l-plane-ring-1',     'v', 9785),
+    ('l-plane-ring-2',     'v', 9022),
+    ('l-plane-ring-3',     'v', 9078),
+
+    ('l-plane-pinky-1',     'v', 9793),
+    ('l-plane-pinky-2',     'v', 9219),
+    ('l-plane-pinky-3',     'v', 9270),
+
     ('r-plane-thumb-1',     'v', 3623),
     ('r-plane-thumb-2',     'v', 2725),
     ('r-plane-thumb-3',     'v', 2697),
+
+    ('r-plane-index-1',     'v', 3105),
+    ('r-plane-index-2',     'v', 1970),
+    ('r-plane-index-3',     'v', 2026),
+
+    ('r-plane-middle-1',     'v', 3111),
+    ('r-plane-middle-2',     'v', 2130),
+    ('r-plane-middle-3',     'v', 2218),
+
+    ('r-plane-ring-1',     'v', 3117),
+    ('r-plane-ring-2',     'v', 2354),
+    ('r-plane-ring-3',     'v', 2410),
+
+    ('r-plane-pinky-1',     'v', 3125),
+    ('r-plane-pinky-2',     'v', 2551),
+    ('r-plane-pinky-3',     'v', 2602),
 
     #('l-plane-foot',        'o', ('l-ankle', (0,-1,0))),
     #('r-plane-foot',        'o', ('r-ankle', (0,-1,0))),
@@ -170,26 +224,26 @@ HeadsTails = {
 
 Planes = {
     "PlaneArm.L" :         ('l-shoulder', 'l-elbow', 'l-hand'),
-    "PlaneHand.L" :        ('l-elbow', 'l-wrist-top', 'l-hand-end'),
+    "PlaneHand.L" :        ('l-plane-hand-1', 'l-plane-hand-2', 'l-plane-hand-3'),
     "PlaneLeg.L" :         ('l-upper-leg', 'l-knee', 'l-ankle'),
     "PlaneFoot.L" :        ('l-ankle', 'l-toe-2', 'l-foot-1'),
 
     "PlaneThumb.L" :       ('l-plane-thumb-1', 'l-plane-thumb-2', 'l-plane-thumb-3'),
-    "PlaneIndex.L" :       ('l-finger-2-1', 'l-finger-2-2', 'l-finger-2-4'),
-    "PlaneMiddle.L" :      ('l-finger-3-1', 'l-finger-3-2', 'l-finger-3-4'),
-    "PlaneRing.L" :        ('l-finger-4-1', 'l-finger-4-2', 'l-finger-4-4'),
-    "PlanePinky.L" :       ('l-finger-5-1', 'l-finger-5-2', 'l-finger-5-4'),
+    "PlaneIndex.L" :       ('l-plane-index-1', 'l-plane-index-2', 'l-plane-index-3'),
+    "PlaneMiddle.L" :      ('l-plane-middle-1', 'l-plane-middle-2', 'l-plane-middle-3'),
+    "PlaneRing.L" :        ('l-plane-ring-1', 'l-plane-ring-2', 'l-plane-ring-3'),
+    "PlanePinky.L" :       ('l-plane-pinky-1', 'l-plane-pinky-2', 'l-plane-pinky-3'),
 
     "PlaneArm.R" :         ('r-shoulder', 'r-elbow', 'r-hand'),
-    "PlaneHand.R" :        ('r-elbow', 'r-wrist-top', 'r-hand-end'),
+    "PlaneHand.R" :        ('r-plane-hand-1', 'r-plane-hand-2', 'r-plane-hand-3'),
     "PlaneLeg.R" :         ('r-upper-leg', 'r-knee', 'r-ankle'),
     "PlaneFoot.R" :        ('r-ankle', 'r-toe-2', 'r-foot-1'),
 
     "PlaneThumb.R" :       ('r-plane-thumb-1', 'r-plane-thumb-2', 'r-plane-thumb-3'),
-    "PlaneIndex.R" :       ('r-finger-2-1', 'r-finger-2-2', 'r-finger-2-4'),
-    "PlaneMiddle.R" :      ('r-finger-3-1', 'r-finger-3-2', 'r-finger-3-4'),
-    "PlaneRing.R" :        ('r-finger-4-1', 'r-finger-4-2', 'r-finger-4-4'),
-    "PlanePinky.R" :       ('r-finger-5-1', 'r-finger-5-2', 'r-finger-5-4'),
+    "PlaneIndex.R" :       ('r-plane-index-1', 'r-plane-index-2', 'r-plane-index-3'),
+    "PlaneMiddle.R" :      ('r-plane-middle-1', 'r-plane-middle-2', 'r-plane-middle-3'),
+    "PlaneRing.R" :        ('r-plane-ring-1', 'r-plane-ring-2', 'r-plane-ring-3'),
+    "PlanePinky.R" :       ('r-plane-pinky-1', 'r-plane-pinky-2', 'r-plane-pinky-3'),
 }
 
 Armature = {
