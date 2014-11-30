@@ -702,10 +702,10 @@ class Parser:
                         self.rotationLimits[fkName] = limits
                         del self.rotationLimits[bname]
 
-                self.addConstraint(bname, copyTransform(fkName, cnsname+"FK"))
-
                 if type == "DownStream":
                     continue
+
+                self.addConstraint(bname, copyTransform(fkName, cnsname+"FK"))
 
                 ikName = getIkName(base,ext)
                 self.headsTails[ikName] = headTail

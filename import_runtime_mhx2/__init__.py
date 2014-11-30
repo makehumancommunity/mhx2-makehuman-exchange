@@ -707,24 +707,24 @@ def register():
     bpy.types.Object.MhxHairHomePage = StringProperty(default="")
 
     # MHX Control properties
-    bpy.types.Object.MhaGazeFollowsHead = FloatProperty(default=1.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaGazeFollowsHead = FloatProperty(default=1.0, min=0.0, max=1.0)
     bpy.types.Object.MhaRotationLimits = BoolProperty(default=False)
 
     bpy.types.Object.MhaArmHinge_L = BoolProperty(default=False)
-    bpy.types.Object.MhaArmIk_L = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaArmIk_L = FloatProperty(default=0.0, min=0.0, max=1.0)
     #bpy.types.Object.MhaElbowPlant_L = BoolProperty(default=False)
     bpy.types.Object.MhaFingerControl_L = BoolProperty(default=False)
     bpy.types.Object.MhaLegHinge_L = BoolProperty(default=False)
     bpy.types.Object.MhaLegIkToAnkle_L = BoolProperty(default=False)
-    bpy.types.Object.MhaLegIk_L = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaLegIk_L = FloatProperty(default=0.0, min=0.0, max=1.0)
 
     bpy.types.Object.MhaArmHinge_R = BoolProperty(default=False)
-    bpy.types.Object.MhaArmIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaArmIk_R = FloatProperty(default=0.0, min=0.0, max=1.0)
     #bpy.types.Object.MhaElbowPlant_R = BoolProperty(default=False)
     bpy.types.Object.MhaFingerControl_R = BoolProperty(default=False)
     bpy.types.Object.MhaLegHinge_R = BoolProperty(default=False)
     bpy.types.Object.MhaLegIkToAnkle_R = BoolProperty(default=False)
-    bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, soft_min=0.0, soft_max=1.0)
+    bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, min=0.0, max=1.0)
 
     bpy.types.Scene.MhxHairColor = HairColorProperty
     bpy.types.Scene.MhxUseDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)

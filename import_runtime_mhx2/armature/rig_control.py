@@ -362,18 +362,22 @@ RevFootConstraints = {
         ('LimitRot', C_OW_LOCAL, 1, ['Hint', (Hint,Hint, 0,0, 0,0), (1,0,0)])
         ],
     'foot.L' : [
-         ('IK', 0, 0, ['LegIK', 'foot.rev.L', 1, (-90, 'foot.pt.ik.L'), (1,0,1)]),
-         #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,True)])
+        ('CopyTrans', 0, 1, ['LegFK', 'foot.fk.L', 0]),
+        ('IK', 0, 0, ['LegIK', 'foot.rev.L', 1, (-90, 'foot.pt.ik.L'), (1,0,1)]),
+        #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,True)])
         ],
     'foot.R' : [
-         ('IK', 0, 0, ['LegIK', 'foot.rev.R', 1, (-90, 'foot.pt.ik.R'), (1,0,1)]),
-         #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,True)])
+        ('CopyTrans', 0, 1, ['LegFK', 'foot.fk.R', 0]),
+        ('IK', 0, 0, ['LegIK', 'foot.rev.R', 1, (-90, 'foot.pt.ik.R'), (1,0,1)]),
+        #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,True)])
         ],
     'toe.L' : [
-         ('IK', 0, 0, ['LegIK', 'toe.rev.L', 1, (-90, 'foot.pt.ik.L'), (1,0,1)]),
+        ('CopyTrans', 0, 1, ['LegFK', 'toe.fk.L', 0]),
+        ('IK', 0, 0, ['LegIK', 'toe.rev.L', 1, (-90, 'foot.pt.ik.L'), (1,0,1)]),
         ],
     'toe.R' : [
-         ('IK', 0, 0, ['LegIK', 'toe.rev.R', 1, (-90, 'foot.pt.ik.R'), (1,0,1)]),
+        ('CopyTrans', 0, 1, ['LegFK', 'toe.fk.R', 0]),
+        ('IK', 0, 0, ['LegIK', 'toe.rev.R', 1, (-90, 'foot.pt.ik.R'), (1,0,1)]),
         ],
     'ankle.ik.L' : [
          ('CopyLoc', 0, 1, ['Foot', 'foot.rev.L', (1,1,1), (0,0,0), 1, False]),
@@ -422,13 +426,13 @@ IkArmConstraints = {
         ],
     'hand.L' : [
          #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,False)]),
-         ('CopyLoc', 0, 0, ['HandLoc', 'hand.ik.L', (1,1,1), (0,0,0), 0, False]),
-         ('CopyRot', 0, 0, ['HandRot', 'hand.ik.L', (1,1,1), (0,0,0), False]),
+        ('CopyTrans', 0, 1, ['ArmFK', 'hand.fk.L', 0]),
+        ('CopyTrans', 0, 0, ['ArmIK', 'hand.ik.L', 0]),
         ],
     'hand.R' : [
          #('IK', 0, 0, ['FreeIK', None, 2, None, (True, False,False)]),
-         ('CopyLoc', 0, 0, ['HandLoc', 'hand.ik.R', (1,1,1), (0,0,0), 0, False]),
-         ('CopyRot', 0, 0, ['HandRot', 'hand.ik.R', (1,1,1), (0,0,0), False]),
+        ('CopyTrans', 0, 1, ['ArmFK', 'hand.fk.R', 0]),
+        ('CopyTrans', 0, 0, ['ArmIK', 'hand.ik.R', 0]),
         ],
     'elbow.link.L' : [
         ('StretchTo', 0, 1, ['Stretch', 'elbow.pt.ik.L', 0, 1, 3.0])
@@ -491,25 +495,25 @@ SocketPropLRDrivers = [
 
 
 IkLegPropLRDrivers = [
+    #('thigh', 'LegFK', ['LegIk'], '1-x1'),
     ('thigh', 'LegIK', ['LegIk'], 'x1'),
-    ('thigh', 'LegFK', ['LegIk'], '1-x1'),
+    #('shin', 'LegFK', ['LegIk'], '1-x1'),
     ('shin', 'LegIK', ['LegIk'], 'x1'),
-    ('shin', 'LegFK', ['LegIk'], '1-x1'),
-    ('foot', 'LegFK', ['LegIk'], '1-x1'),
+    #('foot', 'LegFK', ['LegIk'], '1-x1'),
     ('foot', 'LegIK', ['LegIk', 'LegIkToAnkle'], 'x1*(1-x2)'),
-    ('toe', 'LegFK', ['LegIk'], '1-x1'),
+    #('toe', 'LegFK', ['LegIk'], '1-x1'),
     ('toe', 'LegIK', ['LegIk', 'LegIkToAnkle'], 'x1*(1-x2)'),
-    ('ankle.ik', 'Foot', ['LegIkToAnkle'], '1-x1'),
+    #('ankle.ik', 'Foot', ['LegIkToAnkle'], '1-x1'),
     ('ankle.ik', 'Ankle', ['LegIkToAnkle'], 'x1'),
 ]
 
 IkArmPropLRDrivers = [
     ('upper_arm', 'ArmIK', ['ArmIk'], 'x1'),
-    ('upper_arm', 'ArmFK', ['ArmIk'], '1-x1'),
+    #('upper_arm', 'ArmFK', ['ArmIk'], '1-x1'),
     ('forearm', 'ArmIK', ['ArmIk'], 'x1'),
-    ('forearm', 'ArmFK', ['ArmIk'], '1-x1'),
-    ('hand', 'ArmFK', ['ArmIk'], '1-x1'),
-    ('hand', 'HandRot', ['ArmIk'], 'x1'),
+    #('forearm', 'ArmFK', ['ArmIk'], '1-x1'),
+    ('hand', 'ArmIK', ['ArmIk'], 'x1'),
+    #('hand', 'ArmFK', ['ArmIk'], '1-x1'),
 
     #('shoulder', 'Elbow', ['ElbowPlant'], 'x1'),
     #('upper_arm', 'ArmIK', ['ArmIk', 'ElbowPlant'], 'x1*(1-x2)'),
