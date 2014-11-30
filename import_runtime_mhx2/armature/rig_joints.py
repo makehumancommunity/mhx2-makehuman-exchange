@@ -54,13 +54,13 @@ Joints = [
     # Legs
     ('l-upper-leg',          'j', 'l-upper-leg'),
     ('l-knee-raw',          'j', 'l-knee'),
-    ('l-ankle',         'j', 'l-ankle'),
+    ('l-ankle',             'j', 'l-ankle'),
     ('l-foot-1',            'j', 'l-foot-1'),
     ('l-foot-2',            'j', 'l-foot-2'),
 
     ('r-upper-leg',          'j', 'r-upper-leg'),
     ('r-knee-raw',          'j', 'r-knee'),
-    ('r-ankle',         'j', 'r-ankle'),
+    ('r-ankle',             'j', 'r-ankle'),
     ('r-foot-1',            'j', 'r-foot-1'),
     ('r-foot-2',            'j', 'r-foot-2'),
 
@@ -69,7 +69,7 @@ Joints = [
     ('l-shoulder',          'j', 'l-shoulder'),
     ('l-scapula',           'j', 'l-scapula'),
     ('l-elbow-raw',         'j', 'l-elbow'),
-    ('l-hand',          'j', 'l-hand'),
+    ('l-hand',              'j', 'l-hand'),
     ('l-hand-2',            'j', 'l-hand-2'),
     ('l-hand-3',            'j', 'l-hand-3'),
 

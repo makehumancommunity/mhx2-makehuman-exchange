@@ -453,6 +453,8 @@ class Parser:
 
 
     def setupNormals(self):
+        self.normals["PlaneYPos"] = Vector((0,0,1))
+        self.normals["PlaneYNeg"] = Vector((0,0,-1))
         for plane,joints in self.planes.items():
             j1,j2,j3 = joints
             p1 = self.locations[j1]
@@ -529,6 +531,23 @@ class Parser:
                 vraw = rloc - hloc
                 x = vec.dot(vraw)/vec.dot(vec)
                 self.locations[key] = hloc + x*vec + Vector(offs)
+            elif type == 'n':
+                (raw, j1, j2, j3) = data
+                rloc = self.locations[raw]
+                loc1 = self.locations[j1]
+                loc2 = self.locations[j2]
+                loc3 = self.locations[j3]
+                e12 = loc2 - loc1
+                e13 = loc3 - loc1
+                n = e12.cross(e13).normalized()
+                e1r = rloc - loc1
+                self.locations[key] = rloc - n*e1r.dot(n)
+                print(key,data)
+                print(rloc)
+                print(loc1)
+                print(loc2)
+                print(loc3)
+                print(self.locations[key])
             elif type == 'b':
                 self.locations[key] = self.locations[data]
             elif type == 'p':

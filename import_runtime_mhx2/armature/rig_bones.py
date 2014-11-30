@@ -28,11 +28,6 @@ Joints = [
     ('l-toe-2',             'p', ('l-foot-2', 'l-foot-1', 'l-foot-2')),
     ('r-toe-2',             'p', ('r-foot-2', 'r-foot-1', 'r-foot-2')),
 
-    #('l-kneecap',           'vo', (11223, 0,0,1)),
-    #('r-kneecap',           'vo', (4605, 0,0,1)),
-    ('l-kneecap',           'o', ('l-knee', (0,0,0.2))),
-    ('r-kneecap',           'o', ('r-knee', (0,0,0.2))),
-
     ('l-wrist-top',         'v', 10548),
     ('l-hand-end',          'v', 9944),
     ('r-wrist-top',         'v', 3883),
@@ -48,27 +43,23 @@ Joints = [
     ('r-palm-04',           'vl', ((0.5, 3226), (0.5, 3829))),
     ('r-palm-05',           'vl', ((0.5, 3232), (0.5, 3828))),
 
-    ('l-plane-arm-1',       'v', 8049),
-    ('l-plane-arm-2',       'v', 10058),
-    ('l-plane-arm-3',       'v', 10235),
+    ('l-elbow-tip',         'v', 10058),
+    ('l-knee-tip',          'v', 11223),
+    ('r-elbow-tip',         'v', 3390),
+    ('r-knee-tip',          'v', 4605),
+
+    ('l-elbow',             'n', ('l-elbow-raw', 'l-shoulder', 'l-elbow-tip', 'l-hand')),
+    ('l-knee',              'n', ('l-knee-raw', 'l-upper-leg', 'l-knee-tip', 'l-ankle')),
+    ('r-elbow',             'n', ('r-elbow-raw', 'r-shoulder', 'r-elbow-tip', 'r-hand')),
+    ('r-knee',              'n', ('r-knee-raw', 'r-upper-leg', 'r-knee-tip', 'r-ankle')),
 
     ('l-plane-hand-1',      'v', 10164),
     ('l-plane-hand-2',      'v', 10576),
     ('l-plane-hand-3',      'v', 9779),
 
-    ('l-plane-leg-1',       'v', 10867),
-    ('l-plane-leg-2',       'v', 11223),
-
-    ('r-plane-arm-1',       'v', 1357),
-    ('r-plane-arm-2',       'v', 3390),
-    ('r-plane-arm-3',       'v', 3567),
-
     ('r-plane-hand-1',      'v', 3496),
     ('r-plane-hand-2',      'v', 3911),
     ('r-plane-hand-3',      'v', 3111),
-
-    ('r-plane-leg-1',       'v', 4233),
-    ('r-plane-leg-2',       'v', 4605),
 
     ('l-plane-thumb-1',     'v', 10291),
     ('l-plane-thumb-2',     'v', 9401),
@@ -223,9 +214,9 @@ HeadsTails = {
 }
 
 Planes = {
-    "PlaneArm.L" :         ('l-shoulder', 'l-elbow', 'l-hand'),
+    "PlaneArm.L" :         ('l-shoulder', 'l-elbow-tip', 'l-hand'),
     "PlaneHand.L" :        ('l-plane-hand-1', 'l-plane-hand-2', 'l-plane-hand-3'),
-    "PlaneLeg.L" :         ('l-upper-leg', 'l-knee', 'l-ankle'),
+    "PlaneLeg.L" :         ('l-upper-leg', 'l-knee-tip', 'l-ankle'),
     "PlaneFoot.L" :        ('l-ankle', 'l-toe-2', 'l-foot-1'),
 
     "PlaneThumb.L" :       ('l-plane-thumb-1', 'l-plane-thumb-2', 'l-plane-thumb-3'),
@@ -234,9 +225,9 @@ Planes = {
     "PlaneRing.L" :        ('l-plane-ring-1', 'l-plane-ring-2', 'l-plane-ring-3'),
     "PlanePinky.L" :       ('l-plane-pinky-1', 'l-plane-pinky-2', 'l-plane-pinky-3'),
 
-    "PlaneArm.R" :         ('r-shoulder', 'r-elbow', 'r-hand'),
+    "PlaneArm.R" :         ('r-shoulder', 'r-elbow-tip', 'r-hand'),
     "PlaneHand.R" :        ('r-plane-hand-1', 'r-plane-hand-2', 'r-plane-hand-3'),
-    "PlaneLeg.R" :         ('r-upper-leg', 'r-knee', 'r-ankle'),
+    "PlaneLeg.R" :         ('r-upper-leg', 'r-knee-tip', 'r-ankle'),
     "PlaneFoot.R" :        ('r-ankle', 'r-toe-2', 'r-foot-1'),
 
     "PlaneThumb.R" :       ('r-plane-thumb-1', 'r-plane-thumb-2', 'r-plane-thumb-3'),
@@ -255,14 +246,14 @@ Armature = {
     'neck' :               (0, 'chest-1', F_DEF|F_CON, L_UPSPNFK),
     'head' :               (0, 'neck', F_DEF|F_CON, L_UPSPNFK),
 
-    'clavicle.L' :         (0, 'chest-1', F_DEF, L_UPSPNFK|L_LARMFK|L_LARMIK),
-    'deltoid.L' :          (0, 'clavicle.L', F_DEF, L_LARMFK|L_LARMIK),
+    'clavicle.L' :         ("PlaneYNeg", 'chest-1', F_DEF, L_UPSPNFK|L_LARMFK|L_LARMIK),
+    'deltoid.L' :          ("PlaneYNeg", 'clavicle.L', F_DEF, L_LARMFK|L_LARMIK),
     'upper_arm.L' :        ("PlaneArm.L", 'deltoid.L', F_DEF, L_LARMFK),
     'forearm.L' :          ("PlaneArm.L", 'upper_arm.L', F_DEF|F_CON, L_LARMFK, P_YZX),
     'hand.L' :             ("PlaneHand.L", 'forearm.L', F_DEF|F_CON, L_LARMFK, P_YZX),
 
-    'clavicle.R' :         (0, 'chest-1', F_DEF, L_UPSPNFK|L_RARMFK|L_RARMIK),
-    'deltoid.R' :          (0, 'clavicle.R', F_DEF, L_RARMFK|L_RARMIK),
+    'clavicle.R' :         ("PlaneYPos", 'chest-1', F_DEF, L_UPSPNFK|L_RARMFK|L_RARMIK),
+    'deltoid.R' :          ("PlaneYPos", 'clavicle.R', F_DEF, L_RARMFK|L_RARMIK),
     'upper_arm.R' :        ("PlaneArm.R", 'deltoid.R', F_DEF, L_RARMFK),
     'forearm.R' :          ("PlaneArm.R", 'upper_arm.R', F_DEF|F_CON, L_RARMFK, P_YZX),
     'hand.R' :             ("PlaneHand.R", 'forearm.R', F_DEF|F_CON, L_RARMFK, P_YZX),
