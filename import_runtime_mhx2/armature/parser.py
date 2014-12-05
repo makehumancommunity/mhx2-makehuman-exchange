@@ -70,7 +70,7 @@ class Parser:
         self.boneDrivers = {}
 
         self.vertexGroupFiles = []
-        self.vertexGroups = {}
+        self.vertexGroups = OrderedDict()
 
         if cfg.useMhx:
             layers = L_MAIN|L_UPSPNFK|L_LARMFK|L_RARMFK|L_LLEGFK|L_RLEGFK|L_HEAD

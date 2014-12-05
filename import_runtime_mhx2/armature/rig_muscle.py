@@ -28,8 +28,8 @@ PlatysmaPct  = 0.9
 LatDorsiPct  = 0.1
 BicepsPct    = 0.25
 BracPct      = 0.5
-FemorisPct   = 0.5
-FemorisGoal     = 0.162
+FemorisPct   = 0.75
+FemorisGoal     = 0.2
 SoleusPct    = 0.4
 
 Joints = [
