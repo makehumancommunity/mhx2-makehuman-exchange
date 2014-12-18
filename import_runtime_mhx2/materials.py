@@ -54,11 +54,11 @@ class NodeTree:
     def __init__(self, tree):
         self.nodes = tree.nodes
         self.links = tree.links
-        self.ycoords = 10*[1]
+        self.ycoords = 10*[500]
 
     def addNode(self, n, stype):
         node = self.nodes.new(type = stype)
-        node.location = (n*250+1, self.ycoords[n])
+        node.location = (n*250-500, self.ycoords[n])
         self.ycoords[n] -= 250
         return node
 
