@@ -1,8 +1,8 @@
 {
-    "file_info" : {
+    "license" : {
         "author" : "Thomas Larsson",
         "license" : "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
-        "homepage" : "http://www.makehuman.org/"
+        "homepage" : "http://thomasmakehuman.wordpress.com/mhx2-documentation/"
     },
     "uuid" : "64cf2896-9d56-4a6c-bbe2-2fa9b9f1e357",
     "proxy" : {
