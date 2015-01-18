@@ -186,6 +186,22 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
 
     links.new(mixTrans.outputs['Shader'], output.inputs['Surface'])
 
+
+def buildSimpleMaterialCycles(mat, color):
+    print("Creating Simple CYCLES material", mat.name)
+    mat.use_nodes= True
+    mat.node_tree.nodes.clear()
+    tree = NodeTree(mat.node_tree)
+    links = mat.node_tree.links
+    texco = tree.addNode(1, 'ShaderNodeTexCoord')
+
+    diffuse = tree.addNode(2, 'ShaderNodeBsdfDiffuse')
+    diffuse.inputs["Color"].default_value =  list(color) + [0]
+    diffuse.inputs["Roughness"].default_value = 0
+
+    output = tree.addNode(3, 'ShaderNodeOutputMaterial')
+    links.new(diffuse.outputs['BSDF'], output.inputs['Surface'])
+
 # ---------------------------------------------------------------------
 #   Blender Internal
 # ---------------------------------------------------------------------
@@ -438,14 +454,15 @@ def defaultRamp(ramp, rgb):
 #   Simple materials for helpers
 # ---------------------------------------------------------------------
 
-def makeSimpleMaterials(ob):
+def makeSimpleMaterials(ob, scn):
     from .hm8 import VertexRanges
 
-    for mname,color,helper in [
-            ("Red", (1,0,0), "Tights"),
-            ("Blue", (0,0,1), "Skirt"),
-            ("Yellow", (1,1,0), "Hair"),
-            ("Green", (0,1,0), "Joints")
+    for mname,color,helper1,helper2 in [
+            ("Cyan", (0,1,1), "Tongue", "Penis"),
+            ("Red", (1,0,0), "Tights", "Tights"),
+            ("Blue", (0,0,1), "Skirt", "Skirt"),
+            ("Yellow", (1,1,0), "Hair", "Hair"),
+            ("Green", (0,1,0), "Joints", "Joints")
         ]:
 
         for mat in ob.data.materials:
@@ -454,14 +471,21 @@ def makeSimpleMaterials(ob):
 
         mat = bpy.data.materials.new(mname)
         mat.diffuse_color = color
+        mat.alpha = 0
+        mat.use_transparency = True
+        mat.use_shadeless = True
+        mat.use_shadows = False
+        mat.use_cast_shadows = False
+        if scn.render.engine == 'CYCLES':
+            buildSimpleMaterialCycles(mat, color)
+
         mn = len(ob.data.materials)
         ob.data.materials.append(mat)
 
-        vrange = range(VertexRanges[helper][0], VertexRanges[helper][1])
+        vrange = range(VertexRanges[helper1][0], VertexRanges[helper2][1])
         for f in ob.data.polygons:
             for vn in f.vertices:
                 if vn in vrange:
-                    print(f.index,vn,mn)
                     f.material_index = mn
                     break
 
@@ -478,5 +502,5 @@ class VIEW3D_OT_AddSimpleMaterialsButton(bpy.types.Operator):
         return (ob and ob.MhxHuman)
 
     def execute(self, context):
-        makeSimpleMaterials(context.object)
+        makeSimpleMaterials(context.object, context.scene)
         return{'FINISHED'}

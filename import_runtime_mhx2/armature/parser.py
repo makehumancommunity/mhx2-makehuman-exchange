@@ -542,12 +542,6 @@ class Parser:
                 n = e12.cross(e13).normalized()
                 e1r = rloc - loc1
                 self.locations[key] = rloc - n*e1r.dot(n)
-                print(key,data)
-                print(rloc)
-                print(loc1)
-                print(loc2)
-                print(loc3)
-                print(self.locations[key])
             elif type == 'b':
                 self.locations[key] = self.locations[data]
             elif type == 'p':
