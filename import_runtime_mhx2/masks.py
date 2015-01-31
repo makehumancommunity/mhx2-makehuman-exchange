@@ -66,6 +66,9 @@ def selectAllMaskVGroups(human, proxies):
 
 
 def selectMaskVGroups(ob):
+    if not ob:
+        return
+
     delMods = []
     for mod in ob.modifiers:
         if mod.type == 'MASK':
