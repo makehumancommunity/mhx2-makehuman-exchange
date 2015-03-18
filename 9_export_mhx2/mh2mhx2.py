@@ -281,6 +281,10 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
             )
         #mhProxy["ref_wvIdxs"] = pxy.ref_wvIdxs
         mhProxy["delete_verts"] = pxy.deleteVerts
+        if pxy.vertexBoneWeights:
+            mhProxy["vertex_bone_weights"] = pxy.vertexBoneWeights.data
+        else:
+            mhProxy["vertex_bone_weights"] = None
     else:
         mhGeo["human"] = True
         if skel:

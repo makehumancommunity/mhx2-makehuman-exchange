@@ -80,8 +80,13 @@ def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
             parser = mhHuman["parser"]
         except KeyError:
             pass
+
     if parser:
-        vgrps = parser.vertexGroups
+        if ("vertex_bone_weights" in mhProxy.keys() and
+            mhProxy["vertex_bone_weights"]):
+            return getVertexBoneWeights(mhProxy["vertex_bone_weights"], parser)
+        else:
+            vgrps = parser.vertexGroups
     else:
         mhSeed = mhHuman["seed_mesh"]
         if "weights" in mhSeed.keys():
@@ -119,6 +124,45 @@ def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
             if len(ngrp) > 0:
                 ngrps[gname] = ngrp
     return ngrps
+
+# ---------------------------------------------------------------------
+#   For proxies with own bone weights
+# ---------------------------------------------------------------------
+
+def getVertexBoneWeights(pweights, parser):
+    cfg = parser.config
+    ngrps = {}
+    for oname,data in pweights.items():
+        nname = MHBones[oname]
+        if nname in cfg.bones.keys():
+            nname = cfg.bones[nname]
+        if parser.deformPrefix:
+            nname = parser.deformPrefix + nname
+
+        idxs,weights = data
+        ngrp = [(idx,weights[n]) for n,idx in enumerate(idxs)]
+        if nname in ngrps.keys():
+            gdict = dict(ngrps[nname])
+            for idx,w in ngrp:
+                if idx in gdict.keys():
+                    gdict[idx] += w
+                else:
+                    gdict[idx] = w
+            ngrps[nname] = gdict.items()
+        else:
+            ngrps[nname] = ngrp
+    return ngrps
+
+MHBones = {
+    "foot.L" :  "foot.L",
+    "toe1-1.L" :  "toe.L",
+    "toe2-1.L" :  "toe.L",
+
+    "foot.R" :  "foot.R",
+    "toe1-1.R" :  "toe.R",
+    "toe2-1.R" :  "toe.R",
+}
+
 
 # ---------------------------------------------------------------------
 #   Targets
