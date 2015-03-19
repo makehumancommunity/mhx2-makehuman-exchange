@@ -124,6 +124,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=False)
+    useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
     useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
@@ -265,6 +266,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if self.useRig:
             box.prop(self, "rigType")
             box.prop(self, "useCustomShapes")
+            if self.rigType == 'MHX':
+                box.prop(self, "useRotationLimits")
             if self.useFaceShapes and not self.useFaceDrivers:
                 box.prop(self, "useFacePanel")
             if self.genitalia == 'PENIS' and self.rigType != 'EXPORTED':
@@ -708,7 +711,7 @@ def register():
 
     # MHX Control properties
     bpy.types.Object.MhaGazeFollowsHead = FloatProperty(default=1.0, min=0.0, max=1.0)
-    bpy.types.Object.MhaRotationLimits = BoolProperty(default=False)
+    bpy.types.Object.MhaRotationLimits = FloatProperty(default=0.8, min=0.0, max=1.0)
 
     bpy.types.Object.MhaArmHinge_L = BoolProperty(default=False)
     bpy.types.Object.MhaArmIk_L = FloatProperty(default=0.0, min=0.0, max=1.0)

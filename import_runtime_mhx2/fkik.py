@@ -363,7 +363,7 @@ class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='POSE')
         rig = context.object
         if rig.MhxSnapExact:
-            setattr(rig, "MhaRotationLimits", 0.0)
+            rig.MhaRotationLimits = 0.0
         if self.data[:6] == "MhaArm":
             snapFkArm(context, self.data)
         elif self.data[:6] == "MhaLeg":
@@ -381,7 +381,7 @@ class VIEW3D_OT_MhxSnapIk2FkButton(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='POSE')
         rig = context.object
         if rig.MhxSnapExact:
-            setattr(rig, "MhaRotationLimits", 0.0)
+            rig.MhaRotationLimits = 0.0
         if self.data[:6] == "MhaArm":
             snapIkArm(context, self.data)
         elif self.data[:6] == "MhaLeg":

@@ -189,7 +189,7 @@ def buildRig(mhHuman, cfg, context):
 
     rig.MhxRig = cfg.rigType
     rig["MhxVersion"] = 20
-    rig.MhaRotationLimits = cfg.useRotationLimits
+    rig.MhaRotationLimits = 0.8
     rig.MhxFacePanel = cfg.useFacePanel
     return rig, parser
 

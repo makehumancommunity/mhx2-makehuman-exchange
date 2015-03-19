@@ -304,6 +304,7 @@ class Parser:
                 if minX != None and cfg.useRotationLimits and bone.lockRotation != (1,1,1):
                     cns = ("LimitRot", C_LOCAL, 0.8, ["LimitRot", limits, (1,1,1)])
                     self.addConstraint(bname, cns)
+                    self.propDrivers.append((bname, "LimitRot", ["RotationLimits"], "x1"))
 
             for bname,limits in self.locationLimits.items():
                 try:

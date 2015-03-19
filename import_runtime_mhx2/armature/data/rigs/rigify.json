@@ -13,7 +13,6 @@
         "useCustomShapes" : "FACE",
         "useConstraints" : true,
         "useLocks" : false,
-        "useRotationLimits" : false,
         "useBoneGroups" : false,
         "useCorrectives": false
     },

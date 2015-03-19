@@ -16,11 +16,9 @@
         "useIkArms" : true,
         "useIkLegs" : true,
         "useFingers" : true,
-        "useRotationLimits" : true,
         "useQuaternionsOnly" : false,
         "useConstraints" : true,
         "useLocks" : true,
-        "useRotationLimits" : true,
         "useBoneGroups" : true,
         "useCorrectives": true
     },

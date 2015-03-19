@@ -23,7 +23,7 @@ import os
 
 Attributes = [
     "useHelpers", "useOffset", "useOverride", "useHumanType",
-    "useRig", "rigType", "genitalia",
+    "useRig", "rigType", "useRotationLimits", "genitalia",
     "hairType", "hairColor", "useHairOnProxy", "useDeflector", "useHairDynamics",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
@@ -72,7 +72,8 @@ class Config:
                 self.mergePenis = False
             if self.useRig and self.rigType != 'EXPORTED':
                 self.loadPreset(os.path.join("armature/data/rigs", self.rigType.lower() + ".json"))
-
+            if self.rigType != 'MHX':
+                self.useRotationLimits = False
         return self
 
 
