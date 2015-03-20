@@ -232,23 +232,24 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
         pass
 
     mhMesh = mhGeo["mesh"] = OrderedDict()
-    addMesh(mhMesh, mesh)
+    if pxy and pxy.type == 'Proxymeshes':
+        addMesh(mhMesh, mesh.clone())
+    else:
+        addMesh(mhMesh, mesh)
     mhSeed = mhGeo["seed_mesh"] = OrderedDict()
-    addMesh(mhSeed, mesh.object.getSeedMesh())
+    obj = mesh.object
+    addMesh(mhSeed, obj.getSeedMesh())
 
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["human"] = True
-            human = mesh.object
-            pxymesh = human.getProxyMesh()
-            facemask = pxymesh.getFaceMask()
-            human.changeVertexMask(None)
-            human.updateProxyMesh()
-            pxymesh = human.getProxyMesh()
+            #vmask = obj.vertexMask
+            obj.changeVertexMask(None)
+            #obj.update()
             mhProxySeed = mhGeo["proxy_seed_mesh"] = OrderedDict()
-            addMesh(mhProxySeed, pxymesh)
-            #human.changeVertexMask(pxymesh.getVertexMaskForFaceMask(facemask))
-            #human.updateProxyMesh()
+            addMesh(mhProxySeed, obj.mesh)
+            #obj.changeVertexMask(vmask)
+            #obj.update()
         else:
             mhGeo["human"] = False
             mhProxySeed = None
