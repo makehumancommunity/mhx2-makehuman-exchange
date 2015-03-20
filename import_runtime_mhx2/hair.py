@@ -160,17 +160,22 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
 #   Deflector
 #------------------------------------------------------------------------
 
-def makeDeflector(pair, rig, bname, cfg):
+def makeDeflector(pair, rig, bnames, cfg):
     _,ob = pair
 
     shiftToCenter(ob)
     if rig:
-        ob.parent = rig
-        ob.parent_type = 'BONE'
-        ob.parent_bone = bname
-        pb = rig.pose.bones[bname]
-        ob.matrix_basis = pb.matrix.inverted()*ob.matrix_basis
-        ob.matrix_basis.col[3] -= Vector((0,pb.bone.length,0,0))
+        for bname in bnames:
+            if bname in cfg.bones.keys():
+                bname = cfg.bones[bname]
+            if bname in rig.pose.bones.keys():
+                ob.parent = rig
+                ob.parent_type = 'BONE'
+                ob.parent_bone = bname
+                pb = rig.pose.bones[bname]
+                ob.matrix_basis = pb.matrix.inverted()*ob.matrix_basis
+                ob.matrix_basis.col[3] -= Vector((0,pb.bone.length,0,0))
+                break
 
     ob.draw_type = 'WIRE'
     ob.field.type = 'FORCE'
