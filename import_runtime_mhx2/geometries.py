@@ -32,11 +32,17 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
 
     mhMesh = mhGeo[meshType]
 
-    if meshType == "proxy_seed_mesh" or meshType == "seed_mesh":
-        ob = buildMesh(mhGeo, mhMesh, scn, cfg, True)
+    if meshType == "proxy_seed_mesh" and mhGeo["human"]:
+        gname = ("%s:Proxy" % mhGeo["name"].split(':',1)[0])
+        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, True)
+        ob.MhxSeedMesh = True
+    elif meshType == "seed_mesh" and mhGeo["human"]:
+        gname = ("%s:Body" % mhGeo["name"].split(':',1)[0])
+        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, True)
         ob.MhxSeedMesh = True
     else:
-        ob = buildMesh(mhGeo, mhMesh, scn, cfg, False)
+        gname = mhGeo["name"]
+        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, False)
         ob.MhxSeedMesh = False
 
     ob.MhxUuid = mhGeo["uuid"]
@@ -89,12 +95,8 @@ def meshVertexGroups(mhMesh, parser, cfg):
         return {}
 
 
-def buildMesh(mhGeo, mhMesh, scn, cfg, useSeedMesh):
+def buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh):
     print("BUILD", mhGeo["name"])
-    if mhGeo["human"] and useSeedMesh:
-        gname = ("%s:Body" % mhGeo["name"].split(':',1)[0])
-    else:
-        gname = mhGeo["name"]
     scale,offset = getScaleOffset(mhGeo, cfg, useSeedMesh)
     verts = [scale*zup(co)+offset for co in mhMesh["vertices"]]
     ob = addMeshToScene(verts, gname, mhMesh, scn)

@@ -38,7 +38,7 @@ def getOriginalName(ob):
 
 def isBody(ob):
     name = getOriginalName(ob)
-    return (name.split(":")[-1] in ["Body", "Base"])
+    return (name.split(":")[-1] in ["Body", "Base", "Proxy"])
 
 def getRigName(ob):
     name = getOriginalName(ob)
