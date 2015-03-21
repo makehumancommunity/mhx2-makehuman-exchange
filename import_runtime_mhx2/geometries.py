@@ -57,6 +57,11 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
             else:
                 vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
 
+        if cfg.useSubsurf:
+            mod = ob.modifiers.new("Subsurf", 'SUBSURF')
+            mod.levels = cfg.subsurfLevels
+            mod.render_levels = cfg.subsurfRenderLevels
+
     elif "weights" in mhMesh.keys():
         vgrps = mhMesh["weights"]
 

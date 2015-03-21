@@ -130,6 +130,10 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
     useConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
 
+    useSubsurf = BoolProperty(name="Subsurface", description="Add a subsurf modifier to all meshes", default=False)
+    subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=1)
+    subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=2)
+
     useMasks = EnumProperty(
         items = [('IGNORE', "Ignore", "Ignore masks"),
                  ('APPLY', "Apply", "Apply masks (delete vertices permanently)"),
@@ -232,6 +236,14 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if (self.useFaceShapes and
             not self.useFacePanel):
             layout.prop(self, "useFaceDrivers")
+
+        layout.separator()
+        box = layout.box()
+        box.label("Subdivision surface")
+        box.prop(self, "useSubsurf")
+        if self.useSubsurf:
+            box.prop(self, "subsurfLevels")
+            box.prop(self, "subsurfRenderLevels")
 
         layout.separator()
         layout.label("Masking:")

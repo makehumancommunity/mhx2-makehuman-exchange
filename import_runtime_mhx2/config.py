@@ -23,6 +23,7 @@ import os
 
 Attributes = [
     "useHelpers", "useOffset", "useOverride", "useHumanType",
+    "useSubsurf", "subsurfLevels", "subsurfRenderLevels",
     "useRig", "rigType", "useRotationLimits", "genitalia",
     "hairType", "hairColor", "useHairOnProxy", "useDeflector", "useHairDynamics",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",

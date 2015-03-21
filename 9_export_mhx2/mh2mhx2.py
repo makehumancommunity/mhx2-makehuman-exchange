@@ -243,13 +243,9 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["human"] = True
-            #vmask = obj.vertexMask
             obj.changeVertexMask(None)
-            #obj.update()
             mhProxySeed = mhGeo["proxy_seed_mesh"] = OrderedDict()
             addMesh(mhProxySeed, obj.mesh)
-            #obj.changeVertexMask(vmask)
-            #obj.update()
         else:
             mhGeo["human"] = False
             mhProxySeed = None
