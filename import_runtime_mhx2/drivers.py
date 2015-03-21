@@ -138,7 +138,7 @@ def addBoneShapeDriver1(rig, ob, sname, bname, data, fac):
     try:
         skey = ob.data.shape_keys.key_blocks[sname]
     except KeyError:
-        print("No such shape_key: %s" % sname)
+        #print("%s has no such shape_key: %s" % (ob.name, sname))
         return
 
     _bname,channel,_coeffs,smin,smax = data

@@ -131,8 +131,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
 
     useSubsurf = BoolProperty(name="Subsurface", description="Add a subsurf modifier to all meshes", default=False)
-    subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=1)
-    subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=2)
+    subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=0)
+    subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=1)
 
     useMasks = EnumProperty(
         items = [('IGNORE', "Ignore", "Ignore masks"),
