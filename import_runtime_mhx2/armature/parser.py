@@ -31,6 +31,10 @@ from ..hm8 import *
 from ..load_json import loadJsonRelative
 
 from . import rig_joints
+from . import rig_spine
+from . import rig_arm
+from . import rig_leg
+from . import rig_hand
 from . import rig_bones
 from . import rig_muscle
 from . import rig_face
@@ -121,29 +125,60 @@ class Parser:
         else:
             self.vertexGroupFiles += ["hair"]
 
-        self.joints = (
-            rig_joints.Joints +
-            rig_bones.Joints +
-            rig_face.Joints +
-            rig_control.Joints
-        )
+        if cfg.useMultirig:
+            self.joints = (
+                rig_joints.Joints +
+                rig_spine.Joints +
+                rig_arm.Joints +
+                rig_leg.Joints +
+                rig_hand.Joints +
+                rig_face.Joints
+                #rig_control.Joints
+            )
+        else:
+            self.joints = (
+                rig_joints.Joints +
+                rig_bones.Joints +
+                rig_face.Joints +
+                rig_control.Joints
+            )
         if cfg.useMuscles:
             self.joints += rig_muscle.Joints
         if cfg.useFacePanel:
             self.joints += rig_panel.Joints
 
-        self.planes = mergeDicts([
-            rig_bones.Planes,
-            rig_face.Planes,
-        ])
+        if cfg.useMultirig:
+            self.planes = mergeDicts([
+                rig_spine.Planes,
+                rig_arm.Planes,
+                rig_leg.Planes,
+                rig_hand.Planes,
+                rig_face.Planes,
+            ])
+        else:
+            self.planes = mergeDicts([
+                rig_bones.Planes,
+                rig_face.Planes,
+            ])
         self.planeJoints = rig_control.PlaneJoints
 
-        self.headsTails = mergeDicts([
-            rig_bones.HeadsTails,
-            rig_face.HeadsTails,
-            rig_control.HeadsTails,
-            rig_control.RevFootHeadsTails,
-        ])
+        if cfg.useMultirig:
+            self.headsTails = mergeDicts([
+                rig_spine.HeadsTails,
+                rig_arm.HeadsTails,
+                rig_leg.HeadsTails,
+                rig_hand.HeadsTails,
+                rig_face.HeadsTails,
+                rig_control.HeadsTails,
+                rig_control.RevFootHeadsTails,
+            ])
+        else:
+            self.headsTails = mergeDicts([
+                rig_bones.HeadsTails,
+                rig_face.HeadsTails,
+                rig_control.HeadsTails,
+                rig_control.RevFootHeadsTails,
+            ])
         if cfg.useMuscles:
             addDict(rig_muscle.HeadsTails, self.headsTails)
         if cfg.useFacePanel:
@@ -155,7 +190,13 @@ class Parser:
             self.headsTails[bname] = (tail, (tail,offset))
 
         if cfg.useConstraints:
-            self.setConstraints(rig_bones.Constraints)
+            if cfg.useMultirig:
+                self.setConstraints(rig_spine.Constraints)
+                self.setConstraints(rig_arm.Constraints)
+                self.setConstraints(rig_leg.Constraints)
+                self.setConstraints(rig_hand.Constraints)
+            else:
+                self.setConstraints(rig_bones.Constraints)
             self.setConstraints(rig_face.Constraints)
             if cfg.useMuscles:
                 self.setConstraints(rig_muscle.Constraints)
@@ -214,7 +255,13 @@ class Parser:
     def createBones(self):
         cfg = self.config
 
-        self.addBones(rig_bones.Armature)
+        if cfg.useMultirig:
+            self.addBones(rig_spine.Armature)
+            self.addBones(rig_arm.Armature)
+            self.addBones(rig_leg.Armature)
+            self.addBones(rig_hand.Armature)
+        else:
+            self.addBones(rig_bones.Armature)
         if cfg.useTerminators:
             self.addBones(rig_bones.TerminatorArmature)
         if cfg.usePenisRig:
@@ -419,7 +466,7 @@ class Parser:
 
         self.setupJoints()
         self.setupNormals()
-        self.setupPlaneJoints()
+        #self.setupPlaneJoints()
         self.createBones()
 
         for bone in self.bones.values():
@@ -505,6 +552,7 @@ class Parser:
 
         cfg = self.config
         for (key, type, data) in self.joints:
+            print(key,type,data)
             if type == 'j':
                 loc = self.jointLocs[data]
                 self.locations[key] = loc

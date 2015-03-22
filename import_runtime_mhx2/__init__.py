@@ -119,7 +119,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
     useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
 
-    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
+    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
@@ -179,7 +179,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'EXPORTED')
+        default = 'TEST')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),

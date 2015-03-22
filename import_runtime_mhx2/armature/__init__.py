@@ -26,6 +26,10 @@ if "bpy" in locals():
     imp.reload(utils)
     imp.reload(rig_joints)
     imp.reload(rig_bones)
+    imp.reload(rig_spine)
+    imp.reload(rig_arm)
+    imp.reload(rig_leg)
+    imp.reload(rig_hand)
     imp.reload(rig_muscle)
     imp.reload(rig_face)
     imp.reload(rig_control)
@@ -41,6 +45,10 @@ else:
     from . import utils
     from . import rig_joints
     from . import rig_bones
+    from . import rig_spine
+    from . import rig_arm
+    from . import rig_leg
+    from . import rig_hand
     from . import rig_muscle
     from . import rig_face
     from . import rig_control

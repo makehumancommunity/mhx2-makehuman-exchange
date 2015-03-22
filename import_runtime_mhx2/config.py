@@ -84,6 +84,7 @@ class Config:
         self.useHeadControl = False
         self.useReverseHip = False
         self.useMuscles = False
+        self.useMultirig = False
         self.useTerminators = False
         self.useFaceRig = False
         self.genitalia = 'NONE'

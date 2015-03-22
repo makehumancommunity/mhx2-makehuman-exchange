@@ -1,0 +1,13 @@
+{
+    "name" : "Test",
+
+    "description" :
+        "A test rig. Use this for weighting.",
+
+    "settings" : {
+        "useMultirig" : true,
+        "useConstraints" : true
+    }
+}
+
+
