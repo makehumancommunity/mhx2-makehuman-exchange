@@ -223,8 +223,8 @@ class Parser:
             addDict(rig_panel.CustomShapes, self.customShapes)
 
         if cfg.useFingers and cfg.useConstraints:
-            self.setConstraints(rig_control.FingerConstraints)
-            self.lrPropDrivers += rig_control.FingerPropLRDrivers
+            self.setConstraints(rig_hand.Constraints)
+            self.lrPropDrivers += rig_hand.PropLRDrivers
 
         if cfg.useMhx:
             # npieces,target,numAfter,followNext
@@ -388,8 +388,8 @@ class Parser:
         if cfg.useFacePanel:
             addDict(loadJsonRelative("armature/data/mhx/gizmos-panel.json"), self.gizmos)
 
-        vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
-        addDict(vgroups, self.vertexGroups)
+        #vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
+        #addDict(vgroups, self.vertexGroups)
 
         if cfg.merge:
             self.mergeBones(cfg.merge)

@@ -212,6 +212,13 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             importer.importMhx2File(self.filepath, cfg, context)
         except MhxError:
             handleMhxError(context)
+
+        scn = context.scene
+        rig = scn.objects["Bar"]
+        ob = scn.objects["Bar:Body"]
+        ob.select = True
+        bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+
         return {'FINISHED'}
 
 

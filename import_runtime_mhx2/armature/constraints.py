@@ -205,7 +205,7 @@ class CCopyLocConstraint(CConstraint):
 class CCopyScaleConstraint(CConstraint):
     def __init__(self, flags, inf, data):
         CConstraint.__init__(self, "COPY_SCALE", data[0], flags, inf)
-        cns.subtar = data[1]
+        self.subtar = data[1]
         self.use = data[2]
         self.useOffs = data[3]
 

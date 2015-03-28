@@ -25,6 +25,23 @@ from .rig_joints import *
 Joints = [
     ('spine-23',            'l', ((0.5, 'spine-2'), (0.5, 'spine-3'))),
 
+    ('l-serratus-2',        'v', 8110),
+    ('r-serratus-2',        'v', 1422),
+    ('l-serratus-1',        'l', ((0.3, 'r-serratus-2'), (0.7, 'l-serratus-2'))),
+    ('r-serratus-1',        'l', ((0.3, 'l-serratus-2'), (0.7, 'r-serratus-2'))),
+
+    ('l-breast-1',          'v', 8535),
+    ('r-breast-1',          'v', 1863),
+    ('l-breast-2',          'v', 8542),
+    ('r-breast-2',          'v', 1870),
+    ('l-breast',            'l', ((0.5, 'l-breast-1'), (0.5, 'l-breast-2'))),
+    ('r-breast',            'l', ((0.5, 'r-breast-1'), (0.5, 'r-breast-2'))),
+    ('l-nipple',            'v', 8462),
+    ('r-nipple',            'v', 1790),
+
+    ('l-pect-ik',           'l', ((-0.5, 'spine-1'), (1.5, 'l-breast'))),
+    ('r-pect-ik',           'l', ((-0.5, 'spine-1'), (1.5, 'r-breast'))),
+
     ('pubis',               'vl', ((0.9, 4341), (0.1, 4250))),
 
     ('penis-1',             'vl', ((0.5, 15152), (0.5, 15169))),
@@ -49,6 +66,12 @@ HeadsTails = {
     'neck' :               ('neck', 'head'),
     'head' :               ('head', 'head-2'),
 
+    'serratus.L' :         ('l-serratus-1', 'l-serratus-2'),
+    'serratus.R' :         ('r-serratus-1', 'r-serratus-2'),
+
+    'breast.L' :           ('l-serratus-1', 'l-nipple'),
+    'breast.R' :           ('r-serratus-1', 'r-nipple'),
+
     'skull' :              ('head-2', ('head-2', (0,0.2,0))),
 
     'penis_1' :            ('penis-1', 'penis-2'),
@@ -70,6 +93,12 @@ Armature = {
     'chest-1' :            (0, 'chest', F_DEF|F_CON, L_UPSPNFK),
     'neck' :               (0, 'chest-1', F_DEF|F_CON, L_UPSPNFK),
     'head' :               (0, 'neck', F_DEF|F_CON, L_UPSPNFK),
+
+    'serratus.L' :         (0, 'chest', F_DEF, L_DEF),
+    'serratus.R' :         (0, 'chest', F_DEF, L_DEF),
+    'breast.L' :           (0, 'chest', F_DEF, L_UPSPNFK),
+    'breast.R' :           (0, 'chest', F_DEF, L_UPSPNFK),
+
 }
 
 # Terminators needed by OpenSim
@@ -107,5 +136,15 @@ CustomShapes = {
     'head' :            'GZM_Head',
 }
 
-Constraints = {}
+Constraints = {
+    "serratus.L" : [
+        ("IK", 0, 0.5, ["serratusIk.L", "serratusIk.L", 1, None, (1,0,1)])
+        ],
+
+    "serratus.R" : [
+        ("IK", 0, 0.5, ["serratusIk.R", "serratusIk.R", 1, None, (1,0,1)])
+        ],
+
+
+}
 

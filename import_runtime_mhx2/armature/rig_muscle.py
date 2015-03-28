@@ -111,6 +111,8 @@ Joints = [
     ('r-shin-1',            'l', ((0.7, 'r-knee'), (0.3, 'r-ankle'))),
 ]
 
+Joints = []
+
 HeadsTails = {
     'pubis' :              ('pubis', 'spine-3'),
     'ribcage.L' :          ('plexus', 'l-pect-1'),
