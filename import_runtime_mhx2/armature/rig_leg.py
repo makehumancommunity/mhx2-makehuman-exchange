@@ -25,6 +25,15 @@ from .rig_joints import *
 Joints = [
     ('l-toe-2',             'p', ('l-foot-2', 'l-foot-1', 'l-foot-2')),
     ('r-toe-2',             'p', ('r-foot-2', 'r-foot-1', 'r-foot-2')),
+
+    ("l-gluteus-1",         "vl", ((0.1, 10955), (0.9, 10859))),
+    ("r-gluteus-1",         "vl", ((0.1, 4327), (0.9, 4224))),
+    ("l-gluteus-2",         "l", ((0.8, 'l-upper-leg'), (0.2, 'l-knee'))),
+    ("r-gluteus-2",         "l", ((0.8, 'r-upper-leg'), (0.2, 'r-knee'))),
+
+    ("l-hip",               "v", 10958),
+    ("r-hip",               "v", 4331),
+
 ]
 
 
@@ -41,6 +50,14 @@ HeadsTails = {
 
     'toe_end.L' :          ('l-toe-2', ('l-toe-2', (0,0,0.2))),
     'toe_end.R' :          ('r-toe-2', ('r-toe-2', (0,0,0.2))),
+
+    'gluteus.L' :          ('l-gluteus-1', 'l-gluteus-2'),
+    'gluteus.R' :          ('r-gluteus-1', 'r-gluteus-2'),
+    'gluteusIk.L' :        ('l-gluteus-2', ('l-gluteus-2', (0,0.2,0))),
+    'gluteusIk.R' :        ('r-gluteus-2', ('r-gluteus-2', (0,0.2,0))),
+
+    'hip.L' :              ('pelvis', 'l-upper-leg'),
+    'hip.R' :              ('pelvis', 'r-upper-leg'),
 }
 
 Planes = {
@@ -60,6 +77,14 @@ Armature = {
     'shin.R' :             ("PlaneLeg.R", 'thigh.R', F_DEF|F_CON, L_RLEGFK, P_YZX),
     'foot.R' :             ("PlaneFoot.R", 'shin.R', F_DEF|F_CON, L_RLEGFK, P_YZX),
     'toe.R' :              ("PlaneFoot.R", 'foot.R', F_DEF|F_CON, L_RLEGFK, P_YZX),
+
+    'gluteus.L' :          (0, 'hips', F_DEF, L_DEF),
+    'gluteus.R' :          (0, 'hips', F_DEF, L_DEF),
+    'gluteusIk.L' :        (0, 'thigh.L', 0, L_HELP),
+    'gluteusIk.R' :        (0, 'thigh.R', 0, L_HELP),
+
+    'hip.L' :              (0, 'hips', F_DEF, L_DEF),
+    'hip.R' :              (0, 'hips', F_DEF, L_DEF),
 }
 
 RotationLimits = {
@@ -85,5 +110,12 @@ CustomShapes = {
     'toe.R' :           'GZM_Toe',
 }
 
-Constraints = {}
+Constraints = {
+    "gluteus.L" : [
+        ("IK", 0, 0.5, ["gluteusIk.L", "gluteusIk.L", 1, None, (1,0,1)])
+        ],
+    "gluteus.R" : [
+        ("IK", 0, 0.5, ["gluteusIk.R", "gluteusIk.R", 1, None, (1,0,1)])
+        ],
+}
 

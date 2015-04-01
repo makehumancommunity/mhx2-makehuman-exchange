@@ -157,6 +157,9 @@ Armature = {
     "mch_bShoulderBend.R" : (0, "loc_shoulder.R", 0, L_HELP),
     "bShoulder.R" :         (0, "mch_bShoulderBend.R", F_DEF|F_CON, L_DEF),
 
+    "pectIk.L" :            (0, "clav_segA.L", 0, L_HELP),
+    "pectIk.R" :            (0, "clav_segA.R", 0, L_HELP),
+
     "upper_arm.L" :         ("PlaneArm.L", "loc_shoulder.L", F_DEF, L_LARMFK),
     "shoulderIk.L" :        (0, "upper_arm.L", 0, L_HELP),
     "serratusIk.L" :        (0, "upper_arm.L", 0, L_HELP),

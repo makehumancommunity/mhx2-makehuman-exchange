@@ -39,8 +39,8 @@ Joints = [
     ('l-nipple',            'v', 8462),
     ('r-nipple',            'v', 1790),
 
-    ('l-pect-ik',           'l', ((-0.5, 'spine-1'), (1.5, 'l-breast'))),
-    ('r-pect-ik',           'l', ((-0.5, 'spine-1'), (1.5, 'r-breast'))),
+    ('l-pect-ik',           'l', ((-0.1, 'spine-1'), (1.1, 'l-nipple'))),
+    ('r-pect-ik',           'l', ((-0.1, 'spine-1'), (1.1, 'r-nipple'))),
 
     ('pubis',               'vl', ((0.9, 4341), (0.1, 4250))),
 
@@ -69,8 +69,11 @@ HeadsTails = {
     'serratus.L' :         ('l-serratus-1', 'l-serratus-2'),
     'serratus.R' :         ('r-serratus-1', 'r-serratus-2'),
 
-    'breast.L' :           ('l-serratus-1', 'l-nipple'),
-    'breast.R' :           ('r-serratus-1', 'r-nipple'),
+    'pectoralis.L' :       ('spine-1', 'l-nipple'),
+    'pectoralis.R' :       ('spine-1', 'r-nipple'),
+
+    'pectIk.L' :           ('l-pect-ik', ('l-pect-ik', (0,0.2,0))),
+    'pectIk.R' :           ('r-pect-ik', ('r-pect-ik', (0,0.2,0))),
 
     'skull' :              ('head-2', ('head-2', (0,0.2,0))),
 
@@ -96,8 +99,8 @@ Armature = {
 
     'serratus.L' :         (0, 'chest', F_DEF, L_DEF),
     'serratus.R' :         (0, 'chest', F_DEF, L_DEF),
-    'breast.L' :           (0, 'chest', F_DEF, L_UPSPNFK),
-    'breast.R' :           (0, 'chest', F_DEF, L_UPSPNFK),
+    'pectoralis.L' :       (0, 'chest', F_DEF, L_UPSPNFK),
+    'pectoralis.R' :       (0, 'chest', F_DEF, L_UPSPNFK),
 
 }
 
@@ -143,6 +146,14 @@ Constraints = {
 
     "serratus.R" : [
         ("IK", 0, 0.5, ["serratusIk.R", "serratusIk.R", 1, None, (1,0,1)])
+        ],
+
+    "pectoralis.L" : [
+        ("IK", 0, 0.5, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
+        ],
+
+    "pectoralis.R" : [
+        ("IK", 0, 0.5, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
         ],
 
 
