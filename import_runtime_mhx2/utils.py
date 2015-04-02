@@ -128,4 +128,4 @@ def getRoll(bone):
 #   Debug flags
 # ---------------------------------------------------------------------
 
-AutoWeight = True
+AutoWeight = False
