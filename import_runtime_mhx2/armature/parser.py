@@ -134,7 +134,6 @@ class Parser:
                 rig_leg.Joints +
                 rig_hand.Joints +
                 rig_face.Joints
-                #rig_control.Joints
             )
         else:
             self.joints = (
@@ -156,12 +155,13 @@ class Parser:
                 rig_hand.Planes,
                 rig_face.Planes,
             ])
+            self.planeJoints = []
         else:
             self.planes = mergeDicts([
                 rig_bones.Planes,
                 rig_face.Planes,
             ])
-        self.planeJoints = rig_control.PlaneJoints
+            self.planeJoints = rig_control.PlaneJoints
 
         if cfg.useMultirig:
             self.headsTails = mergeDicts([
@@ -474,7 +474,7 @@ class Parser:
 
         self.setupJoints()
         self.setupNormals()
-        #self.setupPlaneJoints()
+        self.setupPlaneJoints()
         self.createBones()
 
         for bone in self.bones.values():
