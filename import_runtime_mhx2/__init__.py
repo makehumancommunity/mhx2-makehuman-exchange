@@ -82,6 +82,7 @@ import bpy
 from bpy.props import *
 from bpy_extras.io_utils import ImportHelper
 from .error import *
+from .utils import *
 
 import os
 
@@ -175,11 +176,16 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             rigTypes.append(entry)
     rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"), mhx, rigify] + rigTypes
 
+    if AutoWeight:
+        defaultRig = 'TEST'
+    else:
+        defaultRig = 'EXPORTED'
+
     rigType = EnumProperty(
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'TEST')
+        default = defaultRig)
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
@@ -213,11 +219,12 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         except MhxError:
             handleMhxError(context)
 
-        scn = context.scene
-        rig = scn.objects["Bar"]
-        ob = scn.objects["Bar:Body"]
-        ob.select = True
-        bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+        if AutoWeight:
+            scn = context.scene
+            rig = scn.objects["Bar"]
+            ob = scn.objects["Bar:Body"]
+            ob.select = True
+            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
 
         return {'FINISHED'}
 

@@ -24,6 +24,8 @@ from .rig_joints import *
 
 Joints = [
     ('spine-23',            'l', ((0.5, 'spine-2'), (0.5, 'spine-3'))),
+    ("neck",                "vl", ((0.3, 809), (0.7, 1491))),
+    ('neck-1',              'vl', ((0.5, 825), (0.5, 7536))),
 
     ('l-serratus-2',        'v', 8110),
     ('r-serratus-2',        'v', 1422),
@@ -39,10 +41,14 @@ Joints = [
     ('l-nipple',            'v', 8462),
     ('r-nipple',            'v', 1790),
 
+    ('l-pectoralis',        'l', ((0.2, 'spine-1'), (0.8, 'l-nipple'))),
+    ('r-pectoralis',        'l', ((0.2, 'spine-1'), (0.8, 'r-nipple'))),
     ('l-pect-ik',           'l', ((-0.1, 'spine-1'), (1.1, 'l-nipple'))),
     ('r-pect-ik',           'l', ((-0.1, 'spine-1'), (1.1, 'r-nipple'))),
 
-    ('pubis',               'vl', ((0.9, 4341), (0.1, 4250))),
+    ('pubis',               'v', 4372),
+    ('pubis-1',             'v', 4259),
+    ('pubis-2',             'v', 4370),
 
     ('penis-1',             'vl', ((0.5, 15152), (0.5, 15169))),
     ('penis-2',             'vl', ((0.5, 15272), (0.5, 15274))),
@@ -63,19 +69,22 @@ HeadsTails = {
     'spine-1' :            ('spine-23', 'spine-2'),
     'chest' :              ('spine-2', 'spine-1'),
     'chest-1' :            ('spine-1', 'neck'),
-    'neck' :               ('neck', 'head'),
+    'neck' :               ('neck', 'neck-1'),
+    'neck-1' :             ('neck-1', 'head'),
     'head' :               ('head', 'head-2'),
 
     'serratus.L' :         ('l-serratus-1', 'l-serratus-2'),
     'serratus.R' :         ('r-serratus-1', 'r-serratus-2'),
 
-    'pectoralis.L' :       ('spine-1', 'l-nipple'),
-    'pectoralis.R' :       ('spine-1', 'r-nipple'),
+    'pectoralis.L' :       ('spine-1', 'l-pectoralis'),
+    'pectoralis.R' :       ('spine-1', 'r-pectoralis'),
 
-    'pectIk.L' :           ('l-pect-ik', ('l-pect-ik', (0,0.2,0))),
-    'pectIk.R' :           ('r-pect-ik', ('r-pect-ik', (0,0.2,0))),
+    'pectIk.L' :           ('l-pect-ik', ('l-pect-ik', ysmall)),
+    'pectIk.R' :           ('r-pect-ik', ('r-pect-ik', ysmall)),
 
-    'skull' :              ('head-2', ('head-2', (0,0.2,0))),
+    'skull' :              ('head-2', ('head-2', ysmall)),
+
+    'pubis' :              ('pelvis', 'pubis'),
 
     'penis_1' :            ('penis-1', 'penis-2'),
     'penis_2' :            ('penis-2', 'penis-3'),
@@ -91,11 +100,12 @@ Planes = {
 Armature = {
     'hips' :               (0, None, F_DEF, L_UPSPNFK),
     'spine' :              (0, 'hips', F_DEF|F_CON, L_UPSPNFK),
-    'spine-1' :            (0, 'spine', F_DEF|F_CON, L_UPSPNFK),
+    'spine-1' :            (0, 'spine', F_DEF|F_CON, L_DEF),
     'chest' :              (0, 'spine-1', F_DEF|F_CON, L_UPSPNFK),
-    'chest-1' :            (0, 'chest', F_DEF|F_CON, L_UPSPNFK),
+    'chest-1' :            (0, 'chest', F_DEF|F_CON, L_DEF),
     'neck' :               (0, 'chest-1', F_DEF|F_CON, L_UPSPNFK),
-    'head' :               (0, 'neck', F_DEF|F_CON, L_UPSPNFK),
+    'neck-1' :             (0, 'neck', F_DEF|F_CON, L_DEF),
+    'head' :               (0, 'neck-1', F_DEF|F_CON, L_UPSPNFK),
 
     'serratus.L' :         (0, 'chest', F_DEF, L_DEF),
     'serratus.R' :         (0, 'chest', F_DEF, L_DEF),
@@ -132,14 +142,18 @@ CustomShapes = {
     'root' :            'GZM_Root',
     'hips' :            'GZM_CrownHips',
     'spine' :           'GZM_CircleSpine',
-    'spine-1' :         'GZM_CircleSpine',
     'chest' :           'GZM_CircleChest',
-    'chest-1' :         'GZM_CircleChest',
     'neck' :            'GZM_Neck',
     'head' :            'GZM_Head',
 }
 
 Constraints = {
+    "spine-1" : [("CopyRot", C_LOCAL, 1, ["spine", "spine", (1,1,1), (0,0,0), False])],
+
+    "chest-1" : [("CopyRot", C_LOCAL, 1, ["chest", "chest", (1,1,1), (0,0,0), False])],
+
+    "neck-1" : [("CopyRot", C_LOCAL, 1, ["neck", "neck", (1,1,1), (0,0,0), False])],
+
     "serratus.L" : [
         ("IK", 0, 0.5, ["serratusIk.L", "serratusIk.L", 1, None, (1,0,1)])
         ],

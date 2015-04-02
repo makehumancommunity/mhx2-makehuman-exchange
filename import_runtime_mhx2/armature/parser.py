@@ -26,6 +26,7 @@ from mathutils import Vector
 from collections import OrderedDict
 
 from .flags import *
+from ..utils import *
 from .utils import *
 from ..hm8 import *
 from ..load_json import loadJsonRelative
@@ -214,7 +215,13 @@ class Parser:
 
         if cfg.useCustomShapes:
             addDict(rig_face.CustomShapes, self.customShapes)
-            if cfg.useCustomShapes == 'ALL':
+            if cfg.useMultirig:
+                addDict(rig_spine.CustomShapes, self.customShapes)
+                addDict(rig_arm.CustomShapes, self.customShapes)
+                addDict(rig_leg.CustomShapes, self.customShapes)
+                addDict(rig_hand.CustomShapes, self.customShapes)
+                addDict(rig_control.CustomShapes, self.customShapes)
+            elif cfg.useCustomShapes == 'ALL':
                 addDict(rig_bones.CustomShapes, self.customShapes)
                 addDict(rig_control.CustomShapes, self.customShapes)
                 if cfg.useMuscles:
@@ -388,8 +395,9 @@ class Parser:
         if cfg.useFacePanel:
             addDict(loadJsonRelative("armature/data/mhx/gizmos-panel.json"), self.gizmos)
 
-        #vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
-        #addDict(vgroups, self.vertexGroups)
+        if not AutoWeight:
+            vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
+            addDict(vgroups, self.vertexGroups)
 
         if cfg.merge:
             self.mergeBones(cfg.merge)

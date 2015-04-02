@@ -23,7 +23,8 @@ from .flags import *
 from .rig_joints import *
 
 Joints = [
-    ("sternum",             "v", 1528),
+    ("sternum-0",           "v", 1528),
+    ("sternum",             "l", ((0.8, "sternum-0"), (0.2, "neck"))),
 
     ("l-clav-4",            "vl", ((0.6, 8077), (0.4, 8237))),
     ("l-clav-1",            "l", ((0.75, "l-clavicle"), (0.25, "l-clav-4"))),
@@ -55,11 +56,11 @@ Joints = [
     ("r-scap-ik-pole",      "o", ("sternum", (0.5,2.0,0))),
     ("r-scap-aim",          "l", ((0.8, "r-clav-4"), (0.2, "neck"))),
 
-    ("l-scapula-1",         "vl", ((0.05, 8215), (0.95, 8263))),
-    ("l-scapula-2",         "vl", ((0.05, 8072), (0.95, 10442))),
+    ("l-scapula-1",         "vl", ((0.1, 8215), (0.9, 8263))),
+    ("l-scapula-2",         "vl", ((0.1, 8072), (0.9, 10442))),
 
-    ("r-scapula-1",         "vl", ((0.05, 1535), (0.95, 1585))),
-    ("r-scapula-2",         "vl", ((0.05, 1380), (0.95, 3775))),
+    ("r-scapula-1",         "vl", ((0.1, 1535), (0.9, 1585))),
+    ("r-scapula-2",         "vl", ((0.1, 1380), (0.9, 3775))),
 
     ("l-elbow-tip",         "v", 10058),
     ("l-knee-tip",          "v", 11223),
@@ -95,18 +96,18 @@ HeadsTails = {
 
     "loc_scapAim.L" :       ("l-clav-4", "l-scap-aim"),
     "scapula.L" :           ("l-scapula-1", "l-scapula-2"),
-    "serratusIk.L" :        ("l-serratus-ik", ("l-serratus-ik", (0,0.2,0))),
+    "serratusIk.L" :        ("l-serratus-ik", ("l-serratus-ik", ysmall)),
 
     "loc_scapAim.R" :       ("r-clav-4", "r-scap-aim"),
     "scapula.R" :           ("r-scapula-1", "r-scapula-2"),
-    "serratusIk.R" :        ("r-serratus-ik", ("r-serratus-ik", (0,0.2,0))),
+    "serratusIk.R" :        ("r-serratus-ik", ("r-serratus-ik", ysmall)),
 
-    "loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", (0,0.2,0))),
+    "loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", ysmall)),
     "mch_bShoulderBend.L" : (("l-upper-arm-bend", (-0.4,0,0)), "l-upper-arm-bend"),
     "bShoulder.L" :         ("l-upper-arm-bend", "l-upper-arm-1"),
     "shoulderIk.L" :        ("l-upper-arm-1", "l-upper-arm-2"),
 
-    "loc_shoulder.R" :      ("r-upper-arm", ("r-upper-arm", (0,0.2,0))),
+    "loc_shoulder.R" :      ("r-upper-arm", ("r-upper-arm", ysmall)),
     "mch_bShoulderBend.R" : (("r-upper-arm-bend", (0.4,0,0)), "r-upper-arm-bend"),
     "bShoulder.R" :         ("r-upper-arm-bend", "r-upper-arm-1"),
     "shoulderIk.R" :        ("r-upper-arm-1", "r-upper-arm-2"),
@@ -131,13 +132,13 @@ Planes = {
 Armature = {
     "sternum" :             (0, "chest-1", F_DEF|F_CON, L_UPSPNFK),
 
-    "clavicle.L" :          (0, "sternum", 0, L_LARMFK|L_LARMIK),
+    "clavicle.L" :          (0, "chest-1", 0, L_LARMFK|L_LARMIK),
     "clav_segA.L" :         (0, "clavicle.L", F_DEF, L_DEF),
     "clav_segB.L" :         (0, "clav_segA.L", F_DEF|F_CON, L_DEF),
     "clav_segC.L" :         (0, "clav_segB.L", F_DEF|F_CON, L_DEF),
     "clav_segD.L" :         (0, "clav_segC.L", F_DEF|F_CON, L_DEF),
 
-    "clavicle.R" :          (0, "sternum", 0, L_RARMFK|L_RARMIK),
+    "clavicle.R" :          (0, "chest-1", 0, L_RARMFK|L_RARMIK),
     "clav_segA.R" :         (0, "clavicle.R", F_DEF, L_DEF),
     "clav_segB.R" :         (0, "clav_segA.R", F_DEF|F_CON, L_DEF),
     "clav_segC.R" :         (0, "clav_segB.R", F_DEF|F_CON, L_DEF),
@@ -191,7 +192,7 @@ CustomShapes = {
 CustomShapes = {}
 
 Constraints = {
-    "sternum" : [("CopyRot", C_LOCAL, 0.4, ["neck", "neck", (1,0,0), (0,0,0), False])],
+    "sternum" : [("CopyRot", C_LOCAL, 0.2, ["neck", "neck", (1,0,0), (0,0,0), False])],
 
     "clav_segB.L" : [("CopyRot", C_LOCAL, 1, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
     "clav_segC.L" : [("CopyRot", C_LOCAL, 1, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],

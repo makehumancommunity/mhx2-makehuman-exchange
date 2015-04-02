@@ -28,8 +28,9 @@ S20 = sin(20*pi/180)
 MuscleBones = False
 
 yunit = [0,1,0]
-ysmall = [0,0.5,0]
+ysmall = [0,0.2,0]
 zunit = [0,0,-1]
+zsmall = (0,0,0.2)
 ybis = [0,2,0]
 
 unlimited = (-pi,pi, -pi,pi, -pi,pi)

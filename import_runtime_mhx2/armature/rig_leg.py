@@ -31,8 +31,13 @@ Joints = [
     ("l-gluteus-2",         "l", ((0.8, 'l-upper-leg'), (0.2, 'l-knee'))),
     ("r-gluteus-2",         "l", ((0.8, 'r-upper-leg'), (0.2, 'r-knee'))),
 
-    ("l-hip",               "v", 10958),
-    ("r-hip",               "v", 4331),
+    ("l-hip-ik",            "v", 10920),
+    ("r-hip-ik",            "v", 4290),
+    ("l-hip",               "l", ((0.7, "l-hip-ik"), (0.3, "pelvis"))),
+    ("r-hip",               "l", ((0.7, "r-hip-ik"), (0.3, "pelvis"))),
+
+    #("l-hip-ik",            "l", ((1.1, "l-hip"), (-0.1, "pelvis"))),
+    #("r-hip-ik",            "l", ((1.1, "r-hip"), (-0.1, "pelvis"))),
 
 ]
 
@@ -48,16 +53,19 @@ HeadsTails = {
     'foot.R' :             ('r-ankle', 'r-foot-1'),
     'toe.R' :              ('r-foot-1', 'r-toe-2'),
 
-    'toe_end.L' :          ('l-toe-2', ('l-toe-2', (0,0,0.2))),
-    'toe_end.R' :          ('r-toe-2', ('r-toe-2', (0,0,0.2))),
+    'toe_end.L' :          ('l-toe-2', ('l-toe-2', zsmall)),
+    'toe_end.R' :          ('r-toe-2', ('r-toe-2', zsmall)),
 
     'gluteus.L' :          ('l-gluteus-1', 'l-gluteus-2'),
     'gluteus.R' :          ('r-gluteus-1', 'r-gluteus-2'),
-    'gluteusIk.L' :        ('l-gluteus-2', ('l-gluteus-2', (0,0.2,0))),
-    'gluteusIk.R' :        ('r-gluteus-2', ('r-gluteus-2', (0,0.2,0))),
+    'gluteusIk.L' :        ('l-gluteus-2', ('l-gluteus-2', ysmall)),
+    'gluteusIk.R' :        ('r-gluteus-2', ('r-gluteus-2', ysmall)),
 
-    'hip.L' :              ('pelvis', 'l-upper-leg'),
-    'hip.R' :              ('pelvis', 'r-upper-leg'),
+    'hip.L' :              ('pelvis', 'l-hip'),
+    'hip.R' :              ('pelvis', 'r-hip'),
+    'hipIk.L' :            ('l-hip-ik', ('l-hip-ik', ysmall)),
+    'hipIk.R' :            ('r-hip-ik', ('r-hip-ik', ysmall)),
+
 }
 
 Planes = {
@@ -85,6 +93,8 @@ Armature = {
 
     'hip.L' :              (0, 'hips', F_DEF, L_DEF),
     'hip.R' :              (0, 'hips', F_DEF, L_DEF),
+    'hipIk.L' :            (0, 'thigh.L', 0, L_HELP),
+    'hipIk.R' :            (0, 'thigh.R', 0, L_HELP),
 }
 
 RotationLimits = {
@@ -116,6 +126,13 @@ Constraints = {
         ],
     "gluteus.R" : [
         ("IK", 0, 0.5, ["gluteusIk.R", "gluteusIk.R", 1, None, (1,0,1)])
+        ],
+
+    "hip.L" : [
+        ("IK", 0, 1.0, ["hipIk.L", "hipIk.L", 1, None, (1,0,1)])
+        ],
+    "hip.R" : [
+        ("IK", 0, 1.0, ["hipIk.R", "hipIk.R", 1, None, (1,0,1)])
         ],
 }
 
