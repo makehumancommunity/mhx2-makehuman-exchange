@@ -116,74 +116,40 @@ class Parser:
         if cfg.useDeformBones or cfg.useDeformNames:
             self.deformPrefix = "DEF-"
 
-        if cfg.useMultirig:
-            self.vertexGroupFiles += ["head", "body", "hand", "joints"]
-        elif cfg.useMuscles:
-            self.vertexGroupFiles += ["head", "muscles", "hand", "joints", "tights_muscles", "skirt_muscles", "genitalia_muscles"]
-        else:
-            self.vertexGroupFiles += ["head", "bones", "hand", "joints", "tights", "skirt", "genitalia"]
+        self.vertexGroupFiles += ["head", "body", "hand", "joints"]
+        self.vertexGroupFiles += ["tights", "skirt", "genitalia", "hair"]
 
-        if cfg.useMuscles:
-            self.vertexGroupFiles += ["hair_muscles"]
-        else:
-            self.vertexGroupFiles += ["hair"]
-
-        if cfg.useMultirig:
-            self.joints = (
-                rig_joints.Joints +
-                rig_spine.Joints +
-                rig_arm.Joints +
-                rig_leg.Joints +
-                rig_hand.Joints +
-                rig_face.Joints
+        self.joints = (
+            rig_joints.Joints +
+            rig_spine.Joints +
+            rig_arm.Joints +
+            rig_leg.Joints +
+            rig_hand.Joints +
+            rig_face.Joints
+            # rig_control.Joints
             )
-        else:
-            self.joints = (
-                rig_joints.Joints +
-                rig_bones.Joints +
-                rig_face.Joints +
-                rig_control.Joints
-            )
-        if cfg.useMuscles:
-            self.joints += rig_muscle.Joints
         if cfg.useFacePanel:
             self.joints += rig_panel.Joints
 
-        if cfg.useMultirig:
-            self.planes = mergeDicts([
-                rig_spine.Planes,
-                rig_arm.Planes,
-                rig_leg.Planes,
-                rig_hand.Planes,
-                rig_face.Planes,
-            ])
-            self.planeJoints = []
-        else:
-            self.planes = mergeDicts([
-                rig_bones.Planes,
-                rig_face.Planes,
-            ])
-            self.planeJoints = rig_control.PlaneJoints
+        self.planes = mergeDicts([
+            rig_spine.Planes,
+            rig_arm.Planes,
+            rig_leg.Planes,
+            rig_hand.Planes,
+            rig_face.Planes,
+        ])
+        self.planeJoints = []
+        #self.planeJoints = rig_control.PlaneJoints
 
-        if cfg.useMultirig:
-            self.headsTails = mergeDicts([
-                rig_spine.HeadsTails,
-                rig_arm.HeadsTails,
-                rig_leg.HeadsTails,
-                rig_hand.HeadsTails,
-                rig_face.HeadsTails,
-                rig_control.HeadsTails,
-                rig_control.RevFootHeadsTails,
-            ])
-        else:
-            self.headsTails = mergeDicts([
-                rig_bones.HeadsTails,
-                rig_face.HeadsTails,
-                rig_control.HeadsTails,
-                rig_control.RevFootHeadsTails,
-            ])
-        if cfg.useMuscles:
-            addDict(rig_muscle.HeadsTails, self.headsTails)
+        self.headsTails = mergeDicts([
+            rig_spine.HeadsTails,
+            rig_arm.HeadsTails,
+            rig_leg.HeadsTails,
+            rig_hand.HeadsTails,
+            rig_face.HeadsTails,
+            rig_control.HeadsTails,
+            rig_control.RevFootHeadsTails,
+        ])
         if cfg.useFacePanel:
             addDict(rig_panel.HeadsTails, self.headsTails)
 
@@ -193,41 +159,28 @@ class Parser:
             self.headsTails[bname] = (tail, (tail,offset))
 
         if cfg.useConstraints:
-            if cfg.useMultirig:
-                self.setConstraints(rig_spine.Constraints)
-                self.setConstraints(rig_arm.Constraints)
-                self.setConstraints(rig_leg.Constraints)
-                self.setConstraints(rig_hand.Constraints)
-            else:
-                self.setConstraints(rig_bones.Constraints)
-            self.setConstraints(rig_face.Constraints)
-            if cfg.useMuscles:
-                self.setConstraints(rig_muscle.Constraints)
+            self.setConstraints(rig_spine.Constraints)
+            self.setConstraints(rig_arm.Constraints)
+            self.setConstraints(rig_leg.Constraints)
+            self.setConstraints(rig_hand.Constraints)
+        self.setConstraints(rig_face.Constraints)
 
         if cfg.useLocks:
             addDict(rig_bones.RotationLimits, self.rotationLimits)
             addDict(rig_face.RotationLimits, self.rotationLimits)
             addDict(rig_face.LocationLimits, self.locationLimits)
             addDict(rig_control.RotationLimits, self.rotationLimits)
-            if cfg.useMuscles:
-                addDict(rig_muscle.RotationLimits, self.rotationLimits)
         if cfg.useFacePanel:
             addDict(rig_panel.RotationLimits, self.rotationLimits)
             addDict(rig_panel.LocationLimits, self.locationLimits)
 
         if cfg.useCustomShapes:
             addDict(rig_face.CustomShapes, self.customShapes)
-            if cfg.useMultirig:
-                addDict(rig_spine.CustomShapes, self.customShapes)
-                addDict(rig_arm.CustomShapes, self.customShapes)
-                addDict(rig_leg.CustomShapes, self.customShapes)
-                addDict(rig_hand.CustomShapes, self.customShapes)
-                addDict(rig_control.CustomShapes, self.customShapes)
-            elif cfg.useCustomShapes == 'ALL':
-                addDict(rig_bones.CustomShapes, self.customShapes)
-                addDict(rig_control.CustomShapes, self.customShapes)
-                if cfg.useMuscles:
-                    addDict(rig_muscle.CustomShapes, self.customShapes)
+            addDict(rig_spine.CustomShapes, self.customShapes)
+            addDict(rig_arm.CustomShapes, self.customShapes)
+            addDict(rig_leg.CustomShapes, self.customShapes)
+            addDict(rig_hand.CustomShapes, self.customShapes)
+            addDict(rig_control.CustomShapes, self.customShapes)
         if cfg.useFacePanel:
             addDict(rig_panel.CustomShapes, self.customShapes)
 
@@ -264,13 +217,10 @@ class Parser:
     def createBones(self):
         cfg = self.config
 
-        if cfg.useMultirig:
-            self.addBones(rig_spine.Armature)
-            self.addBones(rig_arm.Armature)
-            self.addBones(rig_leg.Armature)
-            self.addBones(rig_hand.Armature)
-        else:
-            self.addBones(rig_bones.Armature)
+        self.addBones(rig_spine.Armature)
+        self.addBones(rig_arm.Armature)
+        self.addBones(rig_leg.Armature)
+        self.addBones(rig_hand.Armature)
         if cfg.useTerminators:
             self.addBones(rig_bones.TerminatorArmature)
         if cfg.usePenisRig:
@@ -302,9 +252,6 @@ class Parser:
             spine = self.bones["spine"]
             spine.parent = "root"
             spine.conn = False
-
-        if cfg.useMuscles:
-            self.addBones(rig_muscle.Armature)
 
         if cfg.useFacePanel:
             self.addBones(rig_panel.Armature)

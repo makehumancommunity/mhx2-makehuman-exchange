@@ -10,7 +10,6 @@
         "useReverseHip" : true,
         "useSplitBones" : true,
         "useDeformBones" : true,
-        "useMuscles" : true,
         "useFaceRig" : true,
         "useSockets" : true,
         "useIkArms" : true,
@@ -23,11 +22,6 @@
         "useCorrectives": true
     },
     
-    "merge" : {
-        "forearm.L":     ["elbow_fan.L", "forearm.L"],
-        "forearm.R":     ["elbow_fan.R", "forearm.R"]
-    },  
-
     "properties" : {
          "MhaArmIk_L" : {
          	"type" : "float",

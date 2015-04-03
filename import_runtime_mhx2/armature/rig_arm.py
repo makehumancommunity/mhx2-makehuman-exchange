@@ -103,13 +103,13 @@ HeadsTails = {
     "serratusIk.R" :        ("r-serratus-ik", ("r-serratus-ik", ysmall)),
 
     "loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", ysmall)),
-    "mch_bShoulderBend.L" : (("l-upper-arm-bend", (-0.4,0,0)), "l-upper-arm-bend"),
-    "bShoulder.L" :         ("l-upper-arm-bend", "l-upper-arm-1"),
+    "deltoidBend.L" : (("l-upper-arm-bend", (-0.4,0,0)), "l-upper-arm-bend"),
+    "deltoid.L" :         ("l-upper-arm-bend", "l-upper-arm-1"),
     "shoulderIk.L" :        ("l-upper-arm-1", "l-upper-arm-2"),
 
     "loc_shoulder.R" :      ("r-upper-arm", ("r-upper-arm", ysmall)),
-    "mch_bShoulderBend.R" : (("r-upper-arm-bend", (0.4,0,0)), "r-upper-arm-bend"),
-    "bShoulder.R" :         ("r-upper-arm-bend", "r-upper-arm-1"),
+    "deltoidBend.R" : (("r-upper-arm-bend", (0.4,0,0)), "r-upper-arm-bend"),
+    "deltoid.R" :         ("r-upper-arm-bend", "r-upper-arm-1"),
     "shoulderIk.R" :        ("r-upper-arm-1", "r-upper-arm-2"),
 
     "upper_arm.L" :         ("l-upper-arm", "l-elbow"),
@@ -151,12 +151,12 @@ Armature = {
     "scapula.R" :           (0, "loc_scapAim.R", F_DEF, L_DEF),
 
     "loc_shoulder.L" :      (0, "clav_segD.L", 0, L_HELP),
-    "mch_bShoulderBend.L" : (0, "loc_shoulder.L", 0, L_HELP),
-    "bShoulder.L" :         (0, "mch_bShoulderBend.L", F_DEF|F_CON, L_DEF),
+    "deltoidBend.L" :       (0, "loc_shoulder.L", 0, L_HELP),
+    "deltoid.L" :           (0, "deltoidBend.L", F_DEF|F_CON, L_DEF),
 
     "loc_shoulder.R" :      (0, "clav_segD.R", 0, L_HELP),
-    "mch_bShoulderBend.R" : (0, "loc_shoulder.R", 0, L_HELP),
-    "bShoulder.R" :         (0, "mch_bShoulderBend.R", F_DEF|F_CON, L_DEF),
+    "deltoidBend.R" :       (0, "loc_shoulder.R", 0, L_HELP),
+    "deltoid.R" :           (0, "deltoidBend.R", F_DEF|F_CON, L_DEF),
 
     "pectIk.L" :            (0, "clav_segA.L", 0, L_HELP),
     "pectIk.R" :            (0, "clav_segA.R", 0, L_HELP),
@@ -202,11 +202,11 @@ Constraints = {
     "clav_segC.R" : [("CopyRot", C_LOCAL, 1, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
     "clav_segD.R" : [("CopyRot", C_LOCAL, 1, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
 
-    "bShoulder.L" : [
+    "deltoid.L" : [
         ("IK", 0, 1, ["shoulderIk.L", "shoulderIk.L", 1, None, (1,0,1)])
         ],
 
-    "bShoulder.R" : [
+    "deltoid.R" : [
         ("IK", 0, 1, ["shoulderIk.R", "shoulderIk.R", 1, None, (1,0,1)])
         ],
 

@@ -176,16 +176,11 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             rigTypes.append(entry)
     rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"), mhx, rigify] + rigTypes
 
-    if AutoWeight:
-        defaultRig = 'TEST'
-    else:
-        defaultRig = 'EXPORTED'
-
     rigType = EnumProperty(
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = defaultRig)
+        default = 'BASE')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),

@@ -5,7 +5,6 @@
 
     "settings" : {
     	"useRigify" : true,
-        "useMuscles" : true,
         "useSplitNames" : true,
         "useDeformNames" : true,
         "mergeShoulders" : true,
@@ -30,13 +29,6 @@
         "palm_middle.R" : "palm.02.R",
         "palm_ring.R" : "palm.03.R",
         "palm_pinky.R" : "palm.04.R"
-    },
+    }
 
-    "merge" : {
-        "shin.L":        ["knee_fan.L", "shin.L"],
-        "shin.R":        ["knee_fan.R", "shin.R"],
-
-        "forearm.L":     ["elbow_fan.L", "forearm.L"],
-        "forearm.R":     ["elbow_fan.R", "forearm.R"]
-    }    
 }

@@ -1,11 +1,10 @@
 {
-    "name" : "Test",
+    "name" : "Base",
 
     "description" :
-        "A test rig. Use this for weighting.",
+        "The base rig. Use this for weighting.",
 
     "settings" : {
-        "useMultirig" : true,
         "useConstraints" : true
     }
 }

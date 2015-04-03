@@ -83,13 +83,11 @@ class Config:
         self.useMasterBone = False
         self.useHeadControl = False
         self.useReverseHip = False
-        self.useMuscles = False
-        self.useMultirig = False
         self.useTerminators = False
         self.useFaceRig = False
         self.genitalia = 'NONE'
         self.usePenisRig = False
-        self.useLocks = True
+        self.useLocks = False
         self.useRotationLimits = False
         self.addConnectingBones = False
         self.useQuaternionsOnly = False
