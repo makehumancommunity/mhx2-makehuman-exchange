@@ -73,11 +73,11 @@ HeadsTails = {
     'neck-1' :             ('neck-1', 'head'),
     'head' :               ('head', 'head-2'),
 
-    'DEF-serratus.L' :         ('l-serratus-1', 'l-serratus-2'),
-    'DEF-serratus.R' :         ('r-serratus-1', 'r-serratus-2'),
+    'DEF-serratus.L' :     ('l-serratus-1', 'l-serratus-2'),
+    'DEF-serratus.R' :     ('r-serratus-1', 'r-serratus-2'),
 
-    'DEF-pect.L' :       ('spine-1', 'l-pect'),
-    'DEF-pect.R' :       ('spine-1', 'r-pect'),
+    'DEF-pect.L' :         ('spine-1', 'l-pect'),
+    'DEF-pect.R' :         ('spine-1', 'r-pect'),
 
     'pectIk.L' :           ('l-pect-ik', ('l-pect-ik', ysmall)),
     'pectIk.R' :           ('r-pect-ik', ('r-pect-ik', ysmall)),
@@ -155,11 +155,11 @@ Constraints = {
     "neck-1" : [("CopyRot", C_LOCAL, 1, ["neck", "neck", (1,1,1), (0,0,0), False])],
 
     "DEF-serratus.L" : [
-        ("IK", 0, 0.5, ["DEF-serratusIk.L", "DEF-serratusIk.L", 1, None, (1,0,1)])
+        ("IK", 0, 0.5, ["serratusIk.L", "serratusIk.L", 1, None, (1,0,1)])
         ],
 
     "DEF-serratus.R" : [
-        ("IK", 0, 0.5, ["DEF-serratusIk.R", "DEF-serratusIk.R", 1, None, (1,0,1)])
+        ("IK", 0, 0.5, ["serratusIk.R", "serratusIk.R", 1, None, (1,0,1)])
         ],
 
     "DEF-pect.L" : [

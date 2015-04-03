@@ -28,17 +28,12 @@
 
     "settings" : {
         "mergeShoulders" : true,
-        "mergeHands" : true,
-        "mergeHead" : true
-    },
-    
-    "merge" : {
-            "spine":        ["spine", "spine-1"],
-            
-            "chest":        ["chest", "chest-1"],
-                             
-            "foot.L":       ["foot.L", "toe.L"],                             
-
-            "foot.R":       ["foot.R", "toe.R"]
+        "mergePalms" : true,
+        "mergeNeck" : true,
+        "mergeHead" : true,
+        "mergeSpine" : true,
+        "mergeChest" : true,
+        "mergeHips" : true,
+        "mergeFeet" : true
     }
 }

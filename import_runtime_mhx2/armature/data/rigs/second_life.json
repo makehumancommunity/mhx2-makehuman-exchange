@@ -40,14 +40,12 @@
     
     "settings" : {
   		"useTerminators" :	true,
+        "mergeSpine" : true,
+        "mergeChest" : true,
+        "mergeNeck" : true,
         "mergeShoulders" : true,
-        "mergeHands" : true,
+        "mergePalms" : true,
+        "mergeHips" : true,
         "mergeHead" : true  		
-  	},
-    
-    "merge" : {
-            "spine":        ["spine", "spine-1"],
-            
-            "chest":        ["chest", "chest-1"]
-    }
+  	}
 }

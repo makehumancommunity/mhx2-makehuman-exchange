@@ -92,12 +92,17 @@ class Config:
         self.addConnectingBones = False
         self.useQuaternionsOnly = False
 
+        self.mergeHips = False
         self.mergeSpine = False
+        self.mergeChest = False
+        self.mergeNeck = False
         self.mergeShoulders = False
         self.mergeFingers = False
         self.mergePalms = False
         self.mergeHead = False
+        self.mergeFeet = False
         self.mergePenis = True
+
         self.merge = None
         self.properties = {}
         self.terminals = {}
@@ -117,7 +122,7 @@ class Config:
         self.useStretchyBones = False
 
         self.useCustomShapes = False
-        self.useConstraints = True
+        self.useConstraints = False
         self.useBoneGroups = False
         self.useCorrectives = False
         self.useExpressions = False

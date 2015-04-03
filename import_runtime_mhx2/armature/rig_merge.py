@@ -20,33 +20,73 @@
 # ##### END GPL LICENSE BLOCK #####
 
 PalmMergers = {
-    "hand.L" : ("palm_index.L", "palm_middle.L", "palm_ring.L", "palm_pinky.L", "thumb.01.L"),
-    "hand.R" : ("palm_index.R", "palm_middle.R", "palm_ring.R", "palm_pinky.R", "thumb.01.R"),
+    "hand.L" : ("hand.L",
+        ("palm_index.L", "palm_middle.L", "palm_ring.L", "palm_pinky.L", "thumb.01.L")),
+    "hand.R" : ("hand.R",
+        ("palm_index.R", "palm_middle.R", "palm_ring.R", "palm_pinky.R", "thumb.01.R")),
 }
 
 FingerMergers = {
-    "f_index.01.L" : ("f_index.01.L", "f_index.02.L", "f_index.03.L"),
-    "f_ring.01.L" : ("f_middle.01.L", "f_middle.02.L", "f_middle.03.L", "f_ring.01.L", "f_ring.02.L", "f_ring.03.L", "f_pinky.01.L", "f_pinky.02.L", "f_pinky.03.L"),
-    "f_index.01.R" : ("f_index.01.R", "f_index.02.R", "f_index.03.R"),
-    "f_ring.01.R" : ("f_middle.01.R", "f_middle.02.R", "f_middle.03.R", "f_ring.01.R", "f_ring.02.R", "f_ring.03.R", "f_pinky.01.R", "f_pinky.02.R", "f_pinky.03.R"),
+    "f_index.01.L" : ("f_index.03.L", ("f_index.01.L", "f_index.02.L", "f_index.03.L")),
+    "f_ring.01.L" : ("f_middle.03.L", ("f_middle.01.L", "f_middle.02.L", "f_middle.03.L", "f_ring.01.L", "f_ring.02.L", "f_ring.03.L", "f_pinky.01.L", "f_pinky.02.L", "f_pinky.03.L")),
+    "f_index.01.R" : ("f_index.03.R", ("f_index.01.R", "f_index.02.R", "f_index.03.R")),
+    "f_ring.01.R" : ("f_middle.03.R", ("f_middle.01.R", "f_middle.02.R", "f_middle.03.R", "f_ring.01.R", "f_ring.02.R", "f_ring.03.R", "f_pinky.01.R", "f_pinky.02.R", "f_pinky.03.R")),
 }
 
 HeadMergers = {
-    "head" : ("head", "uplid.L", "uplid.R", "lolid.L", "lolid.R"),
-    "jaw" : ("jaw", "tongue_base", "tongue_mid", "tongue_tip"),
+    "head" : ("head", ("head", "lolid.L", "lolid.R", "uplid.L", "uplid.R")),
+    "jaw" : ("jaw", ("jaw", "tongue_base", "tongue_mid", "tongue_tip")),
+}
+
+NeckMergers = {
+    "neck" : ("neck-1", ("neck", "neck-1")),
+}
+
+ChestMergers = {
+    "chest" : ("chest-1", ("chest", "chest-1")),
 }
 
 SpineMergers = {
-    "chest" : ("chest", "chest-1"),
-    "spine" : ("spine", "spine-1"),
+    "spine" : ("spine-1", ("spine", "spine-1")),
 }
 
 ShoulderMergers = {
-    "clavicle.L" : ("clavicle.L", "DEF-deltoid.L"),
-    "clavicle.R" : ("clavicle.R", "DEF-deltoid.R"),
+    "chest" : ("chest", (
+        "chest", "DEF-sternum",
+        "DEF-serratus.L", "DEF-serratus.R", "serratusIk.L", "serratusIk.R",
+        "DEF-pect.L", "DEF-pect.R", "pectIk.L", "pectIk.R",
+        "DEF-scapula.L", "scapAim.L",
+        "DEF-scapula.R", "scapAim.R",
+        )),
+    "clavicle.L" : ("clavicle.L", (
+        "clavicle.L", "DEF-clav-1.L", "DEF-clav-2.L", "DEF-clav-3.L", "DEF-clav-4.L",
+        )),
+    "upper_arm.L" : ("upper_arm.L", (
+        "upper_arm.L", "DEF-deltoid.L", "shoulderIk.L"
+        )),
+    "clavicle.R" : ("clavicle.R", (
+        "clavicle.R", "DEF-clav-1.R", "DEF-clav-2.R", "DEF-clav-3.R", "DEF-clav-4.R",
+        )),
+    "upper_arm.R" : ("upper_arm.R", (
+        "upper_arm.R", "DEF-deltoid.R", "shoulderIk.R"
+        )),
+}
+
+HipMergers = {
+    "hips" : ("hips", (
+        "hips", "DEF-hip.L", "DEF-hip.R", "hipIk.L", "hipIk.R",
+        "DEF-gluteus.L", "DEF-gluteus.R", "gluteusIk.L", "gluteusIk.R"
+        ))
+}
+
+FeetMergers = {
+    "foot.L" : ("toe.L", ("foot.L", "toe.L")),
+    "foot.R" : ("toe.R", ("foot.R", "toe.R")),
 }
 
 PenisMergers = {
-    "hips" : ("hips", "penis_1", "penis_2", "penis_3", "scrotum.L", "scrotum.R")
+    "hips" : ("hips", (
+        "hips", "penis_1", "penis_2", "penis_3", "scrotum.L", "scrotum.R"
+        ))
 }
 

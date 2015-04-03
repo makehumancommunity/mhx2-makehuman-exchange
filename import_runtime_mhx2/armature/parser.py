@@ -350,19 +350,21 @@ class Parser:
 
         if cfg.merge:
             self.mergeBones(cfg.merge)
-        else:
-            if cfg.mergeSpine:
-                self.mergeBones(rig_merge.SpineMergers)
-            if cfg.mergeShoulders:
-                self.mergeBones(rig_merge.ShoulderMergers)
-            if cfg.mergeFingers:
-                self.mergeBones(rig_merge.FingerMergers)
-            if cfg.mergePalms:
-                self.mergeBones(rig_merge.PalmMergers)
-            if cfg.mergeHead:
-                self.mergeBones(rig_merge.HeadMergers)
-            if cfg.mergePenis:
-                self.mergeBones(rig_merge.PenisMergers)
+
+        for flag,mergers in [
+            (cfg.mergeHips, rig_merge.HipMergers),
+            (cfg.mergeSpine, rig_merge.SpineMergers),
+            (cfg.mergeChest, rig_merge.ChestMergers),
+            (cfg.mergeNeck, rig_merge.NeckMergers),
+            (cfg.mergeShoulders, rig_merge.ShoulderMergers),
+            (cfg.mergePalms, rig_merge.PalmMergers),
+            (cfg.mergeFingers, rig_merge.FingerMergers),
+            (cfg.mergeHead, rig_merge.HeadMergers),
+            (cfg.mergeFeet, rig_merge.FeetMergers),
+            (cfg.mergePenis, rig_merge.PenisMergers),
+            ]:
+            if flag:
+                self.mergeBones(mergers)
 
         if cfg.useDeformNames or cfg.useDeformBones:
             generic = mergeDicts([
@@ -509,7 +511,6 @@ class Parser:
 
         cfg = self.config
         for (key, type, data) in self.joints:
-            print(key,type,data)
             if type == 'j':
                 loc = self.jointLocs[data]
                 self.locations[key] = loc
@@ -1009,21 +1010,25 @@ class Parser:
 
 
     def mergeBones(self, mergers):
-        for bname, merged in mergers.items():
-            if len(merged) == 2:
-                head,tail = self.headsTails[bname]
-                _,tail2 = self.headsTails[merged[1]]
-                self.headsTails[bname] = head,tail2
+        for bname, data in mergers.items():
+            tname, merged = data
+            head,_ = self.headsTails[bname]
+            _,tail = self.headsTails[tname]
+            self.headsTails[bname] = head,tail
             vgroup = self.vertexGroups[bname]
             for mbone in merged:
                 if mbone != bname:
-                    vgroup += self.vertexGroups[mbone]
-                    del self.vertexGroups[mbone]
+                    if mbone in self.vertexGroups.keys():
+                        vgroup += self.vertexGroups[mbone]
+                        del self.vertexGroups[mbone]
                     if mbone in self.bones.keys():
                         del self.bones[mbone]
                     for child in self.bones.values():
                         if child.parent == mbone:
                             child.parent = bname
+                            chead = self.headsTails[child.name]
+                            if chead != tail:
+                                child.conn = False
             self.vertexGroups[bname] = mergeWeights(vgroup)
 
 

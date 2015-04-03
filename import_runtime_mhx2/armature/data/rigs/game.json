@@ -5,7 +5,10 @@
         "A minimal rig intended for games.",
 
     "settings" : {
+        "mergeHips" : true,
         "mergeSpine" : true,
+        "mergeChest" : true,
+        "mergeNeck" : true,
         "mergeShoulders" : true,
         "mergeFingers" : true,
         "mergePalms" : true,

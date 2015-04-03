@@ -169,11 +169,11 @@ def mergeWeights(vgroup):
         if vn == vn0:
             w0 += w
         else:
-            ngroup.append((vn0,w0))
+            ngroup.append([vn0,w0])
             vn0 = vn
             w0 = w
     if vn0 >= 0:
-        ngroup.append((vn0,w0))
+        ngroup.append([vn0,w0])
     return ngroup
 
 #-------------------------------------------------------------------------------
