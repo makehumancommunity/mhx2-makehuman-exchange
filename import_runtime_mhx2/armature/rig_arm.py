@@ -189,7 +189,7 @@ CustomShapes = {
     "hand.L" :          "GZM_Hand",
     "hand.R" :          "GZM_Hand",
 }
-CustomShapes = {}
+#CustomShapes = {}
 
 Constraints = {
     "sternum" : [("CopyRot", C_LOCAL, 0.2, ["neck", "neck", (1,0,0), (0,0,0), False])],

@@ -120,11 +120,11 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
     useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
 
-    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=False)
+    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
-    useRig = BoolProperty(name="Add Rig", description="Add rig", default=False)
+    useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
     useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)

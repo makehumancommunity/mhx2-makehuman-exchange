@@ -116,7 +116,9 @@ class Parser:
         if cfg.useDeformBones or cfg.useDeformNames:
             self.deformPrefix = "DEF-"
 
-        if cfg.useMuscles:
+        if cfg.useMultirig:
+            self.vertexGroupFiles += ["head", "body", "hand", "joints"]
+        elif cfg.useMuscles:
             self.vertexGroupFiles += ["head", "muscles", "hand", "joints", "tights_muscles", "skirt_muscles", "genitalia_muscles"]
         else:
             self.vertexGroupFiles += ["head", "bones", "hand", "joints", "tights", "skirt", "genitalia"]
