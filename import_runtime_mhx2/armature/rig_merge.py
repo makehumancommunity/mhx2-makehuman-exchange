@@ -42,8 +42,8 @@ SpineMergers = {
 }
 
 ShoulderMergers = {
-    "clavicle.L" : ("clavicle.L", "deltoid.L"),
-    "clavicle.R" : ("clavicle.R", "deltoid.R"),
+    "clavicle.L" : ("clavicle.L", "DEF-deltoid.L"),
+    "clavicle.R" : ("clavicle.R", "DEF-deltoid.R"),
 }
 
 PenisMergers = {

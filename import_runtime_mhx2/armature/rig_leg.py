@@ -56,13 +56,13 @@ HeadsTails = {
     'toe_end.L' :          ('l-toe-2', ('l-toe-2', zsmall)),
     'toe_end.R' :          ('r-toe-2', ('r-toe-2', zsmall)),
 
-    'gluteus.L' :          ('l-gluteus-1', 'l-gluteus-2'),
-    'gluteus.R' :          ('r-gluteus-1', 'r-gluteus-2'),
-    'gluteusIk.L' :        ('l-gluteus-2', ('l-gluteus-2', ysmall)),
-    'gluteusIk.R' :        ('r-gluteus-2', ('r-gluteus-2', ysmall)),
+    'DEF-gluteus.L' :          ('l-gluteus-1', 'l-gluteus-2'),
+    'DEF-gluteus.R' :          ('r-gluteus-1', 'r-gluteus-2'),
+    'DEF-gluteusIk.L' :        ('l-gluteus-2', ('l-gluteus-2', ysmall)),
+    'DEF-gluteusIk.R' :        ('r-gluteus-2', ('r-gluteus-2', ysmall)),
 
-    'hip.L' :              ('pelvis', 'l-hip'),
-    'hip.R' :              ('pelvis', 'r-hip'),
+    'DEF-hip.L' :              ('pelvis', 'l-hip'),
+    'DEF-hip.R' :              ('pelvis', 'r-hip'),
     'hipIk.L' :            ('l-hip-ik', ('l-hip-ik', ysmall)),
     'hipIk.R' :            ('r-hip-ik', ('r-hip-ik', ysmall)),
 
@@ -86,13 +86,13 @@ Armature = {
     'foot.R' :             ("PlaneFoot.R", 'shin.R', F_DEF|F_CON, L_RLEGFK, P_YZX),
     'toe.R' :              ("PlaneFoot.R", 'foot.R', F_DEF|F_CON, L_RLEGFK, P_YZX),
 
-    'gluteus.L' :          (0, 'hips', F_DEF, L_DEF),
-    'gluteus.R' :          (0, 'hips', F_DEF, L_DEF),
-    'gluteusIk.L' :        (0, 'thigh.L', 0, L_HELP),
-    'gluteusIk.R' :        (0, 'thigh.R', 0, L_HELP),
+    'DEF-gluteus.L' :          (0, 'hips', F_DEF, L_DEF),
+    'DEF-gluteus.R' :          (0, 'hips', F_DEF, L_DEF),
+    'DEF-gluteusIk.L' :        (0, 'thigh.L', 0, L_HELP),
+    'DEF-gluteusIk.R' :        (0, 'thigh.R', 0, L_HELP),
 
-    'hip.L' :              (0, 'hips', F_DEF, L_DEF),
-    'hip.R' :              (0, 'hips', F_DEF, L_DEF),
+    'DEF-hip.L' :              (0, 'hips', F_DEF, L_DEF),
+    'DEF-hip.R' :              (0, 'hips', F_DEF, L_DEF),
     'hipIk.L' :            (0, 'thigh.L', 0, L_HELP),
     'hipIk.R' :            (0, 'thigh.R', 0, L_HELP),
 }
@@ -121,17 +121,17 @@ CustomShapes = {
 }
 
 Constraints = {
-    "gluteus.L" : [
-        ("IK", 0, 0.5, ["gluteusIk.L", "gluteusIk.L", 1, None, (1,0,1)])
+    "DEF-gluteus.L" : [
+        ("IK", 0, 0.5, ["DEF-gluteusIk.L", "DEF-gluteusIk.L", 1, None, (1,0,1)])
         ],
-    "gluteus.R" : [
-        ("IK", 0, 0.5, ["gluteusIk.R", "gluteusIk.R", 1, None, (1,0,1)])
+    "DEF-gluteus.R" : [
+        ("IK", 0, 0.5, ["DEF-gluteusIk.R", "DEF-gluteusIk.R", 1, None, (1,0,1)])
         ],
 
-    "hip.L" : [
+    "DEF-hip.L" : [
         ("IK", 0, 1.0, ["hipIk.L", "hipIk.L", 1, None, (1,0,1)])
         ],
-    "hip.R" : [
+    "DEF-hip.R" : [
         ("IK", 0, 1.0, ["hipIk.R", "hipIk.R", 1, None, (1,0,1)])
         ],
 }
