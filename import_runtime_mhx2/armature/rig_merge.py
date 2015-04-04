@@ -59,16 +59,16 @@ ShoulderMergers = {
         "DEF-scapula.R", "scapAim.R",
         )),
     "clavicle.L" : ("clavicle.L", (
-        "clavicle.L", "DEF-clav-1.L", "DEF-clav-2.L", "DEF-clav-3.L", "DEF-clav-4.L",
+        "clavicle.L", "DEF-clav-1.L", "DEF-clav-2.L", "DEF-clav-3.L", "DEF-clav-4.L", "DEF-deltoid-1.L",
         )),
     "upper_arm.L" : ("upper_arm.L", (
-        "upper_arm.L", "DEF-deltoid.L", "shoulderIk.L"
+        "upper_arm.L", "DEF-deltoid-2.L", "shoulderIk.L"
         )),
     "clavicle.R" : ("clavicle.R", (
-        "clavicle.R", "DEF-clav-1.R", "DEF-clav-2.R", "DEF-clav-3.R", "DEF-clav-4.R",
+        "clavicle.R", "DEF-clav-1.R", "DEF-clav-2.R", "DEF-clav-3.R", "DEF-clav-4.R", "DEF-deltoid-1.R",
         )),
     "upper_arm.R" : ("upper_arm.R", (
-        "upper_arm.R", "DEF-deltoid.R", "shoulderIk.R"
+        "upper_arm.R", "DEF-deltoid-2.R", "shoulderIk.R"
         )),
 }
 

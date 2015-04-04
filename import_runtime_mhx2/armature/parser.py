@@ -348,8 +348,13 @@ class Parser:
             vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
             addDict(vgroups, self.vertexGroups)
 
-        if cfg.merge:
-            self.mergeBones(cfg.merge)
+        if cfg.mergeShoulders:
+            for bname in ["DEF-deltoid.L", "DEF-deltoid.R"]:
+                vgroup = self.vertexGroups[bname]
+                print("SPl", bname)
+                self.splitVertexGroup(bname, vgroup)
+                del self.vertexGroups[bname]
+                del self.bones[bname]
 
         for flag,mergers in [
             (cfg.mergeHips, rig_merge.HipMergers),
@@ -965,8 +970,13 @@ class Parser:
         """
 
         base,ext = splitBoneName(bname)
-        npieces,target,numAfter,_followNext = self.splitBones[base]
-        defName1,defName2,defName3 = splitBonesNames(base, ext, self.deformPrefix, numAfter)
+        if base in self.splitBones.keys():
+            npieces,_target,_numAfter,_followNext = self.splitBones[base]
+            defName1,defName2,defName3 = splitBonesNames(base, ext, self.deformPrefix, numAfter)
+        else:
+            npieces = 2
+            defName1 = base + "-1" + ext
+            defName2 = base + "-2" + ext
 
         head,tail = self.headsTails[bname]
         vec = self.locations[tail] - self.locations[head]
@@ -982,12 +992,12 @@ class Parser:
                 y = self.coord[vn] - orig
                 x = vec.dot(y)
                 if x < 0:
-                    vgroup1.append((vn,w))
+                    vgroup1.append([vn,w])
                 elif x < 0.5:
-                    vgroup1.append((vn, (1-x)*w))
-                    vgroup2.append((vn, x*w))
+                    vgroup1.append([vn, (1-x)*w])
+                    vgroup2.append([vn, x*w])
                 else:
-                    vgroup2.append((vn,w))
+                    vgroup2.append([vn,w])
             self.vertexGroups[defName1] = vgroup1
             self.vertexGroups[defName2] = vgroup2
         elif npieces == 3:
@@ -995,15 +1005,15 @@ class Parser:
                 y = self.coord[vn] - orig
                 x = vec.dot(y)
                 if x < 0:
-                    vgroup1.append((vn,w))
+                    vgroup1.append([vn,w])
                 elif x < 0.5:
-                    vgroup1.append((vn, (1-2*x)*w))
-                    vgroup2.append((vn, (2*x)*w))
+                    vgroup1.append([vn, (1-2*x)*w])
+                    vgroup2.append([vn, (2*x)*w])
                 elif x < 1:
-                    vgroup2.append((vn, (2-2*x)*w))
-                    vgroup3.append((vn, (2*x-1)*w))
+                    vgroup2.append([vn, (2-2*x)*w])
+                    vgroup3.append([vn, (2*x-1)*w])
                 else:
-                    vgroup3.append((vn,w))
+                    vgroup3.append([vn,w])
             self.vertexGroups[defName1] = vgroup1
             self.vertexGroups[defName2] = vgroup2
             self.vertexGroups[defName3] = vgroup3
