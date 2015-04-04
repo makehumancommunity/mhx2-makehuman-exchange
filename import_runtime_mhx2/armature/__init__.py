@@ -61,4 +61,5 @@ else:
     from . import rigify
     from . import build
 
+import bpy
 print("MHX2 armature loaded")

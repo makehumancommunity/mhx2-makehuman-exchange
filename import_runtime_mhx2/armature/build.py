@@ -193,3 +193,4 @@ def addGizmo(gname, mhGizmo, scn):
         mod = ob.modifiers.new("Subsurf", 'SUBSURF')
     return ob
 
+print("build loaded")

@@ -100,6 +100,7 @@ def rigifyMhx(context):
         if eb.parent:
             bone.parent = eb.parent.name
             bones[bone.parent].child = eb.name
+
     bpy.ops.object.mode_set(mode='OBJECT')
 
     for pb in rig.pose.bones:
@@ -112,7 +113,6 @@ def rigifyMhx(context):
                 pb.custom_shape.parent = None
             pb.custom_shape = None
 
-    halt
     # Create metarig
     try:
         bpy.ops.object.armature_human_metarig_add()
@@ -273,6 +273,12 @@ def rigifyMhx(context):
     print("MHX rig %s successfully rigified" % name)
     return gen
 
+    fp = open("/home/rigi.txt", "w")
+    for b in gen.data.bones:
+        fp.write("%s %s %s %s\n" % (b.name, b.parent, b.head, b.tail))
+    fp.close()
+    return gen
+
 
 def setBoneName(bone, gen):
     fkname = bone.name.replace(".", ".fk.")
@@ -342,14 +348,9 @@ def fixConstraint(cns1, cns2, gen, bones):
             cns2.subtarget = bone.realname2
             cns2.head_tail = 2*cns1.head_tail-1
 
-    elif cns1.type == 'TRANSFORM':
+    elif cns1.type == 'IK':
         bone = bones[cns1.subtarget]
-        if bone.fkname:
-            cns2.subtarget = bone.fkname
-        elif bone.ikname:
-            cns2.subtarget = bone.ikname
-        else:
-            cns2.subtarget = bone.realname
+        cns2.subtarget = bone.realname
 
 
 def copyDriver(fcu1, fcu2, id):

@@ -176,11 +176,12 @@ class Parser:
 
         if cfg.useCustomShapes:
             addDict(rig_face.CustomShapes, self.customShapes)
-            addDict(rig_spine.CustomShapes, self.customShapes)
-            addDict(rig_arm.CustomShapes, self.customShapes)
-            addDict(rig_leg.CustomShapes, self.customShapes)
-            addDict(rig_hand.CustomShapes, self.customShapes)
-            addDict(rig_control.CustomShapes, self.customShapes)
+            if cfg.useCustomShapes == 'ALL':
+                addDict(rig_spine.CustomShapes, self.customShapes)
+                addDict(rig_arm.CustomShapes, self.customShapes)
+                addDict(rig_leg.CustomShapes, self.customShapes)
+                addDict(rig_hand.CustomShapes, self.customShapes)
+                #addDict(rig_control.CustomShapes, self.customShapes)
         if cfg.useFacePanel:
             addDict(rig_panel.CustomShapes, self.customShapes)
 
@@ -349,18 +350,18 @@ class Parser:
             addDict(vgroups, self.vertexGroups)
 
         if cfg.mergeShoulders:
-            for bname in ["DEF-deltoid.L", "DEF-deltoid.R"]:
+            for bname in ["deltoid.L", "deltoid.R"]:
                 vgroup = self.vertexGroups[bname]
                 self.splitVertexGroup(bname, vgroup)
                 del self.vertexGroups[bname]
                 del self.bones[bname]
 
         for flag,mergers in [
+            (cfg.mergeShoulders, rig_merge.ShoulderMergers),
             (cfg.mergeHips, rig_merge.HipMergers),
             (cfg.mergeSpine, rig_merge.SpineMergers),
             (cfg.mergeChest, rig_merge.ChestMergers),
             (cfg.mergeNeck, rig_merge.NeckMergers),
-            (cfg.mergeShoulders, rig_merge.ShoulderMergers),
             (cfg.mergePalms, rig_merge.PalmMergers),
             (cfg.mergeFingers, rig_merge.FingerMergers),
             (cfg.mergeHead, rig_merge.HeadMergers),

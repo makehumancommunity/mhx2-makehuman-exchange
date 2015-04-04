@@ -83,7 +83,7 @@ def importMhx2Json(filepath):
 
 
 def build(struct, cfg, context):
-    from .armature import buildRig
+    from .armature.build import buildRig
     from .armature.rigify import checkRigifyEnabled
     from .materials import buildMaterial
     from .geometries import buildGeometry, getScaleOffset
