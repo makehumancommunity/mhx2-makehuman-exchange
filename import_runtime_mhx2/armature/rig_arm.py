@@ -128,7 +128,7 @@ Planes = {
 }
 
 Armature = {
-    "sternum" :         (0, "chest-1", F_DEF|F_CON, L_UPSPNFK),
+    "sternum" :         (0, "chest-1", F_DEF|F_CON, L_DEF),
 
     "clavicle.L" :          (0, "chest-1", F_DEF, L_LARMFK|L_LARMIK),
     "clav-1.L" :        (0, "clavicle.L", F_DEF, L_DEF),

@@ -141,11 +141,11 @@ MasterArmature = {
 }
 
 SocketArmature = {
-    'arm_base.L' :      (0, 'deltoid.L', 0, L_HELP),
+    'arm_base.L' :      (0, 'clavicle.L', 0, L_HELP),
     'arm_hinge.L' :     (0, 'root', 0, L_HELP),
     'arm_socket.L' :    (0, 'arm_hinge.L', F_WIR|F_NOLOCK, L_TWEAK),
 
-    'arm_base.R' :      (0, 'deltoid.R', 0, L_HELP),
+    'arm_base.R' :      (0, 'clavicle.R', 0, L_HELP),
     'arm_hinge.R' :     (0, 'root', 0, L_HELP),
     'arm_socket.R' :    (0, 'arm_hinge.R', F_WIR|F_NOLOCK, L_TWEAK),
 

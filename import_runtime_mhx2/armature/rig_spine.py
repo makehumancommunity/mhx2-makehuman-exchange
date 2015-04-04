@@ -109,8 +109,8 @@ Armature = {
 
     'serratus.L' :     (0, 'chest', F_DEF, L_DEF),
     'serratus.R' :     (0, 'chest', F_DEF, L_DEF),
-    'pect.L' :         (0, 'chest', F_DEF, L_UPSPNFK),
-    'pect.R' :         (0, 'chest', F_DEF, L_UPSPNFK),
+    'pect.L' :         (0, 'chest', F_DEF, L_DEF),
+    'pect.R' :         (0, 'chest', F_DEF, L_DEF),
 
 }
 

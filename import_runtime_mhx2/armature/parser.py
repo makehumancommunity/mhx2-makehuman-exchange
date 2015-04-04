@@ -37,7 +37,6 @@ from . import rig_arm
 from . import rig_leg
 from . import rig_hand
 from . import rig_bones
-from . import rig_muscle
 from . import rig_face
 from . import rig_control
 from . import rig_merge
@@ -126,8 +125,9 @@ class Parser:
             rig_leg.Joints +
             rig_hand.Joints +
             rig_face.Joints
-            # rig_control.Joints
             )
+        if cfg.useMhx:
+            self.joints += rig_control.Joints
         if cfg.useFacePanel:
             self.joints += rig_panel.Joints
 
@@ -138,8 +138,11 @@ class Parser:
             rig_hand.Planes,
             rig_face.Planes,
         ])
-        self.planeJoints = []
-        #self.planeJoints = rig_control.PlaneJoints
+
+        if cfg.useMhx:
+            self.planeJoints = rig_control.PlaneJoints
+        else:
+            self.planeJoints = []
 
         self.headsTails = mergeDicts([
             rig_spine.HeadsTails,
@@ -373,18 +376,19 @@ class Parser:
 
         if cfg.useDeformNames or cfg.useDeformBones:
             generic = mergeDicts([
-                rig_bones.Armature,
+                rig_spine.Armature,
+                rig_arm.Armature,
+                rig_leg.Armature,
+                rig_hand.Armature,
                 rig_face.Armature,
             ])
             if cfg.usePenisRig:
                 addDict(rig_bones.PenisArmature, generic)
-            for key,value in rig_muscle.CustomShapes.items():
-                generic[key] = value
             if cfg.useDeformBones:
                 self.addDeformBones(generic)
-                self.renameDeformBones(rig_muscle.Armature)
-                if cfg.useConstraints:
-                    self.renameConstraints(rig_muscle.Constraints)
+                #self.renameDeformBones(rig_muscle.Armature)
+                #if cfg.useConstraints:
+                #    self.renameConstraints(rig_muscle.Constraints)
             self.addDeformVertexGroups(vgroups)
 
         if cfg.useSplitBones or cfg.useSplitNames:
