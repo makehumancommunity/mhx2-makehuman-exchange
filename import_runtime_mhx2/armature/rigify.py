@@ -112,6 +112,7 @@ def rigifyMhx(context):
                 pb.custom_shape.parent = None
             pb.custom_shape = None
 
+    halt
     # Create metarig
     try:
         bpy.ops.object.armature_human_metarig_add()

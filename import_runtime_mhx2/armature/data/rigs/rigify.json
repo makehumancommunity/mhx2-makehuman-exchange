@@ -7,13 +7,8 @@
     	"useRigify" : true,
         "useSplitNames" : true,
         "useDeformNames" : true,
-        "mergeShoulders" : true,
-
         "useCustomShapes" : "FACE",
-        "useConstraints" : true,
-        "useLocks" : false,
-        "useBoneGroups" : false,
-        "useCorrectives": false
+        "useConstraints" : true
     },
 
     "bones" : {

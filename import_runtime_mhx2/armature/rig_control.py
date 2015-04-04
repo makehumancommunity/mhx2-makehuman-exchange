@@ -26,13 +26,6 @@ Joints = [
     ('l-ankle-tip',         'o', ('l-ankle', (0,0,-1))),
     ('r-ankle-tip',         'o', ('r-ankle', (0,0,-1))),
 
-    ('l-heel-y',            'v', 12877),
-    ('l-heel-z',            'v', 12442),
-    ('l-heel',              'p', ('l-toe-2', 'l-foot-1', 'l-heel-z')),
-    ('r-heel-y',            'v', 6280),
-    ('r-heel-z',            'v', 5845),
-    ('r-heel',              'p', ('r-toe-2', 'r-foot-1', 'r-heel-z')),
-
     ('eyes',                'l', ((0.5, 'r-eye'), (0.5,'l-eye'))),
     ('gaze',                'o', ('eyes', (0,0,5))),
 

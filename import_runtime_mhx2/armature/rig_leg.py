@@ -23,9 +23,6 @@ from .flags import *
 from .rig_joints import *
 
 Joints = [
-    ('l-toe-2',             'p', ('l-foot-2', 'l-foot-1', 'l-foot-2')),
-    ('r-toe-2',             'p', ('r-foot-2', 'r-foot-1', 'r-foot-2')),
-
     ("l-gluteus-1",         "vl", ((0.1, 10955), (0.9, 10859))),
     ("r-gluteus-1",         "vl", ((0.1, 4327), (0.9, 4224))),
     ("l-gluteus-2",         "l", ((0.8, 'l-upper-leg'), (0.2, 'l-knee'))),
@@ -36,9 +33,15 @@ Joints = [
     ("l-hip",               "l", ((0.7, "l-hip-ik"), (0.3, "pelvis"))),
     ("r-hip",               "l", ((0.7, "r-hip-ik"), (0.3, "pelvis"))),
 
-    #("l-hip-ik",            "l", ((1.1, "l-hip"), (-0.1, "pelvis"))),
-    #("r-hip-ik",            "l", ((1.1, "r-hip"), (-0.1, "pelvis"))),
+    ('l-toe-2',             'p', ('l-foot-2', 'l-foot-1', 'l-foot-2')),
+    ('r-toe-2',             'p', ('r-foot-2', 'r-foot-1', 'r-foot-2')),
 
+    ('l-heel-y',            'v', 12877),
+    ('l-heel-z',            'v', 12442),
+    ('l-heel',              'p', ('l-toe-2', 'l-foot-1', 'l-heel-z')),
+    ('r-heel-y',            'v', 6280),
+    ('r-heel-z',            'v', 5845),
+    ('r-heel',              'p', ('r-toe-2', 'r-foot-1', 'r-heel-z')),
 ]
 
 

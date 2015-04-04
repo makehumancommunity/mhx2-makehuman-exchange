@@ -351,7 +351,6 @@ class Parser:
         if cfg.mergeShoulders:
             for bname in ["DEF-deltoid.L", "DEF-deltoid.R"]:
                 vgroup = self.vertexGroups[bname]
-                print("SPl", bname)
                 self.splitVertexGroup(bname, vgroup)
                 del self.vertexGroups[bname]
                 del self.bones[bname]
@@ -971,7 +970,7 @@ class Parser:
 
         base,ext = splitBoneName(bname)
         if base in self.splitBones.keys():
-            npieces,_target,_numAfter,_followNext = self.splitBones[base]
+            npieces,_target,numAfter,_followNext = self.splitBones[base]
             defName1,defName2,defName3 = splitBonesNames(base, ext, self.deformPrefix, numAfter)
         else:
             npieces = 2
