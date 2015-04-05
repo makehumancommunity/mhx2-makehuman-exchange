@@ -176,7 +176,9 @@ def rigifyMhx(context):
     bpy.ops.object.mode_set(mode='EDIT')
     for bone in bones.values():
         if not bone.original:
-            if bone.deform:
+            if bone.name[0:4] == "DEF-":
+                bone.realname = bone.name
+            elif bone.deform:
                 bone.realname = "DEF-" + bone.name
             elif bone.face:
                 bone.realname = bone.name

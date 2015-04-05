@@ -466,11 +466,11 @@ class Parser:
                 del vgroups[bname]
             else:
                 if self.isDeformName(bname):
-                    defbname = self.deformPrefix + bname
-                    defnname = self.deformPrefix + nname
-                else:
                     defbname = bname
                     defnname = nname
+                else:
+                    defbname = self.deformPrefix + bname
+                    defnname = self.deformPrefix + nname
                 if (defbname in vgroups.keys() and
                     defbname != defnname):
                     vgroups[defnname] = vgroups[defbname]
@@ -872,55 +872,6 @@ class Parser:
                     if bone.parent == defname:
                         bone.parent = defName1
 
-    '''
-    def renameDeformBones(self, muscles):
-        for bname in muscles.keys():
-            try:
-                bone = self.bones[bname]
-            except KeyError:
-                print("Warning: deform bone %s does not exist" % bname)
-                continue
-            if (self.isDeformName(bname) or
-                not bone.deform):
-                continue
-            defname = self.deformPrefix+bname
-            self.headsTails[defname] = self.headsTails[bname]
-            del self.headsTails[bname]
-            bone = self.bones[defname] = self.bones[bname]
-            bone.name = defname
-            del self.bones[bname]
-            parbone = self.bones[bone.parent]
-            if parbone.deform and not self.isDeformName(parbone.name):
-                bone.parent = self.deformPrefix + bone.parent
-
-
-    def renameConstraints(self, constraints):
-        for bname in constraints.keys():
-            try:
-                self.constraints[bname]
-            except KeyError:
-                print("No attr %s" % bname)
-                continue
-
-            for cns in self.constraints[bname]:
-                try:
-                    self.bones[cns.subtar]
-                    ignore = True
-                except KeyError:
-                    ignore = False
-                if not (ignore or self.isDeformName(cns.subtar)):
-                    defTarget = self.deformPrefix + cns.subtar
-                    try:
-                        self.bones[defTarget]
-                        cns.subtar = defTarget
-                    except:
-                        print("Bone %s constraint %s has neither target %s nor %s" % (bname, cns, cns.subtar, defTarget))
-
-            if not self.isDeformName(bname):
-                defname = self.deformPrefix + bname
-                self.constraints[defname] = self.constraints[bname]
-                del self.constraints[bname]
-    '''
 
     def addDeformVertexGroups(self, vgroups):
         cfg = self.config
@@ -938,15 +889,7 @@ class Parser:
                     del self.vertexGroups[bname]
                 except:
                     pass
-    '''
-    def renameDeformVertexGroups(self, muscles, custom):
-        cfg = self.config
-        for bname in muscles.keys():
-            if (bname in self.vertexGroups.keys() and
-                not self.isDeformName(bname)):
-                self.vertexGroups[self.deformPrefix+bname] = self.vertexGroups[bname]
-                del self.vertexGroups[bname]
-    '''
+
 
     def readVertexGroupFiles(self, files):
         vgroups = OrderedDict()
