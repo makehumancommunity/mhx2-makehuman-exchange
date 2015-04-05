@@ -114,12 +114,9 @@ def buildRig(mhHuman, cfg, context):
             gizmo.parent = empty
 
         for bname,gname in parser.customShapes.items():
-            if gname:
-                try:
-                    pb = rig.pose.bones[bname]
-                except KeyError:
-                    print("Missing bone %s" % bname)
-                    continue
+            if (gname and
+                bname in rig.pose.bones.keys()):
+                pb = rig.pose.bones[bname]
                 pb.custom_shape = gizmos[gname]
 
     for key,data in cfg.properties.items():

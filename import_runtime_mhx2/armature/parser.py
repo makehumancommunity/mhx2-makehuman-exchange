@@ -938,8 +938,6 @@ class Parser:
                     del self.vertexGroups[bname]
                 except:
                     pass
-            else:
-                print("  **", bname)
     '''
     def renameDeformVertexGroups(self, muscles, custom):
         cfg = self.config
