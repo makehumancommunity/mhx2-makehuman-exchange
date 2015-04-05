@@ -36,7 +36,7 @@ from . import rig_spine
 from . import rig_arm
 from . import rig_leg
 from . import rig_hand
-from . import rig_bones
+#from . import rig_bones
 from . import rig_face
 from . import rig_control
 from . import rig_merge
@@ -166,10 +166,13 @@ class Parser:
             self.setConstraints(rig_arm.Constraints)
             self.setConstraints(rig_leg.Constraints)
             self.setConstraints(rig_hand.Constraints)
-        self.setConstraints(rig_face.Constraints)
+            self.setConstraints(rig_face.Constraints)
 
         if cfg.useLocks:
-            addDict(rig_bones.RotationLimits, self.rotationLimits)
+            addDict(rig_spine.RotationLimits, self.rotationLimits)
+            addDict(rig_arm.RotationLimits, self.rotationLimits)
+            addDict(rig_hand.RotationLimits, self.rotationLimits)
+            addDict(rig_leg.RotationLimits, self.rotationLimits)
             addDict(rig_face.RotationLimits, self.rotationLimits)
             addDict(rig_face.LocationLimits, self.locationLimits)
             addDict(rig_control.RotationLimits, self.rotationLimits)
@@ -184,7 +187,7 @@ class Parser:
                 addDict(rig_arm.CustomShapes, self.customShapes)
                 addDict(rig_leg.CustomShapes, self.customShapes)
                 addDict(rig_hand.CustomShapes, self.customShapes)
-                #addDict(rig_control.CustomShapes, self.customShapes)
+                addDict(rig_control.CustomShapes, self.customShapes)
         if cfg.useFacePanel:
             addDict(rig_panel.CustomShapes, self.customShapes)
 
@@ -226,9 +229,9 @@ class Parser:
         self.addBones(rig_leg.Armature)
         self.addBones(rig_hand.Armature)
         if cfg.useTerminators:
-            self.addBones(rig_bones.TerminatorArmature)
+            self.addBones(rig_spine.TerminatorArmature)
         if cfg.usePenisRig:
-            self.addBones(rig_bones.PenisArmature)
+            self.addBones(rig_spine.PenisArmature)
         self.addBones(rig_face.Armature)
 
         for bname in cfg.terminals.keys():
@@ -281,14 +284,14 @@ class Parser:
             self.setConstraints(rig_control.RevFootConstraints)
             self.addBones(rig_control.MarkerArmature)
             self.lrPropDrivers += rig_control.IkLegPropLRDrivers
-            self.addIkChains(rig_bones.Armature, rig_control.IkLegChains)
+            self.addIkChains(rig_leg.Armature, rig_control.IkLegChains)
             self.reparentMarkers(rig_control.LegMarkers)
 
         if cfg.useIkArms and cfg.useConstraints:
             self.addBones(rig_control.IkArmArmature)
             self.setConstraints(rig_control.IkArmConstraints)
             self.lrPropDrivers += rig_control.IkArmPropLRDrivers
-            self.addIkChains(rig_bones.Armature, rig_control.IkArmChains)
+            self.addIkChains(rig_arm.Armature, rig_control.IkArmChains)
 
         if cfg.useFingers and cfg.useConstraints:
             self.addBones(rig_control.FingerArmature)
@@ -353,7 +356,7 @@ class Parser:
             addDict(vgroups, self.vertexGroups)
 
         if cfg.mergeShoulders:
-            for bname in ["deltoid.L", "deltoid.R"]:
+            for bname in ["DEF-deltoid.L", "DEF-deltoid.R"]:
                 vgroup = self.vertexGroups[bname]
                 self.splitVertexGroup(bname, vgroup)
                 del self.vertexGroups[bname]
@@ -383,7 +386,7 @@ class Parser:
                 rig_face.Armature,
             ])
             if cfg.usePenisRig:
-                addDict(rig_bones.PenisArmature, generic)
+                addDict(rig_spine.PenisArmature, generic)
             if cfg.useDeformBones:
                 self.addDeformBones(generic)
                 #self.renameDeformBones(rig_muscle.Armature)
@@ -462,10 +465,20 @@ class Parser:
                 vgroups[nname] = vgroups[bname]
                 del vgroups[bname]
             else:
-                defname = self.deformPrefix + bname
-                if defname in vgroups.keys():
-                    vgroups[self.deformPrefix + nname] = vgroups[defname]
-                    del vgroups[defname]
+                if self.isDeformName(bname):
+                    defbname = self.deformPrefix + bname
+                    defnname = self.deformPrefix + nname
+                else:
+                    defbname = bname
+                    defnname = nname
+                if (defbname in vgroups.keys() and
+                    defbname != defnname):
+                    vgroups[defnname] = vgroups[defbname]
+                    del vgroups[defbname]
+
+
+    def isDeformName(self, bname):
+        return (bname[0:4] == self.deformPrefix)
 
 
     def setupNormals(self):
@@ -767,35 +780,35 @@ class Parser:
             except KeyError:
                 print("Warning: deform bone %s does not exist" % bname)
                 continue
-            if not bone.deform:
-                print("Not deform: %s" % bname)
+            if (self.isDeformName(bname) or not bone.deform):
                 continue
 
             base,ext = splitBoneName(bname)
-            if not ((cfg.useSplitBones and
-                     base in self.splitBones.keys())):
+            if not (cfg.useSplitBones and
+                    base in self.splitBones.keys()):
                 headTail = self.headsTails[bname]
                 bone.deform = False
                 defParent = self.getDeformParent(bname)
-                defName = self.deformPrefix+bname
-                self.headsTails[defName] = headTail
-                defBone = self.bones[defName] = Bone(self, defName)
+                defname = self.deformPrefix + bname
+                self.headsTails[defname] = headTail
+                defBone = self.bones[defname] = Bone(self, defname)
                 defBone.fromInfo((bone, defParent, F_DEF, L_DEF))
-                self.addConstraint(defName, copyTransform(bone.name, bone.name))
+                self.addConstraint(defname, copyTransform(bone.name, bone.name))
 
 
     def getDeformParent(self, bname):
         cfg = self.config
         bone = self.bones[bname]
         bone.parent = self.getParent(bone)
-        if bone.parent and cfg.useDeformBones:
+        if (bone.parent and cfg.useDeformBones):
             pbase, pext = splitBoneName(bone.parent)
             if pbase in self.splitBones.keys():
                 npieces = self.splitBones[pbase][0]
                 return self.deformPrefix + pbase + ".0" + str(npieces) + pext
             else:
                 parbone = self.bones[bone.parent]
-                if parbone.deform:
+                if (parbone.deform and
+                    not self.isDeformName(bone.parent)):
                     return self.deformPrefix + bone.parent
                 else:
                     return bone.parent
@@ -854,12 +867,12 @@ class Parser:
                         self.addConstraint(defName2, ('CopyRot', 0, 0.5, [bname, bname, (1,1,1), (0,0,0), False]))
                         self.addConstraint(defName3, ('CopyRot', 0, 1.0, [bname, bname, (1,1,1), (0,0,0), False]))
 
-                defName = self.deformPrefix + base + ext
+                defname = self.deformPrefix + base + ext
                 for bone in self.bones.values():
-                    if bone.parent == defName:
+                    if bone.parent == defname:
                         bone.parent = defName1
 
-
+    '''
     def renameDeformBones(self, muscles):
         for bname in muscles.keys():
             try:
@@ -867,16 +880,17 @@ class Parser:
             except KeyError:
                 print("Warning: deform bone %s does not exist" % bname)
                 continue
-            if not bone.deform:
+            if (self.isDeformName(bname) or
+                not bone.deform):
                 continue
-            defName = self.deformPrefix+bname
-            self.headsTails[defName] = self.headsTails[bname]
+            defname = self.deformPrefix+bname
+            self.headsTails[defname] = self.headsTails[bname]
             del self.headsTails[bname]
-            bone = self.bones[defName] = self.bones[bname]
-            bone.name = defName
+            bone = self.bones[defname] = self.bones[bname]
+            bone.name = defname
             del self.bones[bname]
             parbone = self.bones[bone.parent]
-            if parbone.deform and parbone.name[0:4] != self.deformPrefix:
+            if parbone.deform and not self.isDeformName(parbone.name):
                 bone.parent = self.deformPrefix + bone.parent
 
 
@@ -894,7 +908,7 @@ class Parser:
                     ignore = True
                 except KeyError:
                     ignore = False
-                if not ignore:
+                if not (ignore or self.isDeformName(cns.subtar)):
                     defTarget = self.deformPrefix + cns.subtar
                     try:
                         self.bones[defTarget]
@@ -902,10 +916,11 @@ class Parser:
                     except:
                         print("Bone %s constraint %s has neither target %s nor %s" % (bname, cns, cns.subtar, defTarget))
 
-            defname = self.deformPrefix + bname
-            self.constraints[defname] = self.constraints[bname]
-            del self.constraints[bname]
-
+            if not self.isDeformName(bname):
+                defname = self.deformPrefix + bname
+                self.constraints[defname] = self.constraints[bname]
+                del self.constraints[bname]
+    '''
 
     def addDeformVertexGroups(self, vgroups):
         cfg = self.config
@@ -916,25 +931,24 @@ class Parser:
                 pass
             elif bname[0:4] == "hair":
                 pass
-            else:
-                defName = self.deformPrefix+bname
-                self.vertexGroups[defName] = vgroup
+            elif not self.isDeformName(bname):
+                defname = self.deformPrefix+bname
+                self.vertexGroups[defname] = vgroup
                 try:
                     del self.vertexGroups[bname]
                 except:
                     pass
-
-
+            else:
+                print("  **", bname)
+    '''
     def renameDeformVertexGroups(self, muscles, custom):
         cfg = self.config
         for bname in muscles.keys():
-            try:
-                self.vertexGroups[bname]
-            except KeyError:
-                continue
-            self.vertexGroups[self.deformPrefix+bname] = self.vertexGroups[bname]
-            del self.vertexGroups[bname]
-
+            if (bname in self.vertexGroups.keys() and
+                not self.isDeformName(bname)):
+                self.vertexGroups[self.deformPrefix+bname] = self.vertexGroups[bname]
+                del self.vertexGroups[bname]
+    '''
 
     def readVertexGroupFiles(self, files):
         vgroups = OrderedDict()
