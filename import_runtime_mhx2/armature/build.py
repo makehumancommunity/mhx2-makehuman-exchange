@@ -70,6 +70,10 @@ def buildRig(mhHuman, cfg, context):
 
     bpy.ops.object.mode_set(mode='POSE')
 
+    rotmodes = [
+        'QUATERNION', 'XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'
+    ]
+
     for bone in parser.bones.values():
         b = amt.bones[bone.name]
         b.use_deform = bone.deform
@@ -81,6 +85,7 @@ def buildRig(mhHuman, cfg, context):
         pb.lock_location = [bool(i) for i in bone.lockLocation]
         pb.lock_rotation = [bool(i) for i in bone.lockRotation]
         pb.lock_scale = [bool(i) for i in bone.lockScale]
+        pb.rotation_mode = rotmodes[(bone.poseFlags & P_ROTMODE) >> 8]
 
     if parser.boneGroups:
         for bgname,theme,layer in parser.boneGroups:

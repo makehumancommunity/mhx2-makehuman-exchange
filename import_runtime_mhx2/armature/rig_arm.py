@@ -83,22 +83,24 @@ HeadsTails = {
     "DEF-sternum" :             ("neck", "sternum"),
 
     "clavicle.L" :          ("l-clavicle", "l-clav-4"),
+    "DEF-clav-0.L" :         ("l-clavicle", "l-clav-1"),
     "DEF-clav-1.L" :         ("l-clav-1", "l-clav-2"),
     "DEF-clav-2.L" :         ("l-clav-2", "l-clav-3"),
     "DEF-clav-3.L" :         ("l-clav-3", "l-clav-4"),
 
     "clavicle.R" :          ("r-clavicle", "r-clav-4"),
+    "DEF-clav-0.R" :         ("r-clavicle", "r-clav-1"),
     "DEF-clav-1.R" :         ("r-clav-1", "r-clav-2"),
     "DEF-clav-2.R" :         ("r-clav-2", "r-clav-3"),
     "DEF-clav-3.R" :         ("r-clav-3", "r-clav-4"),
 
     "scapAim.L" :           ("l-clav-4", "l-scap-aim"),
-    "scapula.L" :           ("l-scapula-1", "l-scapula-2"),
-    "DEF-serratusIk.L" :        ("l-serratus-ik", ("l-serratus-ik", ysmall)),
+    "DEF-scapula.L" :       ("l-scapula-1", "l-scapula-2"),
+    "DEF-serratusIk.L" :    ("l-serratus-ik", ("l-serratus-ik", ysmall)),
 
     "scapAim.R" :           ("r-clav-4", "r-scap-aim"),
-    "scapula.R" :           ("r-scapula-1", "r-scapula-2"),
-    "DEF-serratusIk.R" :        ("r-serratus-ik", ("r-serratus-ik", ysmall)),
+    "DEF-scapula.R" :       ("r-scapula-1", "r-scapula-2"),
+    "DEF-serratusIk.R" :    ("r-serratus-ik", ("r-serratus-ik", ysmall)),
 
     #"loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", ysmall)),
     #"deltoidBend.L" :       (("l-upper-arm-bend", (-0.4,0,0)), "l-upper-arm-bend"),
@@ -130,42 +132,39 @@ Planes = {
 Armature = {
     "DEF-sternum" :         (0, "chest-1", F_DEF|F_CON, L_DEF),
 
-    "clavicle.L" :          (0, "chest-1", F_DEF, L_LARMFK|L_LARMIK),
-    "DEF-clav-1.L" :        (0, "clavicle.L", F_DEF, L_DEF),
+    "clavicle.L" :          (0, "chest-1", 0, L_LARMFK|L_LARMIK),
+    "DEF-clav-0.L" :        (0, "chest-1", F_DEF, L_DEF),
+    "DEF-clav-1.L" :        (0, "DEF-clav-0.L", F_DEF|F_CON, L_DEF),
     "DEF-clav-2.L" :        (0, "DEF-clav-1.L", F_DEF|F_CON, L_DEF),
     "DEF-clav-3.L" :        (0, "DEF-clav-2.L", F_DEF|F_CON, L_DEF),
 
-    "clavicle.R" :          (0, "chest-1", F_DEF, L_RARMFK|L_RARMIK),
-    "DEF-clav-1.R" :        (0, "clavicle.R", F_DEF, L_DEF),
+    "clavicle.R" :          (0, "chest-1", 0, L_RARMFK|L_RARMIK),
+    "DEF-clav-0.R" :        (0, "chest-1", F_DEF, L_DEF),
+    "DEF-clav-1.R" :        (0, "DEF-clav-0.R", F_DEF|F_CON, L_DEF),
     "DEF-clav-2.R" :        (0, "DEF-clav-1.R", F_DEF|F_CON, L_DEF),
     "DEF-clav-3.R" :        (0, "DEF-clav-2.R", F_DEF|F_CON, L_DEF),
 
     "scapAim.L" :           (0, "DEF-clav-3.L", 0, L_HELP),
-    "scapula.L" :       (0, "scapAim.L", F_DEF, L_DEF),
+    "DEF-scapula.L" :           (0, "scapAim.L", F_DEF, L_DEF),
 
     "scapAim.R" :           (0, "DEF-clav-3.R", 0, L_HELP),
-    "scapula.R" :       (0, "scapAim.R", F_DEF, L_DEF),
+    "DEF-scapula.R" :           (0, "scapAim.R", F_DEF, L_DEF),
 
-    #"loc_shoulder.L" :      (0, "DEF-clav-3.L", 0, L_HELP),
-    #"deltoidBend.L" :       (0, "DEF-clav-3.L", 0, L_HELP),
     "DEF-deltoid.L" :       (0, "DEF-clav-3.L", F_DEF, L_DEF),
-
-    #"loc_shoulder.R" :      (0, "DEF-clav-3.R", 0, L_HELP),
-    #"deltoidBend.R" :       (0, "DEF-clav-3.R", 0, L_HELP),
     "DEF-deltoid.R" :       (0, "DEF-clav-3.R", F_DEF, L_DEF),
 
-    "pectIk.L" :            (0, "DEF-clav-1.L", 0, L_HELP),
-    "pectIk.R" :            (0, "DEF-clav-1.R", 0, L_HELP),
+    "pectIk.L" :            (0, "clavicle.L", 0, L_HELP),
+    "pectIk.R" :            (0, "clavicle.R", 0, L_HELP),
 
     "upper_arm.L" :         ("PlaneArm.L", "DEF-clav-3.L", F_DEF, L_LARMFK),
     "shoulderIk.L" :        (0, "upper_arm.L", 0, L_HELP),
-    "DEF-serratusIk.L" :        (0, "upper_arm.L", 0, L_HELP),
+    "DEF-serratusIk.L" :    (0, "upper_arm.L", 0, L_HELP),
     "forearm.L" :           ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.L" :              ("PlaneHand.L", "forearm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
 
     "upper_arm.R" :         ("PlaneArm.R", "DEF-clav-3.R", F_DEF, L_LARMFK),
     "shoulderIk.R" :        (0, "upper_arm.R", 0, L_HELP),
-    "DEF-serratusIk.R" :        (0, "upper_arm.R", 0, L_HELP),
+    "DEF-serratusIk.R" :    (0, "upper_arm.R", 0, L_HELP),
     "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.R" :              ("PlaneHand.R", "forearm.R", F_DEF|F_CON, L_LARMFK, P_YZX),
 
@@ -186,16 +185,20 @@ CustomShapes = {
     "hand.R" :          "GZM_Hand",
 }
 
+clavInf = 0.4
+
 Constraints = {
     "DEF-sternum" : [("CopyRot", C_LOCAL, 0.2, ["neck", "neck", (1,0,0), (0,0,0), False])],
 
-    "DEF-clav-1.L" : [("CopyRot", C_LOCAL, 1, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
-    "DEF-clav-2.L" : [("CopyRot", C_LOCAL, 1, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
-    "DEF-clav-3.L" : [("CopyRot", C_LOCAL, 1, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
+    "DEF-clav-0.L" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
+    "DEF-clav-1.L" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
+    "DEF-clav-2.L" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
+    "DEF-clav-3.L" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.L", "clavicle.L", (1,1,1), (0,0,0), False])],
 
-    "DEF-clav-1.R" : [("CopyRot", C_LOCAL, 1, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
-    "DEF-clav-2.R" : [("CopyRot", C_LOCAL, 1, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
-    "DEF-clav-3.R" : [("CopyRot", C_LOCAL, 1, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
+    "DEF-clav-0.R" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
+    "DEF-clav-1.R" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
+    "DEF-clav-2.R" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
+    "DEF-clav-3.R" : [("CopyRot", C_LOCAL, clavInf, ["clavicle.R", "clavicle.R", (1,1,1), (0,0,0), False])],
 
     "DEF-deltoid.L" : [
         ("IK", 0, 1, ["shoulderIk.L", "shoulderIk.L", 1, None, (1,0,1)])

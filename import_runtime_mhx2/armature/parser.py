@@ -984,7 +984,14 @@ class Parser:
             head,_ = self.headsTails[bname]
             _,tail = self.headsTails[tname]
             self.headsTails[bname] = head,tail
-            vgroup = self.vertexGroups[bname]
+            if bname in self.vertexGroups.keys():
+                vgroup = self.vertexGroups[bname]
+            else:
+                vgroup = []
+                bone = self.bones[bname]
+                print(bone)
+                bone.deform = True
+                print(bone)
             for mbone in merged:
                 if mbone != bname:
                     if mbone in self.vertexGroups.keys():
