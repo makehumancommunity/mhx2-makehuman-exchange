@@ -100,11 +100,11 @@ Planes = {
 Armature = {
     "hips" :               (0, None, F_DEF, L_UPSPNFK),
     "spine" :              (0, "hips", F_DEF|F_CON, L_UPSPNFK),
-    "spine-1" :            (0, "spine", F_DEF|F_CON, L_DEF),
+    "spine-1" :            (0, "spine", F_DEF|F_CON, L_TWEAK),
     "chest" :              (0, "spine-1", F_DEF|F_CON, L_UPSPNFK),
-    "chest-1" :            (0, "chest", F_DEF|F_CON, L_DEF),
+    "chest-1" :            (0, "chest", F_DEF|F_CON, L_TWEAK),
     "neck" :               (0, "chest-1", F_DEF|F_CON, L_UPSPNFK),
-    "neck-1" :             (0, "neck", F_DEF|F_CON, L_DEF),
+    "neck-1" :             (0, "neck", F_DEF|F_CON, L_TWEAK),
     "head" :               (0, "neck-1", F_DEF|F_CON, L_UPSPNFK),
 
     "DEF-serratus.L" :     (0, "chest", F_DEF, L_DEF),
@@ -142,18 +142,15 @@ CustomShapes = {
     "root" :            "GZM_Root",
     "hips" :            "GZM_CrownHips",
     "spine" :           "GZM_CircleSpine",
+    "spine-1" :         "GZM_CircleSpine",
     "chest" :           "GZM_CircleChest",
+    "chest-1" :         "GZM_CircleChest",
     "neck" :            "GZM_Neck",
+    "neck-1" :          "GZM_Neck",
     "head" :            "GZM_Head",
 }
 
 Constraints = {
-    "spine-1" : [("CopyRot", C_LOCAL, 1, ["spine", "spine", (1,1,1), (0,0,0), False])],
-
-    "chest-1" : [("CopyRot", C_LOCAL, 1, ["chest", "chest", (1,1,1), (0,0,0), False])],
-
-    "neck-1" : [("CopyRot", C_LOCAL, 1, ["neck", "neck", (1,1,1), (0,0,0), False])],
-
     "DEF-serratus.L" : [
         ("IK", 0, 0.5, ["DEF-serratusIk.L", "DEF-serratusIk.L", 1, None, (1,0,1)])
         ],

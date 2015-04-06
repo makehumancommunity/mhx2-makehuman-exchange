@@ -347,6 +347,16 @@ HeadConstraints = {
         ],
 }
 
+
+SpineConstraints = {
+    "spine-1" : [("CopyRot", C_LOCAL, 1, ["spine", "spine", (1,1,1), (0,0,0), False])],
+
+    "chest-1" : [("CopyRot", C_LOCAL, 1, ["chest", "chest", (1,1,1), (0,0,0), False])],
+
+    "neck-1" : [("CopyRot", C_LOCAL, 1, ["neck", "neck", (1,1,1), (0,0,0), False])],
+}
+
+
 RevFootConstraints = {
     "shin.ik.L" :   [
         ("LimitRot", C_OW_LOCAL, 1, ["Hint", (Hint,Hint, 0,0, 0,0), (1,0,0)])

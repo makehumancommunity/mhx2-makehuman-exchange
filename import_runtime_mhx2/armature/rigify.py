@@ -52,7 +52,7 @@ class RigifyBone:
         self.connect = False
         self.original = False
         self.face = False
-        self.extra = (eb.name in ["spine-1"])
+        self.extra = (eb.name in ["spine-1", "neck-1"])
 
         if eb.layers[10]:   # Face
             self.layer = 0

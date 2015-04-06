@@ -145,10 +145,10 @@ Armature = {
     "DEF-clav-3.R" :        (0, "DEF-clav-2.R", F_DEF|F_CON, L_DEF),
 
     "scapAim.L" :           (0, "DEF-clav-3.L", 0, L_HELP),
-    "DEF-scapula.L" :           (0, "scapAim.L", F_DEF, L_DEF),
+    "DEF-scapula.L" :       (0, "scapAim.L", F_DEF, L_DEF),
 
     "scapAim.R" :           (0, "DEF-clav-3.R", 0, L_HELP),
-    "DEF-scapula.R" :           (0, "scapAim.R", F_DEF, L_DEF),
+    "DEF-scapula.R" :       (0, "scapAim.R", F_DEF, L_DEF),
 
     "DEF-deltoid.L" :       (0, "DEF-clav-3.L", F_DEF, L_DEF),
     "DEF-deltoid.R" :       (0, "DEF-clav-3.R", F_DEF, L_DEF),
@@ -156,13 +156,13 @@ Armature = {
     "pectIk.L" :            (0, "clavicle.L", 0, L_HELP),
     "pectIk.R" :            (0, "clavicle.R", 0, L_HELP),
 
-    "upper_arm.L" :         ("PlaneArm.L", "DEF-clav-3.L", F_DEF, L_LARMFK),
+    "upper_arm.L" :         ("PlaneArm.L", "clavicle.L", F_DEF, L_LARMFK),
     "shoulderIk.L" :        (0, "upper_arm.L", 0, L_HELP),
     "DEF-serratusIk.L" :    (0, "upper_arm.L", 0, L_HELP),
     "forearm.L" :           ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.L" :              ("PlaneHand.L", "forearm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
 
-    "upper_arm.R" :         ("PlaneArm.R", "DEF-clav-3.R", F_DEF, L_LARMFK),
+    "upper_arm.R" :         ("PlaneArm.R", "clavicle.R", F_DEF, L_LARMFK),
     "shoulderIk.R" :        (0, "upper_arm.R", 0, L_HELP),
     "DEF-serratusIk.R" :    (0, "upper_arm.R", 0, L_HELP),
     "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_LARMFK, P_YZX),

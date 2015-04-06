@@ -5,6 +5,7 @@
 
     "settings" : {
     	"useRigify" : true,
+    	"mergeChest" : true,
         "useSplitNames" : true,
         "useDeformNames" : true,
         "useCustomShapes" : "FACE",
