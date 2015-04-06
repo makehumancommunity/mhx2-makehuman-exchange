@@ -174,6 +174,10 @@ def build(struct, cfg, context):
         makeDeflector(deflTorso, rig, ["chest-1","chest"], cfg)
         proxies.append(deflTorso)
 
+    if cfg.useOverride and cfg.useRigify and rig:
+        from .armature.rigify import fixRigifyMeshes
+        fixRigifyMeshes(rig)
+
     if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates
         folder = os.path.dirname(__file__)

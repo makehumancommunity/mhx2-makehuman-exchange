@@ -952,7 +952,7 @@ class Parser:
                 x = vec.dot(y)
                 if x < 0:
                     vgroup1.append([vn,w])
-                elif x < 0.5:
+                elif x < 1:
                     vgroup1.append([vn, (1-x)*w])
                     vgroup2.append([vn, x*w])
                 else:

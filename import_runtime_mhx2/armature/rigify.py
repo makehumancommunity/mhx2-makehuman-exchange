@@ -31,6 +31,18 @@ import bpy
 import os
 from bpy.props import *
 
+Renames = [
+    ("chest", "chest-0"),
+    ("chest-1", "chest"),
+    ("spine", "spine-0"),
+    ("spine-1", "spine"),
+]
+
+Extras = [
+    ("spine-0", "hips", "spine"),
+    ("chest-0", "spine", "chest"),
+    ("neck-1", "neck", "head"),
+]
 
 class RigifyBone:
     def __init__(self, eb):
@@ -52,7 +64,6 @@ class RigifyBone:
         self.connect = False
         self.original = False
         self.face = False
-        self.extra = (eb.name in ["spine-1", "neck-1"])
 
         if eb.layers[10]:   # Face
             self.layer = 0
@@ -92,9 +103,15 @@ def rigifyMhx(context):
             break
     print("Group: %s" % group)
 
+    # Rename some bones
+    for bname,bname1 in Renames:
+        b = rig.data.bones[bname]
+        b.name = bname1
+
     # Setup info about MHX bones
     bones = OrderedDict()
     bpy.ops.object.mode_set(mode='EDIT')
+
     for eb in rig.data.edit_bones:
         bone = bones[eb.name] = RigifyBone(eb)
         if eb.parent:
@@ -138,16 +155,18 @@ def rigifyMhx(context):
             eb.tail = bone.tail
             eb.roll = bone.roll
             bone.original = True
-        elif bone.extra:
-            extra.append(bone.name)
+
+    for bname,pname,cname in Extras:
+            extra.append(bname)
+            bone = bones[bname]
             bone.original = True
-            eb = meta.data.edit_bones.new(bone.name)
+            eb = meta.data.edit_bones.new(bname)
             eb.use_connect = False
-            eb.head = bones[bone.parent].tail
-            eb.tail = bones[bone.child].head
+            eb.head = bones[pname].tail
+            eb.tail = bones[cname].head
             eb.roll = bone.roll
-            parent = meta.data.edit_bones[bone.parent]
-            child = meta.data.edit_bones[bone.child]
+            parent = meta.data.edit_bones[pname]
+            child = meta.data.edit_bones[cname]
             child.parent = eb
             child.head = bones[bone.child].head
             parent.tail = bones[bone.parent].tail
@@ -228,25 +247,6 @@ def rigifyMhx(context):
             fcu2 = pb.driver_add(channel, fcu1.array_index)
             copyDriver(fcu1, fcu2, gen)
 
-    # Copy MHX morph drivers and change armature modifier
-    for ob in rig.children:
-        if ob.type == 'MESH':
-            ob.parent = gen
-
-            if ob.data.animation_data:
-                for fcu in ob.data.animation_data.drivers:
-                    print(ob, fcu.data_path)
-                    changeDriverTarget(fcu, gen)
-
-            if ob.data.shape_keys and ob.data.shape_keys.animation_data:
-                for fcu in ob.data.shape_keys.animation_data.drivers:
-                    print(skey, fcu.data_path)
-                    changeDriverTarget(fcu, gen)
-
-            for mod in ob.modifiers:
-                if mod.type == 'ARMATURE' and mod.object == rig:
-                    mod.object = gen
-
     if group:
         group.objects.link(gen)
 
@@ -280,6 +280,32 @@ def rigifyMhx(context):
         fp.write("%s %s %s %s\n" % (b.name, b.parent, b.head, b.tail))
     fp.close()
     return gen
+
+
+def fixRigifyMeshes(rig):
+    for ob in rig.children:
+        if ob.type == 'MESH':
+            for bname,bname1 in Renames:
+                vgname = "DEF-" + bname
+                for vg in ob.vertex_groups:
+                    if vg.name == vgname:
+                        vg.name = "DEF-" + bname1
+
+            '''
+            if ob.data.animation_data:
+                for fcu in ob.data.animation_data.drivers:
+                    print(ob, fcu.data_path)
+                    changeDriverTarget(fcu, gen)
+
+            if ob.data.shape_keys and ob.data.shape_keys.animation_data:
+                for fcu in ob.data.shape_keys.animation_data.drivers:
+                    print(skey, fcu.data_path)
+                    changeDriverTarget(fcu, gen)
+
+            for mod in ob.modifiers:
+                if mod.type == 'ARMATURE' and mod.object == rig:
+                    mod.object = gen
+            '''
 
 
 def setBoneName(bone, gen):
@@ -378,39 +404,3 @@ def changeDriverTarget(fcu, id):
         targ = var.targets[0]
         targ.id = id
 
-
-'''
-#
-#   class OBJECT_OT_RigifyMhxButton(bpy.types.Operator):
-#
-
-class OBJECT_OT_RigifyMhxButton(bpy.types.Operator):
-    bl_idname = "mhxrig.rigify_mhx"
-    bl_label = "Rigify MHX rig"
-    bl_options = {'UNDO'}
-
-    def execute(self, context):
-        try:
-            rigifyMhx(context)
-        except MhxError as err:
-            print("Error when rigifying mhx rig: %s" % err)
-        return{'FINISHED'}
-
-#
-#   class RigifyMhxPanel(bpy.types.Panel):
-#
-
-class RigifyMhxPanel(bpy.types.Panel):
-    bl_label = "Rigify MHX"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-
-    @classmethod
-    def poll(cls, context):
-        return (context.object and context.object.MhxRigify)
-
-    def draw(self, context):
-        self.layout.operator("mhxrig.rigify_mhx")
-        return
-
-'''
