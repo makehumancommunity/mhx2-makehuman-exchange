@@ -235,6 +235,12 @@ def rigifyMhx(context):
                 cns2 = pb.constraints.new(cns1.type)
                 fixConstraint(cns1, cns2, gen, bones)
 
+    # Rescale gizmos
+    from .build import rescaleGizmo
+    for bname in ["spine-0", "spine"]:
+        pb = gen.pose.bones[bname]
+        #pb.custom_shape = rescaleGizmo(pb.custom_shape, 3.0)
+
     # Add MHX properties
     for key in rig.keys():
         gen[key] = rig[key]

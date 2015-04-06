@@ -21,13 +21,13 @@
 
 import bpy
 from bpy.props import *
+from mathutils import Vector
 from ..utils import *
 from .flags import *
 
 
 def buildRig(mhHuman, cfg, context):
     from .parser import Parser
-
 
     scn = context.scene
     parser = Parser(mhHuman, cfg)
@@ -121,8 +121,12 @@ def buildRig(mhHuman, cfg, context):
         for bname,gname in parser.customShapes.items():
             if (gname and
                 bname in rig.pose.bones.keys()):
+                scale = parser.getBoneScale(bname)
+                gizmo = gizmos[gname]
+                if scale is not None:
+                    gizmo = rescaleGizmo(gizmo, scale)
                 pb = rig.pose.bones[bname]
-                pb.custom_shape = gizmos[gname]
+                pb.custom_shape = gizmo
 
     for key,data in cfg.properties.items():
         default = data["default"]
@@ -194,5 +198,14 @@ def addGizmo(gname, mhGizmo, scn):
     if "subsurf" in mhGizmo.keys() and mhGizmo["subsurf"]:
         mod = ob.modifiers.new("Subsurf", 'SUBSURF')
     return ob
+
+
+def rescaleGizmo(ob, scale):
+    ob = ob.copy()
+    fac = Vector((scale,1.0,scale))
+    for v in ob.data.vertices:
+        v.co *= scale
+    return ob
+
 
 print("build loaded")

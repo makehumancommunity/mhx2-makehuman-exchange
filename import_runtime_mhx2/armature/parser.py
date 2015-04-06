@@ -161,6 +161,8 @@ class Parser:
             _head,tail = self.headsTails[parent]
             self.headsTails[bname] = (tail, (tail,offset))
 
+        self.headsTailsOrig = dict(self.headsTails)
+
         if cfg.useConstraints:
             self.setConstraints(rig_spine.Constraints)
             self.setConstraints(rig_arm.Constraints)
@@ -633,6 +635,21 @@ class Parser:
         return math.sqrt(vec.dot(vec))
 
 
+    def getBoneScale(self, bname):
+        try:
+            head,tail = self.headsTails[bname]
+            head0,tail0 = self.headsTailsOrig[bname]
+        except KeyError:
+            return None
+        if (not ((head == head0 and tail == tail0) or
+                 (head == tail0 and tail == head0))):
+            vec = self.locations[tail] - self.locations[head]
+            vec0 = self.locations[tail0] - self.locations[head0]
+            return vec0.length/vec.length
+        else:
+            return None
+
+
     def prefixWeights(self, weights, prefix):
         pweights = {}
         for name in weights.keys():
@@ -984,14 +1001,14 @@ class Parser:
             head,_ = self.headsTails[bname]
             _,tail = self.headsTails[tname]
             self.headsTails[bname] = head,tail
+
             if bname in self.vertexGroups.keys():
                 vgroup = self.vertexGroups[bname]
             else:
                 vgroup = []
                 bone = self.bones[bname]
-                print(bone)
                 bone.deform = True
-                print(bone)
+
             for mbone in merged:
                 if mbone != bname:
                     if mbone in self.vertexGroups.keys():
@@ -1005,6 +1022,7 @@ class Parser:
                             chead = self.headsTails[child.name]
                             if chead != tail:
                                 child.conn = False
+
             self.vertexGroups[bname] = mergeWeights(vgroup)
 
 
