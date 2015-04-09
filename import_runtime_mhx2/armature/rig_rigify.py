@@ -37,8 +37,8 @@ HeadsTails = {
 }
 
 Armature = {
-    'heel.L' :             (180*D, 'shin.L', F_CON, L_HELP2),
-    'heel.02.L' :          (0, 'heel.L', 0, L_HELP2),
-    'heel.R' :             (180*D, 'shin.R', F_CON, L_HELP2),
-    'heel.02.R' :          (0, 'heel.R', 0, L_HELP2),
+    'heel.L' :             (180*D, 'shin.L', F_CON, L_HELP),
+    'heel.02.L' :          (0, 'heel.L', 0, L_HELP),
+    'heel.R' :             (180*D, 'shin.R', F_CON, L_HELP),
+    'heel.02.R' :          (0, 'heel.R', 0, L_HELP),
 }

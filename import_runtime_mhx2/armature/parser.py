@@ -327,9 +327,6 @@ class Parser:
                 cns = ("LimitLoc", C_LOCAL, 1, ["LimitLoc", limits, (1,1,1,1,1,1)])
                 self.addConstraint(bname, cns)
 
-        if cfg.useCorrectives:
-            self.addCSysBones(rig_control.CoordinateSystems)
-
         if cfg.addConnectingBones:
             extras = []
             for bone in self.bones:
@@ -457,6 +454,9 @@ class Parser:
             elif isinstance(bone.roll, tuple):
                 bname,angle = bone.roll
                 bone.roll = self.bones[bname].roll + angle
+
+        if cfg.useCorrectives:
+            self.setupRotationBones(rig_control.RotationBones)
 
         # Rename vertex groups now.
         # Wait with bones until everything is built.
@@ -1026,68 +1026,28 @@ class Parser:
             self.vertexGroups[bname] = mergeWeights(vgroup)
 
 
-    def addCSysBones(self, csysList):
-        """
-        Add a local coordinate system consisting of six bones around the head
-        of a given bone. Useful for setting up ROTATION_DIFF drivers for
-        corrective shapekeys.
-        Y axis: parallel to bone.
-        X axis: main bend axis, normal to plane.
-        Z axis: third axis.
-        """
+    def setupRotationBones(self, rotBones):
+        for bname,data in rotBones.items():
+            cname,plane,length,axis,angle = data
+            cbone = self.bones[cname]
+            cvec = cbone.tail - cbone.head
+            t = cvec/cvec.length
+            n = self.normals[plane]
+            if axis == 'X':
+                rvec = n
+            elif axis == 'Y':
+                rvec = t
+            elif axis == 'Z':
+                rvec = t.cross(n)
+            rot = Matrix.Rotation(-angle*D, 3, rvec)
+            bvec = rot * t * length
 
-        for bname,ikTarget in csysList:
-            bone = self.bones[bname]
-            parent = self.getParent(bone)
-            head,_ = self.headsTails[bname]
-
-            self.addCSysBone(bname, "_X1", parent, head, (1,0,0), 0)
-            self.addCSysBone(bname, "_X2", parent, head, (-1,0,0), 0)
-            csysY1 = self.addCSysBone(bname, "_Y1", parent, head, (0,1,0), 90*D)
-            csysY2 = self.addCSysBone(bname, "_Y2", parent, head, (0,-1,0), -90*D)
-            self.addCSysBone(bname, "_Z1", parent, head, (0,0,1), 0)
-            self.addCSysBone(bname, "_Z2", parent, head, (0,0,-1), 0)
-
-            self.addConstraint(csysY1, ('IK', 0, 1, ['IK', ikTarget, 1, None, (True, False,False)]))
-            self.addConstraint(csysY2, ('IK', 0, 1, ['IK', ikTarget, 1, None, (True, False,False)]))
-
-
-    def addCSysBone(self, bname, infix, parent, head, offs, roll):
-        csys = csysBoneName(bname, infix)
-        bone = self.bones[csys] = Bone(self, csys)
-        bone.fromInfo((roll, parent, 0, L_HELP2))
-        self.headsTails[csys] = (head, (head,offs))
-        return csys
-
-
-    def fixCSysBones(self, csysList):
-        """
-        Rotate the coordinate system bones into place.
-        """
-
-        for bone in self.bones.values():
-            bone.calcRestMatrix()
-
-        for bname,ikTarget in csysList:
-            bone = self.bones[bname]
-            mat = bone.matrixRest
-
-            self.fixCSysBone(self, bname, "_X1", mat, 0, (1,0,0), 90*D)
-            self.fixCSysBone(self, bname, "_X2", mat, 0, (1,0,0), -90*D)
-            self.fixCSysBone(self, bname, "_Y1", mat, 1, (0,1,0), 90*D)
-            self.fixCSysBone(self, bname, "_Y2", mat, 1, (0,1,0), -90*D)
-            self.fixCSysBone(self, bname, "_Z1", mat, 2, (0,0,1), 90*D)
-            self.fixCSysBone(self, bname, "_Z2", mat, 2, (0,0,1), -90*D)
-
-
-    def fixCSysBone(self, bname, infix, mat, index, axis, angle):
-        csys = csysBoneName(bname, infix)
-        bone = self.bones[csys]
-        rot = tm.rotation_matrix(angle, axis)
-        cmat = mat*rot
-        bone.tail = bone.head + self.bones[bname].length * cmat[:3,1]
-        normal = getUnitVector(mat[:3,index])
-        bone.roll = computeRoll(bone.head, bone.tail, normal)
+            bone = self.bones[bname] = Bone(self, bname)
+            bone.parent = cbone.parent
+            bone.roll = plane
+            head = cbone.head
+            bone.setBone(head, head + bvec)
+            bone.layers = L_CSYS
 
 
     def addConstraint(self, bname, cns):

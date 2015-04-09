@@ -43,7 +43,6 @@ PlaneJoints = [
     ("r-knee-pt",           ("r-knee", "PlaneLeg.R", 3)),
     ("l-elbow-pt",          ("l-elbow", "PlaneArm.L", 3)),
     ("r-elbow-pt",          ("r-elbow", "PlaneArm.R", 3)),
-
 ]
 
 HeadsTails = {
@@ -141,11 +140,11 @@ MasterArmature = {
 }
 
 SocketArmature = {
-    "arm_base.L" :      (0, "DEF-clav-3.L", 0, L_HELP),
+    "arm_base.L" :      (0, "clavicle.L", 0, L_HELP),
     "arm_hinge.L" :     (0, "root", 0, L_HELP),
     "arm_socket.L" :    (0, "arm_hinge.L", F_WIR|F_NOLOCK, L_TWEAK),
 
-    "arm_base.R" :      (0, "DEF-clav-3.R", 0, L_HELP),
+    "arm_base.R" :      (0, "clavicle.R", 0, L_HELP),
     "arm_hinge.R" :     (0, "root", 0, L_HELP),
     "arm_socket.R" :    (0, "arm_hinge.R", F_WIR|F_NOLOCK, L_TWEAK),
 
@@ -194,16 +193,16 @@ RevFootArmature = {
     "foot.ik.L" :      (180*D, None, F_WIR|F_NOLOCK, L_LLEGIK),
     "toe.rev.L" :      ("PlaneFoot.L", "foot.ik.L", F_WIR, L_LLEGIK),
     "foot.rev.L" :     ("PlaneFoot.L", "toe.rev.L", F_WIR, L_LLEGIK, P_XYZ),
-    "foot.pt.ik.L" :   (0, "foot.rev.L", 0, L_HELP2),
+    "foot.pt.ik.L" :   (0, "foot.rev.L", 0, L_HELP),
     "ankle.L" :        (0, None, F_WIR, L_LEXTRA),
-    "ankle.ik.L" :     (0, "foot.rev.L", F_NOLOCK, L_HELP2),
+    "ankle.ik.L" :     (0, "foot.rev.L", F_NOLOCK, L_HELP),
 
     "foot.ik.R" :      (180*D, None, F_WIR|F_NOLOCK, L_RLEGIK),
     "toe.rev.R" :      ("PlaneFoot.R", "foot.ik.R", F_WIR, L_RLEGIK),
     "foot.rev.R" :     ("PlaneFoot.R", "toe.rev.R", F_WIR, L_RLEGIK, P_XYZ),
-    "foot.pt.ik.R" :   (0, "foot.rev.R", 0, L_HELP2),
+    "foot.pt.ik.R" :   (0, "foot.rev.R", 0, L_HELP),
     "ankle.R" :        (0, None, F_WIR, L_REXTRA),
-    "ankle.ik.R" :     (0, "foot.rev.R", F_NOLOCK, L_HELP2),
+    "ankle.ik.R" :     (0, "foot.rev.R", F_NOLOCK, L_HELP),
 
     "knee.pt.ik.L" :   (0, "ankle.ik.L", F_WIR|F_NOLOCK, L_LLEGIK+L_LEXTRA),
     "knee.link.L" :    (0, "thigh.ik.L", F_RES, L_LLEGIK+L_LEXTRA),
@@ -257,12 +256,15 @@ FingerArmature = {
     "pinky.R" :        ("f_pinky.01.R", "palm_pinky.R", F_WIR, L_RHANDIK),
 }
 
-CoordinateSystems = [
-    ("upper_arm.L", "forearm.L"),
-    ("forearm.L", "hand.L"),
-    ("upper_arm.R", "forearm.R"),
-    ("forearm.R", "hand.R"),
-]
+
+RotationBones = {
+    "shin_X150.L" :     ("shin.L", "PlaneLeg.L", 1.0, 'X', 150),
+    "shin_X150.R" :     ("shin.R", "PlaneLeg.R", 1.0, 'X', 150),
+    "forearm_X120.L" :  ("forearm.L", "PlaneArm.L", 1.0, 'X', 120),
+    "forearm_X120.R" :  ("forearm.R", "PlaneArm.R", 1.0, 'X', 120),
+    "thigh_X-90.L" :    ("thigh.L", "PlaneLeg.L", 1.0, 'X', -90),
+    "thigh_X-90.R" :    ("thigh.R", "PlaneLeg.R", 1.0, 'X', -90),
+}
 
 
 CustomShapes = {
