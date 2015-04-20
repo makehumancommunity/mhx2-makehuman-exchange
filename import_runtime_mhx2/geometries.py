@@ -42,8 +42,9 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
         ob.MhxSeedMesh = True
     else:
         gname = mhGeo["name"]
-        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, False)
-        ob.MhxSeedMesh = False
+        useSeedMesh = (meshType == "seed_mesh")
+        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh)
+        ob.MhxSeedMesh = useSeedMesh
 
     ob.MhxUuid = mhGeo["uuid"]
     if "license" in mhGeo.keys():
@@ -96,8 +97,8 @@ def meshVertexGroups(mhMesh, parser, cfg):
 
 
 def buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh):
-    print("BUILD", mhGeo["name"])
     scale,offset = getScaleOffset(mhGeo, cfg, useSeedMesh)
+    print("BUILD", mhGeo["name"], mhGeo["scale"], scale, offset)
     verts = [scale*zup(co)+offset for co in mhMesh["vertices"]]
     ob = addMeshToScene(verts, gname, mhMesh, scn)
     ob.MhxScale = mhGeo["scale"]

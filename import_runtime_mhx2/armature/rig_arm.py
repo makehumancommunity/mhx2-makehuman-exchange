@@ -162,11 +162,11 @@ Armature = {
     "forearm.L" :           ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.L" :              ("PlaneHand.L", "forearm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
 
-    "upper_arm.R" :         ("PlaneArm.R", "clavicle.R", F_DEF, L_LARMFK),
+    "upper_arm.R" :         ("PlaneArm.R", "clavicle.R", F_DEF, L_RARMFK),
     "shoulderIk.R" :        (0, "upper_arm.R", 0, L_HELP),
     "DEF-serratusIk.R" :    (0, "upper_arm.R", 0, L_HELP),
-    "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_LARMFK, P_YZX),
-    "hand.R" :              ("PlaneHand.R", "forearm.R", F_DEF|F_CON, L_LARMFK, P_YZX),
+    "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
+    "hand.R" :              ("PlaneHand.R", "forearm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
 
 }
 

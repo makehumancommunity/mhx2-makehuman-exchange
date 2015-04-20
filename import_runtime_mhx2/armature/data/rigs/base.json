@@ -5,8 +5,9 @@
         "The base rig. Use this for weighting.",
 
     "settings" : {
-        "useConstraints" : true
-    }
+        "useConstraints" : true,
+        "useCorrectives": true
+	}
 }
 
 
