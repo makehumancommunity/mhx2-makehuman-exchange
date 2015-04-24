@@ -53,8 +53,9 @@ def exportMhx2(filepath, cfg):
     skel = human.getSkeleton()
     if skel:
         skel = skel.scaled(cfg.scale)
-        if not skel.isInRestPose():
+        if False and not skel.isInRestPose():
             skel = skel.createFromPose()
+            print("REST", skel)
         rawWeights = human.getVertexWeights()  # Basemesh weights
     else:
         rawWeights = None
@@ -312,7 +313,7 @@ def addWeights(mhMesh, skel, vertexWeights):
 
 def addMesh(mhGeo, mesh):
     mhGeo["vertices"] = mesh.coord
-    mhGeo["normals"] = mesh.vnorm
+    #mhGeo["normals"] = mesh.vnorm
     mhGeo["faces"] = mesh.fvert
     mhGeo["uv_coordinates"] = mesh.texco
     mhGeo["uv_faces"] = mesh.fuvs
