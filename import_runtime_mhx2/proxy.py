@@ -133,6 +133,9 @@ def getVertexBoneWeights(pweights, parser):
     cfg = parser.config
     ngrps = {}
     for oname,data in pweights.items():
+        if oname not in MHBones.keys():
+            print("Missing MHBone:", oname)
+            continue
         nname = MHBones[oname]
         if nname in cfg.bones.keys():
             nname = cfg.bones[nname]
@@ -154,13 +157,45 @@ def getVertexBoneWeights(pweights, parser):
     return ngrps
 
 MHBones = {
+    "upperleg01.L" : "thigh.L",
+    "upperleg02.L" : "thigh.L",
+    "lowerleg01.L" : "shin.L",
+    "lowerleg02.L" : "shin.L",
     "foot.L" :  "foot.L",
     "toe1-1.L" :  "toe.L",
     "toe2-1.L" :  "toe.L",
+    "toe3-1.L" :  "toe.L",
+    "toe4-1.L" :  "toe.L",
+    "toe5-1.L" :  "toe.L",
+    "toe1-2.L" :  "toe.L",
+    "toe2-2.L" :  "toe.L",
+    "toe3-2.L" :  "toe.L",
+    "toe4-2.L" :  "toe.L",
+    "toe5-2.L" :  "toe.L",
+    "toe2-3.L" :  "toe.L",
+    "toe3-3.L" :  "toe.L",
+    "toe4-3.L" :  "toe.L",
+    "toe5-3.L" :  "toe.L",
 
+    "upperleg01.R" : "thigh.R",
+    "upperleg02.R" : "thigh.R",
+    "lowerleg01.R" : "shin.R",
+    "lowerleg02.R" : "shin.R",
     "foot.R" :  "foot.R",
     "toe1-1.R" :  "toe.R",
     "toe2-1.R" :  "toe.R",
+    "toe3-1.R" :  "toe.R",
+    "toe4-1.R" :  "toe.R",
+    "toe5-1.R" :  "toe.R",
+    "toe1-2.R" :  "toe.R",
+    "toe2-2.R" :  "toe.R",
+    "toe3-2.R" :  "toe.R",
+    "toe4-2.R" :  "toe.R",
+    "toe5-2.R" :  "toe.R",
+    "toe2-3.R" :  "toe.R",
+    "toe3-3.R" :  "toe.R",
+    "toe4-3.R" :  "toe.R",
+    "toe5-3.R" :  "toe.R",
 }
 
 
