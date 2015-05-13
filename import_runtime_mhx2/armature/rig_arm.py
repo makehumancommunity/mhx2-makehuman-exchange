@@ -37,14 +37,16 @@ Joints = [
     ("r-clav-3",            "l", ((0.25, "r-clavicle"), (0.75, "r-clav-4"))),
 
     ("l-upper-arm",         "vl", ((0.5, 8121), (0.5, 8361))),
-    ("l-upper-arm-bend",    "vl", ((0.5, 8077), (0.5, 8243))),
-    ("l-upper-arm-1",       "l", ((0.8, "l-upper-arm"), (0.2, "l-elbow"))),
-    ("l-upper-arm-2",       "l", ((0.6, "l-upper-arm"), (0.4, "l-elbow"))),
+    ("l-deltoid-1",         "vl", ((0.5, 8077), (0.5, 8243))),
+    ("l-deltoid-2",         "v", 8290),
+    #("l-deltoid-2",       "l", ((0.8, "l-upper-arm"), (0.2, "l-elbow"))),
+    #("l-upper-arm-2",       "l", ((0.6, "l-upper-arm"), (0.4, "l-elbow"))),
 
     ("r-upper-arm",         "vl", ((0.5, 1433), (0.5, 1689))),
-    ("r-upper-arm-bend",    "vl", ((0.5, 1385), (0.5, 1565))),
-    ("r-upper-arm-1",       "l", ((0.8, "r-upper-arm"), (0.2, "r-elbow"))),
-    ("r-upper-arm-2",       "l", ((0.6, "r-upper-arm"), (0.4, "r-elbow"))),
+    ("r-deltoid-1",         "vl", ((0.5, 1385), (0.5, 1565))),
+    ("r-deltoid-2",         "v", 1618),
+    #("r-deltoid-2",       "l", ((0.8, "r-upper-arm"), (0.2, "r-elbow"))),
+    #("r-upper-arm-2",       "l", ((0.6, "r-upper-arm"), (0.4, "r-elbow"))),
 
     ("l-serratus-ik",       "l", ((-0.5, "l-serratus-1"), (1.5, "l-serratus-2"))),
     ("r-serratus-ik",       "l", ((-0.5, "r-serratus-1"), (1.5, "r-serratus-2"))),
@@ -103,14 +105,14 @@ HeadsTails = {
     "DEF-serratusIk.R" :    ("r-serratus-ik", ("r-serratus-ik", ysmall)),
 
     #"loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", ysmall)),
-    #"deltoidBend.L" :       (("l-upper-arm-bend", (-0.4,0,0)), "l-upper-arm-bend"),
-    "DEF-deltoid.L" :           ("l-upper-arm-bend", "l-upper-arm-1"),
-    "shoulderIk.L" :        ("l-upper-arm-1", "l-upper-arm-2"),
+    #"deltoidBend.L" :       (("l-deltoid-1", (-0.4,0,0)), "l-deltoid-1"),
+    "DEF-deltoid.L" :        ("l-deltoid-1", "l-deltoid-2"),
+    "shoulderIk.L" :         ("l-deltoid-2", ("l-deltoid-2", ysmall)),
 
     #"loc_shoulder.R" :      ("r-upper-arm", ("r-upper-arm", ysmall)),
-    #"deltoidBend.R" :       (("r-upper-arm-bend", (0.4,0,0)), "r-upper-arm-bend"),
-    "DEF-deltoid.R" :           ("r-upper-arm-bend", "r-upper-arm-1"),
-    "shoulderIk.R" :        ("r-upper-arm-1", "r-upper-arm-2"),
+    #"deltoidBend.R" :       (("r-deltoid-1", (0.4,0,0)), "r-deltoid-1"),
+    "DEF-deltoid.R" :           ("r-deltoid-1", "r-deltoid-2"),
+    "shoulderIk.R" :        ("r-deltoid-2", ("r-deltoid-2", ysmall)),
 
     "upper_arm.L" :         ("l-upper-arm", "l-elbow"),
     "forearm.L" :           ("l-elbow", "l-hand"),
