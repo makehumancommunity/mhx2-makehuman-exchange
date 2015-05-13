@@ -72,7 +72,7 @@ def mergeSelectedObjects(context):
                 clothes.append(ob)
 
     if human:
-        scn.objects.active = human
+        reallySelect(human, scn)
         return mergeObjects(human, clothes)
     else:
         raise MhxError("Cannot merge.\nNo human found among\nselected objects.")
@@ -170,7 +170,7 @@ def mergeBodyParts(human, proxies, scn, proxyTypes=[]):
     for ob in scn.objects:
         ob.select = False
     human.select = True
-    scn.objects.active = human
+    reallySelect(human, scn)
     for mhGeo,ob in proxies:
         if mhGeo["proxy"]["type"] in proxyTypes:
             clothes.append(ob)

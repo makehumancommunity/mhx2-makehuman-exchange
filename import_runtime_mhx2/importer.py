@@ -240,17 +240,17 @@ def build(struct, cfg, context):
         from .hair import addHair
         ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
         if ob:
-            scn.objects.active = ob
+            reallySelect(ob, scn)
             addHair(ob, hair, hcoords, scn, cfg)
 
     if rig:
-        scn.objects.active = rig
+        reallySelect(rig, scn)
         bpy.ops.object.mode_set(mode='POSE')
     elif human:
-        scn.objects.active = human
+        reallySelect(human, scn)
         bpy.ops.object.mode_set(mode='OBJECT')
     elif proxy:
-        scn.objects.active = proxy
+        reallySelect(proxy, scn)
         bpy.ops.object.mode_set(mode='OBJECT')
 
 
@@ -287,7 +287,7 @@ def buildSkeleton(mhSkel, scn, cfg):
     amt.draw_type = 'STICK'
     rig.show_x_ray = True
     scn.objects.link(rig)
-    scn.objects.active = rig
+    reallySelect(rig, scn)
 
     scale,offset = getScaleOffset(mhSkel, cfg, True)
     bpy.ops.object.mode_set(mode='EDIT')
@@ -309,12 +309,12 @@ def buildSkeleton(mhSkel, scn, cfg):
 
 def deselectAll(human, proxies, scn):
     if human:
-        scn.objects.active = human
+        reallySelect(human, scn)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
-        scn.objects.active = pxy
+        reallySelect(pxy, scn)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -322,12 +322,12 @@ def deselectAll(human, proxies, scn):
 
 def deleteAllSelected(human, proxies, scn):
     if human:
-        scn.objects.active = human
+        reallySelect(human, scn)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.delete(type='VERT')
         bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
-        scn.objects.active = pxy
+        reallySelect(pxy, scn)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.delete(type='VERT')
         bpy.ops.object.mode_set(mode='OBJECT')

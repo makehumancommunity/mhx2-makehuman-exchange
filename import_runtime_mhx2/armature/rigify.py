@@ -94,7 +94,7 @@ def rigifyMhx(context):
     if not(rig and rig.type == 'ARMATURE'):
         raise RuntimeError("Rigify: %s is neither an armature nor has armature parent" % ob)
     rig.MhxRigify = True
-    scn.objects.active = rig
+    reallySelect(rig, scn)
 
     group = None
     for grp in bpy.data.groups:

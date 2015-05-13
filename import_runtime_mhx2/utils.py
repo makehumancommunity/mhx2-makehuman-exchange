@@ -125,6 +125,33 @@ def getRoll(bone):
 
 
 # ---------------------------------------------------------------------
+#  Make sure that selecting an object really takes.
+# ---------------------------------------------------------------------
+
+def reallySelect(ob, scn):
+    ob.hide = False
+    visible = False
+    for n,vis in enumerate(ob.layers):
+        if vis and scn.layers[n]:
+            visible = True
+            break
+    if not visible:
+        for n,vis in enumerate(ob.layers):
+            if vis:
+                scn.layers[n] = True
+                visible = True
+                break
+    if not visible:
+        for n,vis in enumerate(scn.layers):
+            if vis:
+                ob.layers[n] = True
+                visible = True
+                break
+    if not visible:
+        ob.layers[0] = scn.layers[0] = True
+    scn.objects.active = ob
+
+# ---------------------------------------------------------------------
 #   Debug flags
 # ---------------------------------------------------------------------
 

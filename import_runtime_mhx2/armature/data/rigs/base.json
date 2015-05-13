@@ -6,7 +6,7 @@
 
     "settings" : {
         "useConstraints" : true,
-        "useCorrectives": true
+        "useCorrectives": false
 	}
 }
 

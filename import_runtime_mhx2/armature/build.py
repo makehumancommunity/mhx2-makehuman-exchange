@@ -41,7 +41,7 @@ def buildRig(mhHuman, cfg, context):
     rig.show_x_ray = True
     rig.data.layers = getLayers(parser.visibleLayers)
     scn.objects.link(rig)
-    scn.objects.active = rig
+    reallySelect(rig, scn)
 
     offset = Vector((0,0,0))
 
