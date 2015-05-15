@@ -56,7 +56,10 @@ def exportMhx2(filepath, cfg):
         if False and not skel.isInRestPose():
             skel = skel.createFromPose()
             print("REST", skel)
-        rawWeights = human.getVertexWeights()  # Basemesh weights
+        try:
+            rawWeights = human.getVertexWeights(skel)
+        except TypeError:
+            rawWeights = human.getVertexWeights()  # Basemesh weights
     else:
         rawWeights = None
 
@@ -304,11 +307,12 @@ def addWeights(mhMesh, skel, vertexWeights):
                 idxs,weights = vertexWeights[bone.name]
         except KeyError:
             continue
-        if idxs[0] < 0:
-            idxs = idxs[1:]
-            weights = weights[1:]
-        if len(idxs) > 0:
-            mhWeights[bone.name] = np.array([(vn,weights[n]) for n,vn in enumerate(idxs)])
+        assoc = [(vn,weights[n]) for n,vn in enumerate(idxs)]
+        assoc.sort()
+        while assoc[0][0] < 0:
+            assoc = assoc[1:]
+        if len(assoc) > 0:
+            mhWeights[bone.name] = np.array(assoc)
 
 
 def addMesh(mhGeo, mesh):

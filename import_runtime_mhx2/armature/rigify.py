@@ -30,6 +30,7 @@ Postprocessing of rigify rig
 import bpy
 import os
 from bpy.props import *
+from ..utils import reallySelect
 
 Renames = [
     ("chest", "chest-0"),
