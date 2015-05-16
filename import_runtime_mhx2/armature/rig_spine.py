@@ -76,8 +76,8 @@ HeadsTails = {
     "DEF-serratus.L" :     ("l-serratus-1", "l-serratus-2"),
     "DEF-serratus.R" :     ("r-serratus-1", "r-serratus-2"),
 
-    "DEF-pect.L" :         ("spine-1", "l-pect"),
-    "DEF-pect.R" :         ("spine-1", "r-pect"),
+    "breast.L" :           ("spine-1", "l-pect"),
+    "breast.R" :           ("spine-1", "r-pect"),
 
     "pectIk.L" :           ("l-pect-ik", ("l-pect-ik", ysmall)),
     "pectIk.R" :           ("r-pect-ik", ("r-pect-ik", ysmall)),
@@ -109,8 +109,8 @@ Armature = {
 
     "DEF-serratus.L" :     (0, "chest", F_DEF, L_DEF),
     "DEF-serratus.R" :     (0, "chest", F_DEF, L_DEF),
-    "DEF-pect.L" :         (0, "chest", F_DEF, L_DEF),
-    "DEF-pect.R" :         (0, "chest", F_DEF, L_DEF),
+    "breast.L" :         (0, "chest", F_DEF, L_DEF),
+    "breast.R" :         (0, "chest", F_DEF, L_DEF),
 
 }
 
@@ -159,11 +159,11 @@ Constraints = {
         ("IK", 0, 0.5, ["DEF-serratusIk.R", "DEF-serratusIk.R", 1, None, (1,0,1)])
         ],
 
-    "DEF-pect.L" : [
+    "breast.L" : [
         ("IK", 0, 0.5, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
         ],
 
-    "DEF-pect.R" : [
+    "breast.R" : [
         ("IK", 0, 0.5, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
         ],
 
