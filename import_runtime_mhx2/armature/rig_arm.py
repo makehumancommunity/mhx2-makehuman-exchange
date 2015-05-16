@@ -61,17 +61,17 @@ Joints = [
     ("r-scapula-2",         "vl", ((0.2, 1381), (0.8, 3775))),
 
     ("l-elbow-tip",         "v", 10058),
-    ("l-knee-tip",          "v", 11223),
     ("r-elbow-tip",         "v", 3390),
-    ("r-knee-tip",          "v", 4605),
 
     ("l-elbow",             "n", ("l-elbow-raw", "l-upper-arm", "l-elbow-tip", "l-hand")),
-    ("l-knee",              "n", ("l-knee-raw", "l-upper-leg", "l-knee-tip", "l-ankle")),
     ("r-elbow",             "n", ("r-elbow-raw", "r-shoulder", "r-elbow-tip", "r-hand")),
-    ("r-knee",              "n", ("r-knee-raw", "r-upper-leg", "r-knee-tip", "r-ankle")),
+
+    ("l-forearm-1",         "l", ((0.75, "l-elbow"), (0.25, "l-hand"))),
+    ("r-forearm-1",         "l", ((0.75, "r-elbow"), (0.25, "r-hand"))),
 
     ("l-wrist-top",         "v", 10548),
     ("l-hand-end",          "v", 9944),
+
     ("r-wrist-top",         "v", 3883),
     ("r-hand-end",          "v", 3276),
 ]
@@ -102,10 +102,12 @@ HeadsTails = {
 
     "upper_arm.L" :         ("l-upper-arm", "l-elbow"),
     "forearm.L" :           ("l-elbow", "l-hand"),
+    "elbow.fan.L" :         ("l-elbow", "l-forearm-1"),
     "hand.L" :              ("l-hand", "l-hand-end"),
 
     "upper_arm.R" :         ("r-shoulder", "r-elbow"),
     "forearm.R" :           ("r-elbow", "r-hand"),
+    "elbow.fan.R" :         ("r-elbow", "r-forearm-1"),
     "hand.R" :              ("r-hand", "r-hand-end"),
 
 }
@@ -146,6 +148,8 @@ Armature = {
     "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
     "hand.R" :              ("PlaneHand.R", "forearm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
 
+    "elbow.fan.L" :         ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_DEF, P_YZX),
+    "elbow.fan.R" :         ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_DEF, P_YZX),
 }
 
 
@@ -182,6 +186,14 @@ Constraints = {
 
     "scapAim.R" : [
         ("IK", 0, 1, ["sternum", "DEF-sternum", 1, None, (1,0,1)])
+        ],
+
+    "elbow.fan.L" : [
+        ("CopyRot", C_LOCAL, 0.75, ["forearm.L", "forearm.L", (1,1,1), (0,0,0), False])
+        ],
+
+    "elbow.fan.R" : [
+        ("CopyRot", C_LOCAL, 0.75, ["forearm.R", "forearm.R", (1,1,1), (0,0,0), False])
         ],
 
 }
