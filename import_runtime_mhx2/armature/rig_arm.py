@@ -26,15 +26,11 @@ Joints = [
     ("sternum-0",           "v", 1528),
     ("sternum",             "l", ((0.8, "sternum-0"), (0.2, "neck"))),
 
-    ("l-clav-4",            "vl", ((0.6, 8077), (0.4, 8237))),
-    ("l-clav-1",            "l", ((0.75, "l-clavicle"), (0.25, "l-clav-4"))),
-    ("l-clav-2",            "l", ((0.5, "l-clavicle"), (0.5, "l-clav-4"))),
-    ("l-clav-3",            "l", ((0.25, "l-clavicle"), (0.75, "l-clav-4"))),
+    ("l-clav-end",          "vl", ((0.6, 8077), (0.4, 8237))),
+    ("l-clav-1",            "l", ((0.5, "l-clavicle"), (0.5, "l-clav-end"))),
 
-    ("r-clav-4",            "vl", ((0.6, 1385), (0.4, 1559))),
-    ("r-clav-1",            "l", ((0.75, "r-clavicle"), (0.25, "r-clav-4"))),
-    ("r-clav-2",            "l", ((0.5, "r-clavicle"), (0.5, "r-clav-4"))),
-    ("r-clav-3",            "l", ((0.25, "r-clavicle"), (0.75, "r-clav-4"))),
+    ("r-clav-end",          "vl", ((0.6, 1385), (0.4, 1559))),
+    ("r-clav-1",            "l", ((0.5, "r-clavicle"), (0.5, "r-clav-end"))),
 
     ("l-upper-arm",         "vl", ((0.5, 8121), (0.5, 8361))),
     ("l-deltoid-1",         "vl", ((0.5, 8077), (0.5, 8243))),
@@ -46,13 +42,9 @@ Joints = [
 
     ("l-serratus-ik",       "l", ((-0.5, "l-serratus-1"), (1.5, "l-serratus-2"))),
     ("r-serratus-ik",       "l", ((-0.5, "r-serratus-1"), (1.5, "r-serratus-2"))),
-    ("l-scap-ik-pole",      "o", ("sternum", (0.5,2.0,0))),
-    ("l-scap-aim",          "l", ((0.8, "l-clav-4"), (0.2, "neck"))),
 
     ("r-serratus-ik",       "l", ((-0.5, "r-serratus-1"), (1.5, "r-serratus-2"))),
     ("r-serratus-ik",       "l", ((-0.5, "r-serratus-1"), (1.5, "r-serratus-2"))),
-    ("r-scap-ik-pole",      "o", ("sternum", (0.5,2.0,0))),
-    ("r-scap-aim",          "l", ((0.8, "r-clav-4"), (0.2, "neck"))),
 
     ("l-scapula-1",         "vl", ((0.05, 8215), (0.95, 8263))),
     ("l-scapula-2",         "vl", ((0.2, 8073), (0.8, 10442))),
@@ -80,34 +72,28 @@ Joints = [
 HeadsTails = {
     "DEF-sternum" :             ("neck", "sternum"),
 
-    "clavicle.L" :          ("l-clavicle", "l-clav-4"),
-    "scapAim.L" :           ("l-clav-4", "l-scap-aim"),
-    "DEF-scapula.L" :       ("l-scapula-1", "l-scapula-2"),
-    "DEF-serratusIk.L" :    ("l-serratus-ik", ("l-serratus-ik", ysmall)),
-
-    "clavicle.R" :          ("r-clavicle", "r-clav-4"),
-    "scapAim.R" :           ("r-clav-4", "r-scap-aim"),
-    "DEF-scapula.R" :       ("r-scapula-1", "r-scapula-2"),
-    "DEF-serratusIk.R" :    ("r-serratus-ik", ("r-serratus-ik", ysmall)),
-
-    #"loc_shoulder.L" :      ("l-upper-arm", ("l-upper-arm", ysmall)),
-    #"deltoidBend.L" :       (("l-deltoid-1", (-0.4,0,0)), "l-deltoid-1"),
+    "clavicle.L" :          ("l-clavicle", "l-clav-end"),
+    "scap-parent.L" :       ("l-clavicle", "l-clav-1"),
+    "DEF-scapula.L" :       ("l-scapula-2", "l-scapula-1"),
+    "serratusIk.L" :    ("l-serratus-ik", ("l-serratus-ik", ysmall)),
     "DEF-deltoid.L" :        ("l-deltoid-1", "l-deltoid-2"),
     "shoulderIk.L" :         ("l-deltoid-2", ("l-deltoid-2", ysmall)),
 
-    #"loc_shoulder.R" :      ("r-upper-arm", ("r-upper-arm", ysmall)),
-    #"deltoidBend.R" :       (("r-deltoid-1", (0.4,0,0)), "r-deltoid-1"),
-    "DEF-deltoid.R" :           ("r-deltoid-1", "r-deltoid-2"),
+    "clavicle.R" :          ("r-clavicle", "r-clav-end"),
+    "scap-parent.R" :       ("r-clavicle", "r-clav-1"),
+    "DEF-scapula.R" :       ("r-scapula-2", "r-scapula-1"),
+    "serratusIk.R" :    ("r-serratus-ik", ("r-serratus-ik", ysmall)),
+    "DEF-deltoid.R" :       ("r-deltoid-1", "r-deltoid-2"),
     "shoulderIk.R" :        ("r-deltoid-2", ("r-deltoid-2", ysmall)),
 
     "upper_arm.L" :         ("l-upper-arm", "l-elbow"),
     "forearm.L" :           ("l-elbow", "l-hand"),
-    "elbow.fan.L" :         ("l-elbow", "l-forearm-1"),
+    "DEF-elbow_fan.L" :         ("l-elbow", "l-forearm-1"),
     "hand.L" :              ("l-hand", "l-hand-end"),
 
     "upper_arm.R" :         ("r-shoulder", "r-elbow"),
     "forearm.R" :           ("r-elbow", "r-hand"),
-    "elbow.fan.R" :         ("r-elbow", "r-forearm-1"),
+    "DEF-elbow_fan.R" :         ("r-elbow", "r-forearm-1"),
     "hand.R" :              ("r-hand", "r-hand-end"),
 
 }
@@ -123,12 +109,12 @@ Armature = {
     "DEF-sternum" :         (0, "chest-1", F_DEF|F_CON, L_DEF),
 
     "clavicle.L" :          (0, "chest-1", F_DEF, L_LARMFK|L_LARMIK),
-    "scapAim.L" :           (0, "clavicle.L", 0, L_HELP),
-    "DEF-scapula.L" :       (0, "scapAim.L", F_DEF, L_DEF),
+    "scap-parent.L" :       (0, "chest-1", 0, L_HELP),
+    "DEF-scapula.L" :       (0, "scap-parent.L", F_DEF, L_DEF),
 
     "clavicle.R" :          (0, "chest-1", F_DEF, L_RARMFK|L_RARMIK),
-    "scapAim.R" :           (0, "clavicle.R", 0, L_HELP),
-    "DEF-scapula.R" :       (0, "scapAim.R", F_DEF, L_DEF),
+    "scap-parent.R" :       (0, "chest-1", 0, L_HELP),
+    "DEF-scapula.R" :       (0, "scap-parent.R", F_DEF, L_DEF),
 
     "DEF-deltoid.L" :       (0, "clavicle.L", F_DEF, L_DEF),
     "DEF-deltoid.R" :       (0, "clavicle.R", F_DEF, L_DEF),
@@ -138,18 +124,18 @@ Armature = {
 
     "upper_arm.L" :         ("PlaneArm.L", "clavicle.L", F_DEF, L_LARMFK),
     "shoulderIk.L" :        (0, "upper_arm.L", 0, L_HELP),
-    "DEF-serratusIk.L" :    (0, "upper_arm.L", 0, L_HELP),
+    "serratusIk.L" :        (0, "upper_arm.L", 0, L_HELP),
     "forearm.L" :           ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.L" :              ("PlaneHand.L", "forearm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
 
     "upper_arm.R" :         ("PlaneArm.R", "clavicle.R", F_DEF, L_RARMFK),
     "shoulderIk.R" :        (0, "upper_arm.R", 0, L_HELP),
-    "DEF-serratusIk.R" :    (0, "upper_arm.R", 0, L_HELP),
+    "serratusIk.R" :        (0, "upper_arm.R", 0, L_HELP),
     "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
     "hand.R" :              ("PlaneHand.R", "forearm.R", F_DEF|F_CON, L_RARMFK, P_YZX),
 
-    "elbow.fan.L" :         ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_DEF, P_YZX),
-    "elbow.fan.R" :         ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_DEF, P_YZX),
+    "DEF-elbow_fan.L" :         ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_DEF, P_YZX),
+    "DEF-elbow_fan.R" :         ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_DEF, P_YZX),
 }
 
 
@@ -180,19 +166,19 @@ Constraints = {
         ("IK", 0, 1, ["shoulderIk.R", "shoulderIk.R", 1, None, (1,0,1)])
         ],
 
-    "scapAim.L" : [
-        ("IK", 0, 1, ["sternum", "DEF-sternum", 1, None, (1,0,1)])
+    "scap-parent.L" : [
+        ("CopyRot", C_LOCAL, 0.5, ["clavicle.L", "clavicle.L", (1,0,1), (0,0,0), False])
         ],
 
-    "scapAim.R" : [
-        ("IK", 0, 1, ["sternum", "DEF-sternum", 1, None, (1,0,1)])
+    "scap-parent.R" : [
+        ("CopyRot", C_LOCAL, 0.5, ["clavicle.R", "clavicle.R", (1,0,1), (0,0,0), False])
         ],
 
-    "elbow.fan.L" : [
+    "DEF-elbow_fan.L" : [
         ("CopyRot", C_LOCAL, 0.75, ["forearm.L", "forearm.L", (1,1,1), (0,0,0), False])
         ],
 
-    "elbow.fan.R" : [
+    "DEF-elbow_fan.R" : [
         ("CopyRot", C_LOCAL, 0.75, ["forearm.R", "forearm.R", (1,1,1), (0,0,0), False])
         ],
 

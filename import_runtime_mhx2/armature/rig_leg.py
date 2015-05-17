@@ -68,8 +68,8 @@ HeadsTails = {
     "toe_end.L" :          ("l-toe-2", ("l-toe-2", zsmall)),
     "toe_end.R" :          ("r-toe-2", ("r-toe-2", zsmall)),
 
-    "knee.fan.L" :         ("l-knee", "l-shin-1"),
-    "knee.fan.R" :         ("r-knee", "r-shin-1"),
+    "DEF-knee_fan.L" :         ("l-knee", "l-shin-1"),
+    "DEF-knee_fan.R" :         ("r-knee", "r-shin-1"),
 
     "DEF-gluteus.L" :          ("l-gluteus-1", "l-gluteus-2"),
     "DEF-gluteus.R" :          ("r-gluteus-1", "r-gluteus-2"),
@@ -111,8 +111,8 @@ Armature = {
     "hipIk.L" :            (0, "thigh.L", 0, L_HELP),
     "hipIk.R" :            (0, "thigh.R", 0, L_HELP),
 
-    "knee.fan.L" :         ("PlaneLeg.L", "thigh.L", F_DEF|F_CON, L_DEF, P_YZX),
-    "knee.fan.R" :         ("PlaneLeg.R", "thigh.R", F_DEF|F_CON, L_DEF, P_YZX),
+    "DEF-knee_fan.L" :         ("PlaneLeg.L", "thigh.L", F_DEF|F_CON, L_DEF, P_YZX),
+    "DEF-knee_fan.R" :         ("PlaneLeg.R", "thigh.R", F_DEF|F_CON, L_DEF, P_YZX),
 }
 
 RotationLimits = {
@@ -153,11 +153,11 @@ Constraints = {
         ("IK", 0, 1.0, ["hipIk.R", "hipIk.R", 1, None, (1,0,1)])
         ],
 
-    "knee.fan.L" : [
+    "DEF-knee_fan.L" : [
         ("CopyRot", C_LOCAL, 0.75, ["shin.L", "shin.L", (1,1,1), (0,0,0), False])
         ],
 
-    "knee.fan.R" : [
+    "DEF-knee_fan.R" : [
         ("CopyRot", C_LOCAL, 0.75, ["shin.R", "shin.R", (1,1,1), (0,0,0), False])
         ],
 }

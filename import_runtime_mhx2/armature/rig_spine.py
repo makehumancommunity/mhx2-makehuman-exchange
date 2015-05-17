@@ -29,7 +29,6 @@ Joints = [
     ("cjoint-3",             "vl", ((0.5, 3977), (0.5, 10638))),
     ("cjoint-4",             "vl", ((0.5, 1623), (0.5, 8295))),
 
-    ("spine-23",            "l", ((0.5, "spine-2"), (0.5, "spine-3"))),
     ("neck",                "vl", ((0.3, 809), (0.7, 1491))),
     ("neck-1",              "vl", ((0.5, 825), (0.5, 7536))),
 
@@ -43,10 +42,8 @@ Joints = [
     ("l-nipple",            "v", 8462),
     ("r-nipple",            "v", 1790),
 
-    ("l-pect",        "l", ((0.2, "spine-1"), (0.8, "l-nipple"))),
-    ("r-pect",        "l", ((0.2, "spine-1"), (0.8, "r-nipple"))),
-    ("l-pect-ik",           "l", ((-0.1, "spine-1"), (1.1, "l-nipple"))),
-    ("r-pect-ik",           "l", ((-0.1, "spine-1"), (1.1, "r-nipple"))),
+    ("l-pect-ik",           "l", ((-0.2, "cjoint-4"), (1.2, "l-breast"))),
+    ("r-pect-ik",           "l", ((-0.2, "cjoint-4"), (1.2, "r-breast"))),
 
     ("pubis",               "v", 4372),
     ("pubis-1",             "v", 4259),
@@ -77,6 +74,9 @@ HeadsTails = {
 
     "DEF-serratus.L" :     ("l-serratus-1", "l-serratus-2"),
     "DEF-serratus.R" :     ("r-serratus-1", "r-serratus-2"),
+
+    "DEF-pect.L" :         ("cjoint-4", "l-breast"),
+    "DEF-pect.R" :         ("cjoint-4", "r-breast"),
 
     "breast.L" :           ("l-breast", "l-nipple"),
     "breast.R" :           ("r-breast", "r-nipple"),
@@ -111,8 +111,10 @@ Armature = {
 
     "DEF-serratus.L" :     (0, "chest", F_DEF, L_DEF),
     "DEF-serratus.R" :     (0, "chest", F_DEF, L_DEF),
-    "breast.L" :           (0, "chest", F_DEF, L_DEF),
-    "breast.R" :           (0, "chest", F_DEF, L_DEF),
+    "DEF-pect.L" :         (0, "chest", 0, L_DEF),
+    "DEF-pect.R" :         (0, "chest", 0, L_DEF),
+    "breast.L" :           (0, "DEF-pect.L", F_DEF, L_DEF),
+    "breast.R" :           (0, "DEF-pect.R", F_DEF, L_DEF),
 
 }
 
@@ -154,19 +156,19 @@ CustomShapes = {
 
 Constraints = {
     "DEF-serratus.L" : [
-        ("IK", 0, 0.5, ["DEF-serratusIk.L", "DEF-serratusIk.L", 1, None, (1,0,1)])
+        ("IK", 0, 0.2, ["serratusIk.L", "serratusIk.L", 1, None, (1,0,1)])
         ],
 
     "DEF-serratus.R" : [
-        ("IK", 0, 0.5, ["DEF-serratusIk.R", "DEF-serratusIk.R", 1, None, (1,0,1)])
+        ("IK", 0, 0.2, ["serratusIk.R", "serratusIk.R", 1, None, (1,0,1)])
         ],
 
-    "breast.L" : [
-        ("IK", 0, 0.15, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
+    "DEF-pect.L" : [
+        ("IK", 0, 0.1, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
         ],
 
-    "breast.R" : [
-        ("IK", 0, 0.15, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
+    "DEF-pect.R" : [
+        ("IK", 0, 0.1, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
         ],
 
 
