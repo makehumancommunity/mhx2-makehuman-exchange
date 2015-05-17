@@ -152,6 +152,8 @@ CustomShapes = {
     "neck" :            "GZM_Neck",
     "neck-1" :          "GZM_Neck",
     "head" :            "GZM_Head",
+    "breast.L" :        "GZM_Breast_L",
+    "breast.R" :        "GZM_Breast_R",
 }
 
 Constraints = {
