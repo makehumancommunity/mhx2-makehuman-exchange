@@ -92,3 +92,9 @@ PenisMergers = {
         ))
 }
 
+ConstraintMergers = {
+    "shin.L" : ("shin.L", ("shin.L", "DEF-knee_fan.L")),
+    "shin.R" : ("shin.R", ("shin.R", "DEF-knee_fan.R")),
+    "forearm.L" : ("forearm.L", ("forearm.L", "DEF-elbow_fan.L")),
+    "forearm.R" : ("forearm.R", ("forearm.R", "DEF-elbow_fan.R")),
+}

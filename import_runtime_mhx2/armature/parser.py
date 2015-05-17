@@ -376,6 +376,9 @@ class Parser:
             if flag:
                 self.mergeBones(mergers)
 
+        if not cfg.useConstraints:
+            self.mergeBones(rig_merge.ConstraintMergers)
+
         if cfg.useDeformNames or cfg.useDeformBones:
             generic = mergeDicts([
                 rig_spine.Armature,
