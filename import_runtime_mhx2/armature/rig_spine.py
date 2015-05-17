@@ -164,11 +164,11 @@ Constraints = {
         ],
 
     "DEF-pect.L" : [
-        ("IK", 0, 0.1, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
+        ("IK", 0, 0.2, ["pectIk.L", "pectIk.L", 1, None, (1,0,1)])
         ],
 
     "DEF-pect.R" : [
-        ("IK", 0, 0.1, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
+        ("IK", 0, 0.2, ["pectIk.R", "pectIk.R", 1, None, (1,0,1)])
         ],
 
 
