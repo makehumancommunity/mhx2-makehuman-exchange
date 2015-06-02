@@ -144,8 +144,8 @@ RotationLimits = {
     'clavicle.L' :      (-16,50,  -70,70,  -45,45),
     'upper_arm.L' :     (-45,135, -60,60, -135,135),
     'upper_arm.R' :     (-45,135, -60,60, -135,135),
-    'forearm.L' :       (-45,130, 0,0, 0,0),
-    'forearm.R' :       (-45,130, 0,0, 0,0),
+    #'forearm.L' :       (-45,130, 0,0, 0,0),
+    #'forearm.R' :       (-45,130, 0,0, 0,0),
     'hand.L' :          (-90,70, -90,90, -20,20),
     'hand.R' :          (-90,70, -90,90, -20,20),
 }
@@ -183,11 +183,11 @@ Constraints = {
         ],
 
     "DEF-elbow_fan.L" : [
-        ("CopyRot", C_LOCAL, 0.75, ["forearm.L", "forearm.L", (1,1,1), (0,0,0), False])
+        ("CopyRot", C_LOCAL, 0.75, ["forearm.L", ("DEF-forearm.01.L", "forearm.L"), (1,1,1), (0,0,0), False])
         ],
 
     "DEF-elbow_fan.R" : [
-        ("CopyRot", C_LOCAL, 0.75, ["forearm.R", "forearm.R", (1,1,1), (0,0,0), False])
+        ("CopyRot", C_LOCAL, 0.75, ["forearm.R", ("DEF-forearm.01.R", "forearm.R"), (1,1,1), (0,0,0), False])
         ],
 
 }

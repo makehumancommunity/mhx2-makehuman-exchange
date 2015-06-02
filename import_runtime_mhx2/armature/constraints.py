@@ -178,7 +178,14 @@ class CCopyRotConstraint(CConstraint):
         cns.target = rig
         cns.use_x,cns.use_y,cns.use_z = self.use
         cns.invert_x,cns.invert_y,cns.invert_z = self.invert
-        cns.subtarget = self.subtar
+        if isinstance(self.subtar, tuple):
+            bname1,bname2 = self.subtar
+            if bname1 in rig.data.bones.keys():
+                cns.subtarget = bname1
+            else:
+                cns.subtarget = bname2
+        else:
+            cns.subtarget = self.subtar
         cns.use_offset = self.useOffs
 
 

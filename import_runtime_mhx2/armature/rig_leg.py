@@ -154,11 +154,11 @@ Constraints = {
         ],
 
     "DEF-knee_fan.L" : [
-        ("CopyRot", C_LOCAL, 0.75, ["shin.L", "shin.L", (1,1,1), (0,0,0), False])
+        ("CopyRot", C_LOCAL, 0.75, ["shin.L", ("DEF-shin.01.L", "shin.L"), (1,1,1), (0,0,0), False])
         ],
 
     "DEF-knee_fan.R" : [
-        ("CopyRot", C_LOCAL, 0.75, ["shin.R", "shin.R", (1,1,1), (0,0,0), False])
+        ("CopyRot", C_LOCAL, 0.75, ["shin.R", ("DEF-shin.01.R", "shin.R"), (1,1,1), (0,0,0), False])
         ],
 }
 
