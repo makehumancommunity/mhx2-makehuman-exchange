@@ -159,7 +159,9 @@ def buildRig(mhHuman, cfg, context):
 
     if cfg.useRigify:
         from .rigify import rigifyMhx
-        rig = rigifyMhx(context)
+        rig.MhxRigify = True
+        if cfg.finalizeRigify:
+            rig = rigifyMhx(context)
 
     rig.MhxRig = cfg.rigType
     rig["MhxVersion"] = 20

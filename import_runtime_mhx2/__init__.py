@@ -125,6 +125,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
+    finalizeRigify = BoolProperty(name="Finalize Rigification", description="Finalize Rigification", default=True)
     useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
@@ -289,6 +290,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             box.prop(self, "useCustomShapes")
             if self.rigType == 'MHX':
                 box.prop(self, "useRotationLimits")
+            elif self.rigType == 'RIGIFY':
+                box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceDrivers:
                 box.prop(self, "useFacePanel")
             if self.genitalia == 'PENIS' and self.rigType != 'EXPORTED':
@@ -320,6 +323,8 @@ class MhxSetupPanel(bpy.types.Panel):
         layout.separator()
         layout.operator("mhx2.add_simple_materials")
         layout.operator("mhx2.merge_objects")
+        if ob.MhxRigify:
+            layout.operator("mhx2.finalize_rigify")
 
         layout.separator()
         box = layout.box()

@@ -93,6 +93,7 @@ def build(struct, cfg, context):
 
     if (cfg.useOverride and
         cfg.rigType == 'RIGIFY' and
+        cfg.finalizeRigify and
         not checkRigifyEnabled(context)):
         pass
         #raise MhxError("The Rigify add-on is not enabled. It is found under rigging.")
@@ -174,9 +175,9 @@ def build(struct, cfg, context):
         makeDeflector(deflTorso, rig, ["chest-1","chest"], cfg)
         proxies.append(deflTorso)
 
-    if cfg.useOverride and cfg.useRigify and rig:
+    if cfg.useOverride and cfg.useRigify and cfg.finalizeRigify and rig:
         from .armature.rigify import fixRigifyMeshes
-        fixRigifyMeshes(rig)
+        fixRigifyMeshes(rig.children)
 
     if cfg.useOverride and cfg.hairType != "NONE":
         from .proxy import getProxyCoordinates

@@ -31,6 +31,7 @@ import bpy
 import os
 from bpy.props import *
 from ..utils import reallySelect
+from ..error import *
 
 Renames = [
     ("chest", "chest-0"),
@@ -94,7 +95,6 @@ def rigifyMhx(context):
     scn = context.scene
     if not(rig and rig.type == 'ARMATURE'):
         raise RuntimeError("Rigify: %s is neither an armature nor has armature parent" % ob)
-    rig.MhxRigify = True
     reallySelect(rig, scn)
 
     group = None
@@ -289,8 +289,8 @@ def rigifyMhx(context):
     return gen
 
 
-def fixRigifyMeshes(rig):
-    for ob in rig.children:
+def fixRigifyMeshes(children):
+    for ob in children:
         if ob.type == 'MESH':
             for bname,bname1 in Renames:
                 vgname = "DEF-" + bname
@@ -361,13 +361,10 @@ def fixConstraint(cns1, cns2, gen, bones):
     for key in dir(cns1):
         if ((key[0] != "_") and
             (key not in ["bl_rna", "type", "rna_type", "is_valid", "error_location", "error_rotation"])):
-            expr = ("cns2.%s = cns1.%s" % (key, key))
             setattr(cns2, key, getattr(cns1, key))
 
-    try:
+    if hasattr(cns2, "target"):
         cns2.target = gen
-    except AttributeError:
-        pass
 
     if cns1.type == 'STRETCH_TO':
         bone = bones[cns1.subtarget]
@@ -383,9 +380,12 @@ def fixConstraint(cns1, cns2, gen, bones):
             cns2.subtarget = bone.realname2
             cns2.head_tail = 2*cns1.head_tail-1
 
-    elif cns1.type == 'IK':
+    elif hasattr(cns1, "subtarget"):
         bone = bones[cns1.subtarget]
-        cns2.subtarget = bone.realname
+        if bone.realname is None:
+            cns2.subtarget = bone.realname1
+        else:            
+            cns2.subtarget = bone.realname
 
 
 def copyDriver(fcu1, fcu2, id):
@@ -410,4 +410,34 @@ def changeDriverTarget(fcu, id):
     for var in fcu.driver.variables:
         targ = var.targets[0]
         targ.id = id
+
+
+#------------------------------------------------------------------------
+#   Finalize
+#------------------------------------------------------------------------
+
+def setParents(children, parent):    
+    for ob in children:
+        ob.parent = parent
+        for mod in ob.modifiers:
+            if mod.type == 'ARMATURE':
+                mod.object = parent
+        
+
+class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
+    bl_idname = "mhx2.finalize_rigify"
+    bl_label = "Finalize Rigify"
+    bl_description = "Finalize Rigify"
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        try:
+            children = list(context.object.children)
+            setParents(children, None)    
+            gen = rigifyMhx(context)
+            fixRigifyMeshes(children)
+            setParents(children, gen)
+        except MhxError:
+            handleMhxError(context)    
+        return{'FINISHED'}
 

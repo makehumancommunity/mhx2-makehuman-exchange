@@ -183,11 +183,11 @@ Constraints = {
         ],
 
     "DEF-elbow_fan.L" : [
-        ("CopyRot", C_LOCAL, 0.75, ["forearm.L", ("DEF-forearm.01.L", "forearm.L"), (1,1,1), (0,0,0), False])
+        ("CopyRot", 0, 0.75, ["forearm.L", ("DEF-forearm.01.L", "forearm.L"), (1,1,1), (0,0,0), False])
         ],
 
     "DEF-elbow_fan.R" : [
-        ("CopyRot", C_LOCAL, 0.75, ["forearm.R", ("DEF-forearm.01.R", "forearm.R"), (1,1,1), (0,0,0), False])
+        ("CopyRot", 0, 0.75, ["forearm.R", ("DEF-forearm.01.R", "forearm.R"), (1,1,1), (0,0,0), False])
         ],
 
 }

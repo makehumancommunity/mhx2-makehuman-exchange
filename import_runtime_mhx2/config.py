@@ -24,7 +24,7 @@ import os
 Attributes = [
     "useHelpers", "useOffset", "useOverride", "useHumanType",
     "useSubsurf", "subsurfLevels", "subsurfRenderLevels",
-    "useRig", "rigType", "useRotationLimits", "genitalia",
+    "useRig", "rigType", "finalizeRigify", "useRotationLimits", "genitalia",
     "hairType", "hairColor", "useHairOnProxy", "useDeflector", "useHairDynamics",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceDrivers",
@@ -109,6 +109,7 @@ class Config:
 
         self.useMhx = False
         self.useRigify = False
+        self.finalizeRigify = True
 
         self.useSplitBones = False
         self.useSplitNames = False
