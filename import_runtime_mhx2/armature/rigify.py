@@ -86,7 +86,7 @@ def checkRigifyEnabled(context):
     return False
 
 
-def rigifyMhx(context):
+def rigifyMhx(context, taken={}):
     from collections import OrderedDict
     from ..error import MhxError
 
@@ -196,7 +196,14 @@ def rigifyMhx(context):
     bpy.ops.object.mode_set(mode='EDIT')
     for bone in bones.values():
         if not bone.original:
-            if bone.name[0:4] == "DEF-":
+            try:
+                taken[bone.name]
+                change = False
+            except KeyError:
+                change = True
+            if not change:
+                bone.realname = bone.name
+            elif bone.name[0:4] == "DEF-":
                 bone.realname = bone.name
             elif bone.deform:
                 bone.realname = "DEF-" + bone.name
@@ -219,7 +226,10 @@ def rigifyMhx(context):
                     print(bone)
             eb.use_connect = (eb.parent != None and eb.parent.tail == eb.head)
             layers = 32*[False]
-            layers[bone.layer] = True
+            if change:
+                layers[bone.layer] = True
+            else:
+                layers[0] = True
             eb.layers = layers
 
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -384,7 +394,7 @@ def fixConstraint(cns1, cns2, gen, bones):
         bone = bones[cns1.subtarget]
         if bone.realname is None:
             cns2.subtarget = bone.realname1
-        else:            
+        else:
             cns2.subtarget = bone.realname
 
 
@@ -416,13 +426,21 @@ def changeDriverTarget(fcu, id):
 #   Finalize
 #------------------------------------------------------------------------
 
-def setParents(children, parent):    
+def setParents(children, parent):
     for ob in children:
         ob.parent = parent
         for mod in ob.modifiers:
             if mod.type == 'ARMATURE':
                 mod.object = parent
-        
+
+def listUsedVgroups(children):
+    taken = {}
+    for ob in children:
+        if ob.type == 'MESH':
+            for vg in ob.vertex_groups:
+                taken[vg.name] = True
+    return taken
+
 
 class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
     bl_idname = "mhx2.finalize_rigify"
@@ -433,11 +451,12 @@ class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
     def execute(self, context):
         try:
             children = list(context.object.children)
-            setParents(children, None)    
-            gen = rigifyMhx(context)
+            setParents(children, None)
+            taken = listUsedVgroups(children)
+            gen = rigifyMhx(context, taken)
             fixRigifyMeshes(children)
             setParents(children, gen)
         except MhxError:
-            handleMhxError(context)    
+            handleMhxError(context)
         return{'FINISHED'}
 

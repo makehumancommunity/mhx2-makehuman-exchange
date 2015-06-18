@@ -125,7 +125,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
-    finalizeRigify = BoolProperty(name="Finalize Rigification", description="Finalize Rigification", default=True)
+    finalizeRigify = BoolProperty(name="Finalize Rigify", description="If off, only load metarig. Press Finalize Rigify to complete rigification later", default=True)
     useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
     useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)

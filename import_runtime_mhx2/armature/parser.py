@@ -84,6 +84,8 @@ class Parser:
                 layers |= L_LHANDFK|L_RHANDFK|L_LPALM|L_RPALM|L_TWEAK
             if cfg.useFacePanel:
                 layers |= L_PANEL
+        elif cfg.useRigify:
+            layers = L_MAIN|L_HEAD
         else:
             layers = L_MAIN
         self.visibleLayers = layers
