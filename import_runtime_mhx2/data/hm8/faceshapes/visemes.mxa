@@ -87,7 +87,7 @@
             ["lips_mid_upper_up_right", 0.5],
             ["lips_mid_lower_down_left", 0.5],
             ["lips_mid_lower_down_right", 0.5],
-            ["mouth_open", -0.2],
+            ["mouth_open", 0.2],
             ["tongue_back_up", 1.0],
             ["tongue_up", 1.0]
             ],
@@ -96,7 +96,7 @@
             ["lips_mid_upper_up_right", 0.5],
             ["lips_mid_lower_down_left", 0.5],
             ["lips_mid_lower_down_right", 0.5],
-            ["mouth_open", -0.2],
+            ["mouth_open", 0.2],
             ["tongue_back_up", 1.0]
             ]
     },
