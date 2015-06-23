@@ -217,7 +217,8 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
 
-    pxy = mesh.object.proxy
+    obj = mesh.object
+    pxy = obj.proxy
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["license"] = BaseMeshLicense
@@ -230,6 +231,7 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     mhGeo["uuid"] = str(uuid4())
     mhGeo["offset"] = cfg.offset
     mhGeo["scale"] = cfg.scale
+    mhGeo["issubdivided"] = obj.isSubdivided()
     try:
         mhGeo["material"] = mats[mesh.name]
     except KeyError:
@@ -247,9 +249,8 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
     if pxy:
         if pxy.type == 'Proxymeshes':
             mhGeo["human"] = True
-            obj.changeVertexMask(None)
             mhProxySeed = mhGeo["proxy_seed_mesh"] = OrderedDict()
-            addMesh(mhProxySeed, obj.mesh)
+            addMesh(mhProxySeed, obj.getProxyMesh())
         else:
             mhGeo["human"] = False
             mhProxySeed = None

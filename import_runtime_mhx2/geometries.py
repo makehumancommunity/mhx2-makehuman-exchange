@@ -45,7 +45,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
         useSeedMesh = (meshType == "seed_mesh")
         ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh)
         ob.MhxSeedMesh = useSeedMesh
-
+        
     ob.MhxUuid = mhGeo["uuid"]
     if "license" in mhGeo.keys():
         mhLicense = mhGeo["license"]
@@ -64,11 +64,6 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
             else:
                 vgrps = proxifyVertexGroups(mhGeo["proxy"], getMhHuman())
 
-        if cfg.useSubsurf:
-            mod = ob.modifiers.new("Subsurf", 'SUBSURF')
-            mod.levels = cfg.subsurfLevels
-            mod.render_levels = cfg.subsurfRenderLevels
-
     elif "weights" in mhMesh.keys():
         vgrps = mhMesh["weights"]
 
@@ -80,6 +75,15 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
         ob.lock_location = (True,True,True)
         ob.lock_rotation = (True,True,True)
         ob.lock_scale = (True,True,True)
+
+    if cfg.useSubsurf:
+        mod = ob.modifiers.new("Subsurf", 'SUBSURF')
+        mod.levels = cfg.subsurfLevels
+        mod.render_levels = cfg.subsurfRenderLevels
+    elif "issubdivided" in mhGeo.keys() and mhGeo["issubdivided"]:
+        mod = ob.modifiers.new("Subsurf", 'SUBSURF')
+        mod.levels = 1
+        mod.render_levels = 1              
 
     mat = mats[mhGeo["material"]]
     ob.data.materials.append(mat)
