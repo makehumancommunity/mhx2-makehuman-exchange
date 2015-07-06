@@ -16,9 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-Mhx2Version = "0.22"
+Mhx2Version = "0.27"
 
-import os.path
+import os
 import sys
 import codecs
 from collections import OrderedDict
@@ -29,6 +29,8 @@ from core import G
 import log
 
 import skeleton
+import bvh
+import json
 from .save_json import saveJson
 from .hm8 import getBaseMesh
 
@@ -65,12 +67,19 @@ def exportMhx2(filepath, cfg):
 
     mhFile = OrderedDict()
     mhFile["mhx2_version"] = Mhx2Version
+    log.message(mhFile)
     #mhFile["basemesh"] = getBaseMesh()
 
     if skel:
         mhSkel = mhFile["skeleton"] = OrderedDict()
         addSkeleton(mhSkel, skel, name, cfg)
 
+        mhJson = mhSkel["json"] = OrderedDict()
+        mhBvh = mhSkel["bvh"] = OrderedDict()
+        posepath = os.path.join("data", "poseunits")
+        for file in os.listdir(posepath):
+            addAnim(posepath, file, mhJson, mhBvh, human)
+        
     mhMaterials = mhFile["materials"] = []
     mats = {}
     for mesh in meshes:
@@ -86,6 +95,28 @@ def exportMhx2(filepath, cfg):
     saveJson(mhFile, filepath, cfg.useBinary)
     G.app.progress(1)
     log.message("%s written" % filepath)
+
+#-----------------------------------------------------------------------
+#   Animation
+#-----------------------------------------------------------------------
+
+def addAnim(posepath, file, mhJson, mhBvh, human):
+    path = os.path.join(posepath, file)    
+    fname,ext = os.path.splitext(file)   
+    if ext == ".json":     
+        try:
+            fp = open(path, "rU")
+            struct = json.load(fp)
+        finally:
+            fp.close()
+        mhJson[file] = struct
+    elif ext == ".bvh":        
+        bvh_file = bvh.load(path, "auto")
+        anim = bvh_file.createAnimationTrack(human.getBaseSkeleton())
+        mhBvh1 = mhBvh[file] = OrderedDict()
+        for key in ["name", "description", "dataLen", "nFrames", "nBones", "frameRate", "loop"]:
+            mhBvh1[key] = getattr(anim, key)            
+        mhBvh1["data"] = list(anim.data)
 
 #-----------------------------------------------------------------------
 #   Materials
