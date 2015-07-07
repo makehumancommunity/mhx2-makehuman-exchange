@@ -122,7 +122,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
     useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
     useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
-    useFaceDrivers = BoolProperty(name="Face Drivers", description="Face drivers", default=False)
+    useFaceShapeDrivers = BoolProperty(name="Face Shape Drivers", description="Drive face shapes with rig properties", default=False)
+    useFaceRigDrivers = BoolProperty(name="Face Rig Drivers", description="Drive face rig with rig properties", default=True)
     useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
     useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
     finalizeRigify = BoolProperty(name="Finalize Rigify", description="If off, only load metarig. Press Finalize Rigify to complete rigification later", default=True)
@@ -245,7 +246,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         layout.prop(self, "useFaceShapes")
         if (self.useFaceShapes and
             not self.useFacePanel):
-            layout.prop(self, "useFaceDrivers")
+            layout.prop(self, "useFaceShapeDrivers")
 
         layout.separator()
         box = layout.box()
@@ -292,7 +293,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
                 box.prop(self, "useRotationLimits")
             elif self.rigType == 'RIGIFY':
                 box.prop(self, "finalizeRigify")
-            if self.useFaceShapes and not self.useFaceDrivers:
+            if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
             if self.genitalia == 'PENIS' and self.rigType != 'EXPORTED':
                 box.prop(self, "usePenisRig")
@@ -710,6 +711,8 @@ def menu_func(self, context):
     self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
 
 def register():
+    from .bone_drivers import MHPoses
+    
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
     bpy.types.Object.MhxUuid = StringProperty(default="")
@@ -764,13 +767,21 @@ def register():
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
+    bpy.utils.register_class(MHPoses)
+    bpy.types.Object.MhxFacePoses = PointerProperty(type=MHPoses)
+
     bpy.utils.register_class(ErrorOperator)
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func)
 
 def unregister():
+    from .bone_drivers import MHPoses
     try:
         bpy.utils.register_class(ErrorOperator)
+    except:
+        pass
+    try:
+        bpy.utils.register_class(MHPoses)
     except:
         pass
     try:

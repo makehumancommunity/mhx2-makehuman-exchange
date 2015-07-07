@@ -118,16 +118,14 @@ def build(struct, cfg, context):
                     from .bone_drivers import buildAnimation
                     mhSkel = struct["skeleton"]
                     rig = buildSkeleton(mhSkel, scn, cfg)
-                    if "animation" in struct.keys():
-                        buildAnimation(struct["animation"], mhSkel["bones"], rig)
+                    buildAnimation(mhSkel, rig, cfg)
             else:
                 rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
         from .bone_drivers import buildAnimation
         mhSkel = struct["skeleton"]
         rig = buildSkeleton(mhSkel, scn, cfg)
-        if "animation" in struct.keys():
-            buildAnimation(struct["animation"], mhSkel["bones"], rig)
+        buildAnimation(mhSkel, rig, cfg)
 
     if rig:
         rig.MhxScale = mhHuman["scale"]

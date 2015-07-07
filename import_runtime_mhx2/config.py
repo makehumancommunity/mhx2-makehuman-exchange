@@ -27,7 +27,7 @@ Attributes = [
     "useRig", "rigType", "finalizeRigify", "useRotationLimits", "genitalia",
     "hairType", "hairColor", "useHairOnProxy", "useDeflector", "useHairDynamics",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
-    "useFaceShapes", "useFacePanel", "useFaceDrivers",
+    "useFaceShapes", "useFacePanel", "useFaceShapeDrivers", "useFaceRigDrivers",
     "useMasks", "useConservativeMasks",
 ]
 

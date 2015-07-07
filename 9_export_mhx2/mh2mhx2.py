@@ -72,7 +72,7 @@ def exportMhx2(filepath, cfg):
         mhSkel = mhFile["skeleton"] = OrderedDict()
         addSkeleton(mhSkel, skel, name, cfg)
 
-        mhAnim = mhFile["animation"] = OrderedDict()
+        mhAnim = mhSkel["animation"] = OrderedDict()
         posepath = os.path.join("data", "poseunits")
         if os.path.exists(posepath):
             addAnims(posepath, file, mhAnim, human)
@@ -119,6 +119,7 @@ def addAnims(posepath, file, mhAnim, human):
                 anim = bvh_file.createAnimationTrack(human.getBaseSkeleton())
                 for key in ["name", "description", "dataLen", "nFrames", "nBones", "frameRate", "loop"]:
                     mhBvh[key] = getattr(anim, key)
+                mhBvh["joints"] = [joint.name for joint in bvh_file.bvhJoints if joint.name != "End effector"]
                 mhBvh["data"] = list(anim.data)
 
 

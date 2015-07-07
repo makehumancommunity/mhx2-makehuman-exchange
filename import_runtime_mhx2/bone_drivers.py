@@ -147,22 +147,20 @@ def getStruct(filename, struct):
     return struct
 
 
-def addBoneDrivers(rig, prefix, struct):
+def addBoneDrivers(rig, prefix, poses):
     initRnaProperties(rig)
-    for prop in struct["poses"].keys():
+    for prop in poses.keys():
         pname = prefix+prop
         rig[pname] = 0.0
         rig["_RNA_UI"][pname] = {"min":0.0, "max":1.0}
 
     bdrivers = {}
-    for pose,bones in struct["poses"].items():
+    for pose,bones in poses.items():
         for bname,quat in bones.items():
             try:
                 bdriver = bdrivers[bname]
             except KeyError:
                 bdriver = bdrivers[bname] = [[],[],[],[]]
-            if len(quat) != 4:
-                print(bname,quat,bdriver)
             for n in range(4):
                 bdriver[n].append((prefix+pose, quat[n]))
 
@@ -190,13 +188,15 @@ _FacePoses = None
 def getFacePoses(rig = None):
     from collections import OrderedDict
     global _FacePoses
+    print(_FacePoses)
+    return _FacePoses["poses"]
     if _FacePoses is None:
         filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
         _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
         if rig:
             checkRoll(rig)
     print(_FacePoses)
-    return _FacePoses
+    return _FacePoses["poses"]
 
 
 def checkRoll(rig):
@@ -210,6 +210,13 @@ def checkRoll(rig):
             "Export from newrig repo")
 
 #------------------------------------------------------------------------
+#   MHPoses
+#------------------------------------------------------------------------
+
+class MHPoses(bpy.types.PropertyGroup):
+    poses = {}
+                
+#------------------------------------------------------------------------
 #   Animation
 #------------------------------------------------------------------------
 
@@ -217,34 +224,46 @@ def equal(x,y):
     return ((x[0]==y[0]) and (x[1]==y[1]) and (x[2]==y[2]) and (x[3]==y[3]))
 
 
-def buildAnimation(mhAnim, mhBones, rig):
-    global _FacePoses
-    return
-
+def buildAnimation(mhSkel, rig, cfg):
+    if "animation" not in mhSkel.keys():
+        return    
+    mhAnim = mhSkel["animation"]
+        
     if "face-poseunits" in mhAnim.keys():
         mhJson = mhAnim["face-poseunits"]["json"]
         mhBvh = mhAnim["face-poseunits"]["bvh"]
         nBones = mhBvh["nBones"]
         nFrames = mhBvh["nFrames"]
-        bones = [mhBone["name"] for mhBone in mhBones]
-        if len(bones) != mhBvh["nBones"]:
-            print("Animation does not match skeleton (%d != %d). Ignoring" % (len(bones), mhBvh["nBones"]))
+        bones = mhBvh["joints"]
+        if len(bones) != len(rig.data.bones):
+            print("Animation does not match skeleton (%d != %d). Ignoring" % (len(bones), len(rig.data.bones)))
+            print(bones)
+            print([bone.name for bone in rig.data.bones])
             return
 
-        _FacePoses = OrderedDict()
-        _FacePoses["name"] = mhJson["name"]
-        poses = _FacePoses["poses"] = OrderedDict()
+        poses = OrderedDict()
+        poseIndex = {}
         for n,name in enumerate(mhJson["framemapping"]):
-            frames = [frame for m,frame in enumerate(mhBvh["data"]) if (m-n)%nBones == 0]
-            pose = poses[name] = {}
-            print(name, len(frames))
-            for m,frame in enumerate(frames):
-                x,y,z = frame
-                if True or not (equal(x,[1,0,0,0]) and equal(y,[0,1,0,0]) and equal(z,[0,0,1,0])):
-                    bone = bones[m]
-                    pose[bone] = frame
-                    #print("  ", bone, frame)
+            poseIndex[n] = poses[name] = {}
+            
+        for m,frame in enumerate(mhBvh["data"]):
+            x,y,z = frame
+            if not (equal(x,[1,0,0,0]) and equal(y,[0,1,0,0]) and equal(z,[0,0,1,0])):
+                mat = Matrix((x[0:3], y[0:3], z[0:3]))
+                pose = poseIndex[m % nFrames]
+                bone = bones[m % nBones]
+                pose[bone] = mat.to_quaternion()
 
+        #for name,pose in poses.items():
+        #    print(name, list(pose.keys()))
+
+        for key,value in poses.items():
+            rig.MhxFacePoses.poses[key] = value
+
+        if cfg.useFaceRigDrivers:
+            addBoneDrivers(rig, "Mfa", poses)
+            rig.MhxFaceRigDrivers = True
+                
 #------------------------------------------------------------------------
 #   Buttons
 #------------------------------------------------------------------------
@@ -263,14 +282,14 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     def execute(self, context):
         global _FacePoses
         rig = context.object
-        addBoneDrivers(rig, "Mfa", getFacePoses(rig))
+        addBoneDrivers(rig, "Mfa", rig.MhxFacePoses.poses)
         rig.MhxFaceRigDrivers = True
         return{'FINISHED'}
 
 
-def removeBoneDrivers(rig, prefix, struct):
+def removeBoneDrivers(rig, prefix, poses):
     bnames = {}
-    for pose,bones in struct["poses"].items():
+    for pose,bones in poses.items():
         prop = prefix+pose
         del rig[prop]
         for bname in bones.keys():

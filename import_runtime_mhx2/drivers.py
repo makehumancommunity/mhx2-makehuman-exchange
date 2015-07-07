@@ -53,9 +53,9 @@ def addScriptedDriver(fcu, rig, bprop, data, expr, extendExpression):
             pass
         elif val == 1:
             expr += " + x%d" % n
-        elif val > 0:
+        elif val > 0.0006:
             expr += " + %.3f*x%d" % (val, n)
-        else:
+        elif val < -0.0006:
             expr += " - %.3f*x%d" % (-val, n)
         n += 1
     drv.expression = expr
