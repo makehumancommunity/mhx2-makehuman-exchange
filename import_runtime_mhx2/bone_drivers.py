@@ -23,6 +23,8 @@ import os
 import json
 import bpy
 import math
+from collections import OrderedDict
+
 from bpy.props import *
 from mathutils import *
 from .drivers import *
@@ -145,29 +147,6 @@ def getStruct(filename, struct):
     return struct
 
 
-_FacePoses = None
-
-def getFacePoses(rig = None):
-    from collections import OrderedDict
-    global _FacePoses
-    if _FacePoses is None:
-        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
-        _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
-    if rig:
-        checkRoll(rig)
-    return _FacePoses
-
-
-def checkRoll(rig):
-    try:
-        jaw = rig.data.bones["jaw"]
-    except KeyError:
-        return
-    if abs(getRoll(jaw)) > math.pi/2:
-        raise MhxError(
-            "Jaw bone has wrong roll value\n" +
-            "Export from newrig repo")
-
 def addBoneDrivers(rig, prefix, struct):
     initRnaProperties(rig)
     for prop in struct["poses"].keys():
@@ -182,6 +161,8 @@ def addBoneDrivers(rig, prefix, struct):
                 bdriver = bdrivers[bname]
             except KeyError:
                 bdriver = bdrivers[bname] = [[],[],[],[]]
+            if len(quat) != 4:
+                print(bname,quat,bdriver)
             for n in range(4):
                 bdriver[n].append((prefix+pose, quat[n]))
 
@@ -200,6 +181,73 @@ def addBoneDrivers(rig, prefix, struct):
         if pb:
             addDrivers(rig, pb, "rotation_quaternion", data, zeroQuat)
 
+#------------------------------------------------------------------------
+#   Face poses
+#------------------------------------------------------------------------
+
+_FacePoses = None
+
+def getFacePoses(rig = None):
+    from collections import OrderedDict
+    global _FacePoses
+    if _FacePoses is None:
+        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
+        _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
+        if rig:
+            checkRoll(rig)
+    print(_FacePoses)
+    return _FacePoses
+
+
+def checkRoll(rig):
+    try:
+        jaw = rig.data.bones["jaw"]
+    except KeyError:
+        return
+    if abs(getRoll(jaw)) > math.pi/2:
+        raise MhxError(
+            "Jaw bone has wrong roll value\n" +
+            "Export from newrig repo")
+
+#------------------------------------------------------------------------
+#   Animation
+#------------------------------------------------------------------------
+
+def equal(x,y):
+    return ((x[0]==y[0]) and (x[1]==y[1]) and (x[2]==y[2]) and (x[3]==y[3]))
+
+
+def buildAnimation(mhAnim, mhBones, rig):
+    global _FacePoses
+    return
+
+    if "face-poseunits" in mhAnim.keys():
+        mhJson = mhAnim["face-poseunits"]["json"]
+        mhBvh = mhAnim["face-poseunits"]["bvh"]
+        nBones = mhBvh["nBones"]
+        nFrames = mhBvh["nFrames"]
+        bones = [mhBone["name"] for mhBone in mhBones]
+        if len(bones) != mhBvh["nBones"]:
+            print("Animation does not match skeleton (%d != %d). Ignoring" % (len(bones), mhBvh["nBones"]))
+            return
+
+        _FacePoses = OrderedDict()
+        _FacePoses["name"] = mhJson["name"]
+        poses = _FacePoses["poses"] = OrderedDict()
+        for n,name in enumerate(mhJson["framemapping"]):
+            frames = [frame for m,frame in enumerate(mhBvh["data"]) if (m-n)%nBones == 0]
+            pose = poses[name] = {}
+            print(name, len(frames))
+            for m,frame in enumerate(frames):
+                x,y,z = frame
+                if True or not (equal(x,[1,0,0,0]) and equal(y,[0,1,0,0]) and equal(z,[0,0,1,0])):
+                    bone = bones[m]
+                    pose[bone] = frame
+                    #print("  ", bone, frame)
+
+#------------------------------------------------------------------------
+#   Buttons
+#------------------------------------------------------------------------
 
 class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     bl_idname = "mhx2.add_facerig_drivers"

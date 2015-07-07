@@ -115,11 +115,20 @@ def build(struct, cfg, context):
         if cfg.useRig:
             if cfg.rigType == 'EXPORTED':
                 if "skeleton" in struct.keys():
-                    rig = buildSkeleton(struct["skeleton"], scn, cfg)
+                    from .bone_drivers import buildAnimation
+                    mhSkel = struct["skeleton"]
+                    rig = buildSkeleton(mhSkel, scn, cfg)
+                    if "animation" in struct.keys():
+                        buildAnimation(struct["animation"], mhSkel["bones"], rig)
             else:
                 rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
-        rig = buildSkeleton(struct["skeleton"], scn, cfg)
+        from .bone_drivers import buildAnimation
+        mhSkel = struct["skeleton"]
+        rig = buildSkeleton(mhSkel, scn, cfg)
+        if "animation" in struct.keys():
+            buildAnimation(struct["animation"], mhSkel["bones"], rig)
+
     if rig:
         rig.MhxScale = mhHuman["scale"]
         rig.MhxOffset = str(list(zup(mhHuman["offset"])))
