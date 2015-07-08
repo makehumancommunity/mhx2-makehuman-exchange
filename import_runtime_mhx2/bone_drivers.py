@@ -182,7 +182,7 @@ def addBoneDrivers(rig, prefix, poses):
 #------------------------------------------------------------------------
 #   Face poses
 #------------------------------------------------------------------------
-
+'''
 _FacePoses = None
 
 def getFacePoses(rig = None):
@@ -208,7 +208,7 @@ def checkRoll(rig):
         raise MhxError(
             "Jaw bone has wrong roll value\n" +
             "Export from newrig repo")
-
+'''
 #------------------------------------------------------------------------
 #   MHPoses
 #------------------------------------------------------------------------
@@ -227,48 +227,70 @@ def equal(x,y):
 def buildAnimation(mhSkel, rig, cfg):
     if "animation" not in mhSkel.keys():
         return
-    mhAnim = mhSkel["animation"]
+    mhAnims = mhSkel["animation"]
 
-    if "face-poseunits" in mhAnim.keys():
-        mhJson = mhAnim["face-poseunits"]["json"]
-        mhBvh = mhAnim["face-poseunits"]["bvh"]
-        joints = mhBvh["joints"]
-        channels = mhBvh["channels"]
-        frames = mhBvh["frames"]
-        nJoints = len(joints)
-        nFrames = len(frames)
-
-        if nJoints != len(rig.data.bones):
-            print("Animation does not match skeleton (%d != %d). Ignoring" % (nJoints, len(rig.data.bones)))
-            print(joints)
-            print([bone.name for bone in rig.data.bones])
-            return
-
+    if "face-poseunits" in mhAnims.keys():
+        mhAnim = mhAnims["face-poseunits"]
+        mhJson = mhAnim["json"]
         poses = OrderedDict()
         poseIndex = {}
         for n,name in enumerate(mhJson["framemapping"]):
             poseIndex[n] = poses[name] = {}
 
-        hits = nJoints*[0]
-        unit = Quaternion()
-        d2r = math.pi/180
-        for m,frame in enumerate(frames):
-            pose = poseIndex[m]
-            for n,vec in enumerate(frame):
-                joint = joints[n]
-                euler = Euler(Vector(vec)*d2r)                
-                quat = euler.to_quaternion()
-                if abs(quat.to_axis_angle()[1]) > 1e-4:
-                    hits[n] += 1
-                    pose[joint] = quat
-                    
+        buildBvh(mhAnim["bvh"], rig, poseIndex)
         for key,value in poses.items():
             rig.MhxFacePoses.poses[key] = value
 
         if cfg.useFaceRigDrivers:
             addBoneDrivers(rig, "Mfa", poses)
             rig.MhxFaceRigDrivers = True
+        
+    poses = {}        
+    for aname,mhAnim in mhAnims.items():
+        if aname != "face-poseunits":
+            pose = buildBvh(mhAnim["bvh"], rig, None)
+            if pose is not None:
+                poses[aname] = pose
 
+    if rig.animation_data:
+        rig.animation_data.action = None        
+    for frame,pose in enumerate(poses.values()):
+        for pb in rig.pose.bones:
+            if pb.name in pose.keys():
+                pb.rotation_quaternion = pose[pb.name]
+            else:
+                pb.rotation_quaternion = (1,0,0,0)                
+            pb.keyframe_insert('rotation_quaternion', frame=frame, group=pb.name)
+
+
+def buildBvh(mhBvh, rig, poseIndex):
+    joints = mhBvh["joints"]
+    channels = mhBvh["channels"]
+    frames = mhBvh["frames"]
+    nJoints = len(joints)
+    nFrames = len(frames)
+
+    if nJoints != len(rig.data.bones):
+        print("Animation does not match skeleton (%d != %d). Ignoring" % (nJoints, len(rig.data.bones)))
+        print(joints)
+        print([bone.name for bone in rig.data.bones])
+        return None
+
+    d2r = math.pi/180
+    for m,frame in enumerate(frames):
+        if poseIndex is None:
+            pose = {}
+        else:
+            pose = poseIndex[m]
+        for n,vec in enumerate(frame):
+            joint = joints[n]
+            euler = Euler(Vector(vec)*d2r)        
+            quat = euler.to_quaternion()
+            if abs(quat.to_axis_angle()[1]) > 1e-4:
+                pose[joint] = quat
+
+    return pose            
+            
 #------------------------------------------------------------------------
 #   Buttons
 #------------------------------------------------------------------------
@@ -321,6 +343,6 @@ class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
     def execute(self, context):
         global _FacePoses
         rig = context.object
-        removeBoneDrivers(rig, "Mfa", getFacePoses())
+        removeBoneDrivers(rig, "Mfa", rig.MhxFacePoses.poses)
         rig.MhxFaceRigDrivers = False
         return{'FINISHED'}

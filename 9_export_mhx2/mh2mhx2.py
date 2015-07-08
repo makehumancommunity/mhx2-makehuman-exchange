@@ -74,9 +74,10 @@ def exportMhx2(filepath, cfg):
         addSkeleton(mhSkel, skel, name, cfg)
 
         mhAnim = mhSkel["animation"] = OrderedDict()
-        posepath = os.path.join("data", "poseunits")
-        if os.path.exists(posepath):
-            addAnims(posepath, file, mhAnim, human)
+        unitpath = os.path.join("data", "poseunits")
+        addAnims(unitpath, file, mhAnim)
+        posepath = os.path.join("data", "poses")
+        addAnims(posepath, file, mhAnim)
 
     mhMaterials = mhFile["materials"] = []
     mats = {}
@@ -98,37 +99,34 @@ def exportMhx2(filepath, cfg):
 #   Animation
 #-----------------------------------------------------------------------
 
-def addAnims(posepath, file, mhAnim, human):
+def addAnims(folder, file, mhAnim):
+    if not os.path.exists(folder):
+        return
+    for file in os.listdir(folder):
+        addAnim(folder, file, mhAnim)
+        
+        
+def addAnim(folder, file, mhAnim):        
     import quick_bvh
     import json
 
-    for file in os.listdir(posepath):
-        path = os.path.join(posepath, file)
-        fname,ext = os.path.splitext(file)
-        if ext == ".json":
-            bvhpath = os.path.join(posepath, fname+".bvh")
-            if os.path.exists(bvhpath):
-                try:
-                    fp = open(path, "rU")
-                    struct = json.load(fp)
-                finally:
-                    fp.close()
+    path = os.path.join(folder, file)
+    fname,ext = os.path.splitext(file)
+    if ext == ".bvh":
+        mhComp = mhAnim[fname] = {}
+        jsonpath = os.path.join(folder, fname+".json")
+        if os.path.exists(jsonpath):
+            try:
+                fp = open(jsonpath, "rU")
+                mhComp["json"] = json.load(fp)
+            finally:
+                fp.close()
 
-                mhBvh = OrderedDict()
-                mhAnim[fname] = {"json": struct, "bvh": mhBvh}
-                joints, channels, frames = quick_bvh.loadBvh(bvhpath)
-                mhBvh["joints"] = joints
-                mhBvh["channels"] = channels
-                mhBvh["frames"] = frames
-                
-                '''
-                bvh_file = bvh.load(bvhpath, "auto")
-                anim = bvh_file.createAnimationTrack(human.getBaseSkeleton())
-                for key in ["name", "description", "dataLen", "nFrames", "nBones", "frameRate", "loop"]:
-                    mhBvh[key] = getattr(anim, key)
-                mhBvh["joints"] = [joint.name for joint in bvh_file.bvhJoints if joint.name != "End effector"]
-                mhBvh["data"] = list(anim.data)
-                '''
+        mhBvh = mhComp["bvh"] = OrderedDict()
+        joints, channels, frames = quick_bvh.loadBvh(path)
+        mhBvh["joints"] = joints
+        mhBvh["channels"] = channels
+        mhBvh["frames"] = frames
 
 #-----------------------------------------------------------------------
 #   Materials
@@ -252,12 +250,21 @@ def addBone(mhBones, bone):
 
 
 def getRoll(mat):
-    qy = mat[0,2] - mat[2,0];
-    qw = mat[0,0] + mat[1,1] + mat[2,2] + 1;
+    from transformations import quaternion_from_matrix
+    qw,qx,qy,qz = quaternion_from_matrix(mat)
+    #qy = mat[0,2] - mat[2,0];
+    #qw = mat[0,0] + mat[1,1] + mat[2,2] + 1;
     if qw < 1e-4:
-        return 0
+        roll = 0
     else:
-        return math.pi - 2*math.atan2(qy, qw);
+        roll = math.pi - 2*math.atan2(qy, qw);
+    
+    if roll < -math.pi:
+        roll += 2*math.pi
+    elif roll > math.pi:
+        roll -= 2*math.pi
+
+    return roll
     
 #-----------------------------------------------------------------------
 #   Meshes
