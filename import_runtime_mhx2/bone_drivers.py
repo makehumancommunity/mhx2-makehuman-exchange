@@ -232,12 +232,15 @@ def buildAnimation(mhSkel, rig, cfg):
     if "face-poseunits" in mhAnim.keys():
         mhJson = mhAnim["face-poseunits"]["json"]
         mhBvh = mhAnim["face-poseunits"]["bvh"]
-        nBones = mhBvh["nBones"]
-        nFrames = mhBvh["nFrames"]
-        bones = mhBvh["joints"]
-        if len(bones) != len(rig.data.bones):
-            print("Animation does not match skeleton (%d != %d). Ignoring" % (len(bones), len(rig.data.bones)))
-            print(bones)
+        joints = mhBvh["joints"]
+        channels = mhBvh["channels"]
+        frames = mhBvh["frames"]
+        nJoints = len(joints)
+        nFrames = len(frames)
+
+        if nJoints != len(rig.data.bones):
+            print("Animation does not match skeleton (%d != %d). Ignoring" % (nJoints, len(rig.data.bones)))
+            print(joints)
             print([bone.name for bone in rig.data.bones])
             return
 
@@ -246,42 +249,19 @@ def buildAnimation(mhSkel, rig, cfg):
         for n,name in enumerate(mhJson["framemapping"]):
             poseIndex[n] = poses[name] = {}
 
-        data = mhBvh["data"]
-        print("nB", nBones)
-        print("nF", nFrames)
-        print("lF", len(data))
-
-        lFrame = len(data)//nFrames
-        print("lF", lFrame)
-        frames = [data[n*lFrame:(n+1)*lFrame] for n in range(nFrames)]
-
-        hits = nBones*[0]
+        hits = nJoints*[0]
         unit = Quaternion()
+        d2r = math.pi/180
         for m,frame in enumerate(frames):
             pose = poseIndex[m]
-            for n,frbone in enumerate(frame[1:]):
-                x,y,z = frbone
-                mat = Matrix(frbone).to_3x3()
-                quat = mat.to_quaternion()
-                bone = bones[n]
+            for n,vec in enumerate(frame):
+                joint = joints[n]
+                euler = Euler(Vector(vec)*d2r)                
+                quat = euler.to_quaternion()
                 if abs(quat.to_axis_angle()[1]) > 1e-4:
                     hits[n] += 1
-
-        nhb = 0
-        for n,h in enumerate(hits):
-            if h>0:
-                print(n, bones[n], h)
-                nhb += 1
-        for n,b in enumerate(bones):
-            print("  ", n, b)
-        print("NHB", nhb)
-
-        for m,frame in enumerate(mhBvh["data"]):
-            x,y,z = frame
-            if not (equal(x,[1,0,0,0]) and equal(y,[0,1,0,0]) and equal(z,[0,0,1,0])):
-                mat = Matrix((x[0:3], y[0:3], z[0:3]))
-                pose[bone] = mat.to_quaternion()
-
+                    pose[joint] = quat
+                    
         for key,value in poses.items():
             rig.MhxFacePoses.poses[key] = value
 
