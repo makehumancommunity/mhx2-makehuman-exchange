@@ -215,7 +215,7 @@ def checkRoll(rig):
 
 class MHPoses(bpy.types.PropertyGroup):
     poses = {}
-                
+
 #------------------------------------------------------------------------
 #   Animation
 #------------------------------------------------------------------------
@@ -226,9 +226,9 @@ def equal(x,y):
 
 def buildAnimation(mhSkel, rig, cfg):
     if "animation" not in mhSkel.keys():
-        return    
+        return
     mhAnim = mhSkel["animation"]
-        
+
     if "face-poseunits" in mhAnim.keys():
         mhJson = mhAnim["face-poseunits"]["json"]
         mhBvh = mhAnim["face-poseunits"]["bvh"]
@@ -245,17 +245,42 @@ def buildAnimation(mhSkel, rig, cfg):
         poseIndex = {}
         for n,name in enumerate(mhJson["framemapping"]):
             poseIndex[n] = poses[name] = {}
-            
+
+        data = mhBvh["data"]
+        print("nB", nBones)
+        print("nF", nFrames)
+        print("lF", len(data))
+
+        lFrame = len(data)//nFrames
+        print("lF", lFrame)
+        frames = [data[n*lFrame:(n+1)*lFrame] for n in range(nFrames)]
+
+        hits = nBones*[0]
+        unit = Quaternion()
+        for m,frame in enumerate(frames):
+            pose = poseIndex[m]
+            for n,frbone in enumerate(frame[1:]):
+                x,y,z = frbone
+                mat = Matrix(frbone).to_3x3()
+                quat = mat.to_quaternion()
+                bone = bones[n]
+                if abs(quat.to_axis_angle()[1]) > 1e-4:
+                    hits[n] += 1
+
+        nhb = 0
+        for n,h in enumerate(hits):
+            if h>0:
+                print(n, bones[n], h)
+                nhb += 1
+        for n,b in enumerate(bones):
+            print("  ", n, b)
+        print("NHB", nhb)
+
         for m,frame in enumerate(mhBvh["data"]):
             x,y,z = frame
             if not (equal(x,[1,0,0,0]) and equal(y,[0,1,0,0]) and equal(z,[0,0,1,0])):
                 mat = Matrix((x[0:3], y[0:3], z[0:3]))
-                pose = poseIndex[m % nFrames]
-                bone = bones[m % nBones]
                 pose[bone] = mat.to_quaternion()
-
-        #for name,pose in poses.items():
-        #    print(name, list(pose.keys()))
 
         for key,value in poses.items():
             rig.MhxFacePoses.poses[key] = value
@@ -263,7 +288,7 @@ def buildAnimation(mhSkel, rig, cfg):
         if cfg.useFaceRigDrivers:
             addBoneDrivers(rig, "Mfa", poses)
             rig.MhxFaceRigDrivers = True
-                
+
 #------------------------------------------------------------------------
 #   Buttons
 #------------------------------------------------------------------------
