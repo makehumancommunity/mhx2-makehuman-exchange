@@ -298,12 +298,24 @@ def buildSkeleton(mhSkel, scn, cfg):
     reallySelect(rig, scn)
 
     scale,offset = getScaleOffset(mhSkel, cfg, True)
+    offset4 = Vector((offset[0], offset[1], offset[2], 0))
     bpy.ops.object.mode_set(mode='EDIT')
     for mhBone in mhSkel["bones"]:
         eb = amt.edit_bones.new(mhBone["name"])
         eb.head = zup(mhBone["head"])+offset
         eb.tail = zup(mhBone["tail"])+offset
-        eb.roll = mhBone["roll"]
+        if "matrix" in mhBone.keys():
+            mat = Matrix(mhBone["matrix"])
+            print(eb.name)
+            nmat = Matrix((mat[0], -mat[2], mat[1])).to_3x3().to_4x4()
+            nmat.col[3] = eb.matrix.col[3]
+            print(eb.matrix)   
+            print(mat)
+            print(nmat)
+            eb.matrix = nmat
+            print(eb.matrix)            
+        else:
+            eb.roll = mhBone["roll"]
         if "parent" in mhBone.keys():
             eb.parent = amt.edit_bones[mhBone["parent"]]
 

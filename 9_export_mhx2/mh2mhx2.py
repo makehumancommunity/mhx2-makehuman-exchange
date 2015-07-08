@@ -244,13 +244,19 @@ def addBone(mhBones, bone):
         mhBone["parent"] = bone.parent.name
     mhBone["head"] = list(bone.getHead())
     mhBone["tail"] = list(bone.getTail())
-    mat = bone.matRestGlobal
-    mhBone["roll"] = getRoll(mat)
-    mhBone["matrix"] = [list(mat[0,:]), list(mat[1,:]), list(mat[2,:]), list(mat[3,:])]
+    rmat = bone.matRestGlobal    
+    roll = mhBone["roll"] = getRoll(rmat)
+    log.message("%s %s" % (bone.name, roll))
+    log.message(bone.getHead())
+    log.message(rmat)
+    mhBone["matrix"] = [list(rmat[0,:]), list(rmat[1,:]), list(rmat[2,:]), list(rmat[3,:])]
 
 
-def getRoll(mat):
+def getRoll(rmat):
     from transformations import quaternion_from_matrix
+    mat = np.array((rmat[0], -rmat[2], rmat[1], rmat[3]))
+    log.message(mat)
+    #mat = rmat
     qw,qx,qy,qz = quaternion_from_matrix(mat)
     #qy = mat[0,2] - mat[2,0];
     #qw = mat[0,0] + mat[1,1] + mat[2,2] + 1;
@@ -264,6 +270,7 @@ def getRoll(mat):
     elif roll > math.pi:
         roll -= 2*math.pi
 
+    print(roll)
     return roll
     
 #-----------------------------------------------------------------------

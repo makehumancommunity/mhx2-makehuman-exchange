@@ -225,6 +225,7 @@ def equal(x,y):
 
 
 def buildAnimation(mhSkel, rig, cfg):
+    return
     if "animation" not in mhSkel.keys():
         return
     mhAnims = mhSkel["animation"]
