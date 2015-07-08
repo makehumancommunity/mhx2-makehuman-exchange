@@ -74,10 +74,12 @@ def exportMhx2(filepath, cfg):
         addSkeleton(mhSkel, skel, name, cfg)
 
         mhAnim = mhSkel["animation"] = OrderedDict()
-        unitpath = os.path.join("data", "poseunits")
-        addAnims(unitpath, file, mhAnim)
-        posepath = os.path.join("data", "poses")
-        addAnims(posepath, file, mhAnim)
+        if cfg.usePoseUnits:
+            path = os.path.join("data", "poseunits")
+            addAnims(path, file, mhAnim)
+        if cfg.usePoses:
+            path = os.path.join("data", "poses")
+            addAnims(path, file, mhAnim)
 
     mhMaterials = mhFile["materials"] = []
     mats = {}
@@ -104,9 +106,9 @@ def addAnims(folder, file, mhAnim):
         return
     for file in os.listdir(folder):
         addAnim(folder, file, mhAnim)
-        
-        
-def addAnim(folder, file, mhAnim):        
+
+
+def addAnim(folder, file, mhAnim):
     import quick_bvh
     import json
 
@@ -244,19 +246,15 @@ def addBone(mhBones, bone):
         mhBone["parent"] = bone.parent.name
     mhBone["head"] = list(bone.getHead())
     mhBone["tail"] = list(bone.getTail())
-    rmat = bone.matRestGlobal    
+    rmat = bone.matRestGlobal
     roll = mhBone["roll"] = getRoll(rmat)
-    log.message("%s %s" % (bone.name, roll))
-    log.message(bone.getHead())
-    log.message(rmat)
     mhBone["matrix"] = [list(rmat[0,:]), list(rmat[1,:]), list(rmat[2,:]), list(rmat[3,:])]
 
 
 def getRoll(rmat):
     from transformations import quaternion_from_matrix
-    mat = np.array((rmat[0], -rmat[2], rmat[1], rmat[3]))
-    log.message(mat)
-    #mat = rmat
+    #mat = np.array((rmat[0], -rmat[2], rmat[1], rmat[3]))
+    mat = rmat
     qw,qx,qy,qz = quaternion_from_matrix(mat)
     #qy = mat[0,2] - mat[2,0];
     #qw = mat[0,0] + mat[1,1] + mat[2,2] + 1;
@@ -264,15 +262,14 @@ def getRoll(rmat):
         roll = 0
     else:
         roll = math.pi - 2*math.atan2(qy, qw);
-    
+
     if roll < -math.pi:
         roll += 2*math.pi
     elif roll > math.pi:
         roll -= 2*math.pi
 
-    print(roll)
     return roll
-    
+
 #-----------------------------------------------------------------------
 #   Meshes
 #-----------------------------------------------------------------------

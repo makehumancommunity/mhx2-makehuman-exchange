@@ -225,7 +225,6 @@ def equal(x,y):
 
 
 def buildAnimation(mhSkel, rig, cfg):
-    return
     if "animation" not in mhSkel.keys():
         return
     mhAnims = mhSkel["animation"]
@@ -238,44 +237,44 @@ def buildAnimation(mhSkel, rig, cfg):
         for n,name in enumerate(mhJson["framemapping"]):
             poseIndex[n] = poses[name] = {}
 
-        buildBvh(mhAnim["bvh"], rig, poseIndex)
+        buildBvh(mhAnim["bvh"], poseIndex)
         for key,value in poses.items():
             rig.MhxFacePoses.poses[key] = value
 
         if cfg.useFaceRigDrivers:
             addBoneDrivers(rig, "Mfa", poses)
             rig.MhxFaceRigDrivers = True
-        
-    poses = {}        
+
+    poses = {}
     for aname,mhAnim in mhAnims.items():
         if aname != "face-poseunits":
-            pose = buildBvh(mhAnim["bvh"], rig, None)
+            pose = buildBvh(mhAnim["bvh"], None)
+            keys = list(pose.keys())
+            keys.sort()
+            print(aname, keys)
             if pose is not None:
                 poses[aname] = pose
 
+    if poses == {}:
+        return
+
     if rig.animation_data:
-        rig.animation_data.action = None        
+        rig.animation_data.action = None
     for frame,pose in enumerate(poses.values()):
         for pb in rig.pose.bones:
             if pb.name in pose.keys():
                 pb.rotation_quaternion = pose[pb.name]
             else:
-                pb.rotation_quaternion = (1,0,0,0)                
-            pb.keyframe_insert('rotation_quaternion', frame=frame, group=pb.name)
+                pb.rotation_quaternion = (1,0,0,0)
+            pb.keyframe_insert('rotation_quaternion', frame=frame+2, group=pb.name)
 
 
-def buildBvh(mhBvh, rig, poseIndex):
+def buildBvh(mhBvh, poseIndex):
     joints = mhBvh["joints"]
     channels = mhBvh["channels"]
     frames = mhBvh["frames"]
     nJoints = len(joints)
     nFrames = len(frames)
-
-    if nJoints != len(rig.data.bones):
-        print("Animation does not match skeleton (%d != %d). Ignoring" % (nJoints, len(rig.data.bones)))
-        print(joints)
-        print([bone.name for bone in rig.data.bones])
-        return None
 
     d2r = math.pi/180
     for m,frame in enumerate(frames):
@@ -285,13 +284,13 @@ def buildBvh(mhBvh, rig, poseIndex):
             pose = poseIndex[m]
         for n,vec in enumerate(frame):
             joint = joints[n]
-            euler = Euler(Vector(vec)*d2r)        
+            euler = Euler(Vector(vec)*d2r)
             quat = euler.to_quaternion()
             if abs(quat.to_axis_angle()[1]) > 1e-4:
                 pose[joint] = quat
 
-    return pose            
-            
+    return pose
+
 #------------------------------------------------------------------------
 #   Buttons
 #------------------------------------------------------------------------

@@ -306,14 +306,9 @@ def buildSkeleton(mhSkel, scn, cfg):
         eb.tail = zup(mhBone["tail"])+offset
         if "matrix" in mhBone.keys():
             mat = Matrix(mhBone["matrix"])
-            print(eb.name)
             nmat = Matrix((mat[0], -mat[2], mat[1])).to_3x3().to_4x4()
             nmat.col[3] = eb.matrix.col[3]
-            print(eb.matrix)   
-            print(mat)
-            print(nmat)
             eb.matrix = nmat
-            print(eb.matrix)            
         else:
             eb.roll = mhBone["roll"]
         if "parent" in mhBone.keys():
