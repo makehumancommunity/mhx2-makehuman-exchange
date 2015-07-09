@@ -298,7 +298,6 @@ def buildSkeleton(mhSkel, scn, cfg):
     reallySelect(rig, scn)
 
     scale,offset = getScaleOffset(mhSkel, cfg, True)
-    offset4 = Vector((offset[0], offset[1], offset[2], 0))
     bpy.ops.object.mode_set(mode='EDIT')
     for mhBone in mhSkel["bones"]:
         eb = amt.edit_bones.new(mhBone["name"])

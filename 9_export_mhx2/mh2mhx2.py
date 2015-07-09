@@ -253,8 +253,8 @@ def addBone(mhBones, bone):
 
 def getRoll(rmat):
     from transformations import quaternion_from_matrix
-    #mat = np.array((rmat[0], -rmat[2], rmat[1], rmat[3]))
-    mat = rmat
+    mat = np.array((rmat[0], -rmat[2], rmat[1], rmat[3]))
+    #mat = rmat
     qw,qx,qy,qz = quaternion_from_matrix(mat)
     #qy = mat[0,2] - mat[2,0];
     #qw = mat[0,0] + mat[1,1] + mat[2,2] + 1;

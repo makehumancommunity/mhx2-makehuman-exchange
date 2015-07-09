@@ -229,6 +229,14 @@ def buildAnimation(mhSkel, rig, cfg):
         return
     mhAnims = mhSkel["animation"]
 
+    corr = {}
+    flipmat = Matrix.Rotation(math.pi/2, 3, 'X') * Matrix.Rotation(0, 3, 'X')
+    for bone in rig.data.bones:
+        loc,rot,scale = bone.matrix_local.decompose()
+        rmat = rot.to_matrix()
+        #corr[bone.name] = flipmat.inverted() * rmat
+        corr[bone.name] = rmat
+
     if "face-poseunits" in mhAnims.keys():
         mhAnim = mhAnims["face-poseunits"]
         mhJson = mhAnim["json"]
@@ -237,7 +245,7 @@ def buildAnimation(mhSkel, rig, cfg):
         for n,name in enumerate(mhJson["framemapping"]):
             poseIndex[n] = poses[name] = {}
 
-        buildBvh(mhAnim["bvh"], poseIndex)
+        buildBvh(mhAnim["bvh"], poseIndex, corr)
         for key,value in poses.items():
             rig.MhxFacePoses.poses[key] = value
 
@@ -248,10 +256,11 @@ def buildAnimation(mhSkel, rig, cfg):
     poses = {}
     for aname,mhAnim in mhAnims.items():
         if aname != "face-poseunits":
-            pose = buildBvh(mhAnim["bvh"], None)
-            keys = list(pose.keys())
-            keys.sort()
-            print(aname, keys)
+            pose = buildBvh(mhAnim["bvh"], None, corr)
+            print(aname)
+            r2d = 180/math.pi
+            for key,value in pose.items():
+                x,y,z = value.to_euler()
             if pose is not None:
                 poses[aname] = pose
 
@@ -269,7 +278,7 @@ def buildAnimation(mhSkel, rig, cfg):
             pb.keyframe_insert('rotation_quaternion', frame=frame+2, group=pb.name)
 
 
-def buildBvh(mhBvh, poseIndex):
+def buildBvh(mhBvh, poseIndex, corr):
     joints = mhBvh["joints"]
     channels = mhBvh["channels"]
     frames = mhBvh["frames"]
@@ -283,11 +292,15 @@ def buildBvh(mhBvh, poseIndex):
         else:
             pose = poseIndex[m]
         for n,vec in enumerate(frame):
-            joint = joints[n]
-            euler = Euler(Vector(vec)*d2r)
+            x,y,z = vec
+            euler = Euler((x*d2r, y*d2r, z*d2r), 'XZY')
             quat = euler.to_quaternion()
             if abs(quat.to_axis_angle()[1]) > 1e-4:
-                pose[joint] = quat
+                joint = joints[n]
+                if joint in corr.keys():
+                    cmat = corr[joint]
+                    qmat = cmat.inverted() * euler.to_matrix() * cmat
+                    pose[joint] = qmat.to_quaternion()
 
     return pose
 
