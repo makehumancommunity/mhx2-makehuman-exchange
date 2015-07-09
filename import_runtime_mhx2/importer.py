@@ -115,17 +115,13 @@ def build(struct, cfg, context):
         if cfg.useRig:
             if cfg.rigType == 'EXPORTED':
                 if "skeleton" in struct.keys():
-                    from .bone_drivers import buildAnimation
                     mhSkel = struct["skeleton"]
                     rig = buildSkeleton(mhSkel, scn, cfg)
-                    buildAnimation(mhSkel, rig, cfg)
             else:
                 rig,parser = buildRig(mhHuman, cfg, context)
     elif "skeleton" in struct.keys():
-        from .bone_drivers import buildAnimation
         mhSkel = struct["skeleton"]
         rig = buildSkeleton(mhSkel, scn, cfg)
-        buildAnimation(mhSkel, rig, cfg)
 
     if rig:
         rig.MhxScale = mhHuman["scale"]
@@ -288,6 +284,7 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
 
 def buildSkeleton(mhSkel, scn, cfg):
     from .geometries import getScaleOffset
+    from .bone_drivers import buildAnimation
 
     rname = mhSkel["name"]
     amt = bpy.data.armatures.new(rname)
@@ -315,6 +312,7 @@ def buildSkeleton(mhSkel, scn, cfg):
 
     bpy.ops.object.mode_set(mode='OBJECT')
     rig.MhxRig = "Exported"
+    buildAnimation(mhSkel, rig, cfg)
     return rig
 
 #------------------------------------------------------------------------
