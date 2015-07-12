@@ -24,8 +24,8 @@ def loadBvh(filepath):
     channels = {}
     frames = []
     ncols = 0
-    nskip = 0
-    nchannels = 0
+    ridx = 0
+    rotIndex = []
     joint = None
     useMotion = False
     try:
@@ -39,28 +39,24 @@ def loadBvh(filepath):
                 joints.append(joint)
             elif words[0] == "CHANNELS":
                 n = int(words[1])
+                rotIndex.append(ncols + n - 3)
                 ncols += n
-                nskip += n-3
                 cnames = words[-3:]
                 channels[joint] = cnames[0][0] + cnames[1][0] + cnames[2][0]
             elif words[0] == "MOTION":
                 useMotion = True
-                nchannels = (ncols-nskip)//3
             elif useMotion and len(words) == ncols:
                 frame = []
-                words = words[nskip:]
-                while words:
+                for idx in rotIndex:
                     floats = []
-                    for word in words[:3]:
+                    for word in words[idx:idx+3]:
                         x = float(word)
                         if abs(x) < 1e-5:
                             x = 0
                         floats.append(x)
                     frame.append(np.array(floats))
-                    words = words[3:]
                 frames.append(frame)
     finally:
         fp.close()
     return joints, channels, frames
-                
-            
+

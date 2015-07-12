@@ -146,6 +146,9 @@ def getStruct(filename, struct):
         struct = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
     return struct
 
+#------------------------------------------------------------------------
+#   Face poses
+#------------------------------------------------------------------------
 
 _FacePoses = None
 
@@ -171,6 +174,9 @@ def checkRoll(rig):
             "Jaw bone has wrong roll value\n" +
             "Export from newrig repo")
 
+#------------------------------------------------------------------------
+#   Add bone drivers
+#------------------------------------------------------------------------
 
 def addBoneDrivers(rig, prefix, poses):
     initRnaProperties(rig)
@@ -204,36 +210,6 @@ def addBoneDrivers(rig, prefix, poses):
         if pb:
             addDrivers(rig, pb, "rotation_quaternion", data, zeroQuat)
 
-#------------------------------------------------------------------------
-#   Face poses
-#------------------------------------------------------------------------
-'''
-_FacePoses = None
-
-def getFacePoses(rig = None):
-    from collections import OrderedDict
-    global _FacePoses
-    print(_FacePoses)
-    return _FacePoses["poses"]
-    if _FacePoses is None:
-        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
-        _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
-        if rig:
-            checkRoll(rig)
-    print(_FacePoses)
-    return _FacePoses["poses"]
-
-
-def checkRoll(rig):
-    try:
-        jaw = rig.data.bones["jaw"]
-    except KeyError:
-        return
-    if abs(getRoll(jaw)) > math.pi/2:
-        raise MhxError(
-            "Jaw bone has wrong roll value\n" +
-            "Export from newrig repo")
-'''
 #------------------------------------------------------------------------
 #   MHPoses
 #------------------------------------------------------------------------
@@ -278,22 +254,29 @@ def buildAnimation(mhSkel, rig, cfg):
             addBoneDrivers(rig, "Mfa", poses)
             rig.MhxFaceRigDrivers = True
 
-    poses = {}
-    for aname,mhAnim in mhAnims.items():
+    poses = OrderedDict()
+    anims = list(mhAnims.items())
+    anims.sort()
+    for aname,mhAnim in anims:
         if aname != "face-poseunits":
-            pose = buildBvh(mhAnim["bvh"], None, corr)
-            r2d = 180/math.pi
-            for key,value in pose.items():
-                x,y,z = value.to_euler()
-            if pose is not None:
-                poses[aname] = pose
+            mhBvh = mhAnim["bvh"]
+            frames = mhBvh["frames"]
+            poseIndex = dict([(n,{}) for n in range(len(frames))])
+            buildBvh(mhBvh, poseIndex, corr)
+            poses[aname] = poseIndex[0]
 
     if poses == {}:
         return
 
     if rig.animation_data:
         rig.animation_data.action = None
-    for frame,pose in enumerate(poses.values()):
+    for pb in rig.pose.bones:
+        pb.rotation_quaternion = (1,0,0,0)
+        pb.keyframe_insert('rotation_quaternion', frame=1, group=pb.name)
+    print("Poses:")
+    for frame,data in enumerate(poses.items()):
+        aname,pose = data
+        print("  %d: %s" % (frame+2, aname))
         for pb in rig.pose.bones:
             if pb.name in pose.keys():
                 pb.rotation_quaternion = pose[pb.name]
@@ -304,17 +287,14 @@ def buildAnimation(mhSkel, rig, cfg):
 
 def buildBvh(mhBvh, poseIndex, corr):
     joints = mhBvh["joints"]
-    channels = mhBvh["channels"]
+    #channels = mhBvh["channels"]
     frames = mhBvh["frames"]
     nJoints = len(joints)
     nFrames = len(frames)
 
     d2r = math.pi/180
     for m,frame in enumerate(frames):
-        if poseIndex is None:
-            pose = {}
-        else:
-            pose = poseIndex[m]
+        pose = poseIndex[m]
         for n,vec in enumerate(frame):
             x,y,z = vec
             euler = Euler((x*d2r, y*d2r, z*d2r), 'XZY')
@@ -325,8 +305,6 @@ def buildBvh(mhBvh, poseIndex, corr):
                     cmat = corr[joint]
                     qmat = cmat.inverted() * euler.to_matrix() * cmat
                     pose[joint] = qmat.to_quaternion()
-
-    return pose
 
 #------------------------------------------------------------------------
 #   Buttons

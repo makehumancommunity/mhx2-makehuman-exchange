@@ -127,7 +127,7 @@ def addAnim(folder, file, mhAnim):
         mhBvh = mhComp["bvh"] = OrderedDict()
         joints, channels, frames = quick_bvh.loadBvh(path)
         mhBvh["joints"] = joints
-        mhBvh["channels"] = channels
+        #mhBvh["channels"] = channels
         mhBvh["frames"] = frames
 
 #-----------------------------------------------------------------------
