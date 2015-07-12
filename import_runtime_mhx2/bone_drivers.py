@@ -147,6 +147,31 @@ def getStruct(filename, struct):
     return struct
 
 
+_FacePoses = None
+
+def getFacePoses(rig = None):
+    from collections import OrderedDict
+    global _FacePoses
+    if _FacePoses is None:
+        filepath = os.path.join(os.path.dirname(__file__), "data/hm8/faceshapes/faceposes.mxa")
+        _FacePoses = json.load(open(filepath, 'rU'), object_pairs_hook=OrderedDict)
+    if rig:
+        checkRoll(rig)
+    print(_FacePoses)
+    return _FacePoses
+
+
+def checkRoll(rig):
+    try:
+        jaw = rig.data.bones["jaw"]
+    except KeyError:
+        return
+    if abs(getRoll(jaw)) > math.pi/2:
+        raise MhxError(
+            "Jaw bone has wrong roll value\n" +
+            "Export from newrig repo")
+
+
 def addBoneDrivers(rig, prefix, poses):
     initRnaProperties(rig)
     for prop in poses.keys():
@@ -257,7 +282,6 @@ def buildAnimation(mhSkel, rig, cfg):
     for aname,mhAnim in mhAnims.items():
         if aname != "face-poseunits":
             pose = buildBvh(mhAnim["bvh"], None, corr)
-            print(aname)
             r2d = 180/math.pi
             for key,value in pose.items():
                 x,y,z = value.to_euler()
@@ -322,7 +346,9 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
     def execute(self, context):
         global _FacePoses
         rig = context.object
-        addBoneDrivers(rig, "Mfa", rig.MhxFacePoses.poses)
+        poses = rig.MhxFacePoses.poses
+        #poses = getFacePoses(rig)["poses"]
+        addBoneDrivers(rig, "Mfa", poses)
         rig.MhxFaceRigDrivers = True
         return{'FINISHED'}
 
@@ -356,6 +382,8 @@ class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
     def execute(self, context):
         global _FacePoses
         rig = context.object
-        removeBoneDrivers(rig, "Mfa", rig.MhxFacePoses.poses)
+        poses = rig.MhxFacePoses.poses
+        #poses = getFacePoses(rig)["poses"]
+        removeBoneDrivers(rig, "Mfa", poses)
         rig.MhxFaceRigDrivers = False
         return{'FINISHED'}
