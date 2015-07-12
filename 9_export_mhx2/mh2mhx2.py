@@ -73,13 +73,16 @@ def exportMhx2(filepath, cfg):
         mhSkel = mhFile["skeleton"] = OrderedDict()
         addSkeleton(mhSkel, skel, name, cfg)
 
-        mhAnim = mhSkel["animation"] = OrderedDict()
         if cfg.usePoseUnits:
+            mhExpr = mhSkel["expressions"] = OrderedDict()
             path = os.path.join("data", "poseunits")
-            addAnims(path, file, mhAnim)
+            addAnims(path, mhExpr)
+            path = os.path.join("data", "expressions")
+            addJsons(path, ".mhpose", mhExpr)
         if cfg.usePoses:
+            mhAnim = mhSkel["animation"] = OrderedDict()
             path = os.path.join("data", "poses")
-            addAnims(path, file, mhAnim)
+            addAnims(path, mhAnim)
 
     mhMaterials = mhFile["materials"] = []
     mats = {}
@@ -101,7 +104,32 @@ def exportMhx2(filepath, cfg):
 #   Animation
 #-----------------------------------------------------------------------
 
-def addAnims(folder, file, mhAnim):
+def addJsons(folder, ext, struct):
+    if not os.path.exists(folder):
+        return
+    for file in os.listdir(folder):
+        fname,ext1 = os.path.splitext(file)
+        if os.path.splitext(file)[1] == ext:
+            path = os.path.join(folder, file)
+            jstruct = addJson(folder, file)
+            if jstruct:
+                struct[fname] = jstruct
+
+
+def addJson(folder, file):
+    import json
+    path = os.path.join(folder, file)
+    if os.path.exists(path):
+        try:
+            fp = open(path, "rU")
+            return json.load(fp)
+        finally:
+            fp.close()
+    else:
+        return None
+
+
+def addAnims(folder, mhAnim):
     if not os.path.exists(folder):
         return
     for file in os.listdir(folder):
@@ -110,20 +138,14 @@ def addAnims(folder, file, mhAnim):
 
 def addAnim(folder, file, mhAnim):
     import quick_bvh
-    import json
 
     path = os.path.join(folder, file)
     fname,ext = os.path.splitext(file)
     if ext == ".bvh":
         mhComp = mhAnim[fname] = {}
-        jsonpath = os.path.join(folder, fname+".json")
-        if os.path.exists(jsonpath):
-            try:
-                fp = open(jsonpath, "rU")
-                mhComp["json"] = json.load(fp)
-            finally:
-                fp.close()
-
+        jstruct = addJson(folder, fname+".json")
+        if jstruct:
+            mhComp["json"] = jstruct
         mhBvh = mhComp["bvh"] = OrderedDict()
         joints, channels, frames = quick_bvh.loadBvh(path)
         mhBvh["joints"] = joints

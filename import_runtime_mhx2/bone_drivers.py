@@ -211,11 +211,14 @@ def addBoneDrivers(rig, prefix, poses):
             addDrivers(rig, pb, "rotation_quaternion", data, zeroQuat)
 
 #------------------------------------------------------------------------
-#   MHPoses
+#   Property groups
 #------------------------------------------------------------------------
 
-class MHPoses(bpy.types.PropertyGroup):
-    poses = {}
+class MHFacePoses(bpy.types.PropertyGroup):
+    struct = {}
+
+class MHExpressions(bpy.types.PropertyGroup):
+    struct = {}
 
 #------------------------------------------------------------------------
 #   Animation
@@ -225,11 +228,7 @@ def equal(x,y):
     return ((x[0]==y[0]) and (x[1]==y[1]) and (x[2]==y[2]) and (x[3]==y[3]))
 
 
-def buildAnimation(mhSkel, rig, cfg):
-    if "animation" not in mhSkel.keys():
-        return
-    mhAnims = mhSkel["animation"]
-
+def getCorrections(rig):
     corr = {}
     flipmat = Matrix.Rotation(math.pi/2, 3, 'X') * Matrix.Rotation(0, 3, 'X')
     for bone in rig.data.bones:
@@ -237,33 +236,56 @@ def buildAnimation(mhSkel, rig, cfg):
         rmat = rot.to_matrix()
         #corr[bone.name] = flipmat.inverted() * rmat
         corr[bone.name] = rmat
+    return corr
 
-    if "face-poseunits" in mhAnims.keys():
-        mhAnim = mhAnims["face-poseunits"]
-        mhJson = mhAnim["json"]
-        poses = OrderedDict()
-        poseIndex = {}
-        for n,name in enumerate(mhJson["framemapping"]):
-            poseIndex[n] = poses[name] = {}
 
-        buildBvh(mhAnim["bvh"], poseIndex, corr)
-        for key,value in poses.items():
-            rig.MhxFacePoses.poses[key] = value
+def buildExpressions(mhSkel, rig, cfg):
+    if "expressions" not in mhSkel.keys():
+        return
+    mhExprs = mhSkel["expressions"]
+    if "face-poseunits" not in mhExprs.keys():
+        return
+    corr = getCorrections(rig)
 
-        if cfg.useFaceRigDrivers:
-            addBoneDrivers(rig, "Mfa", poses)
-            rig.MhxFaceRigDrivers = True
+    mhExpr = mhExprs["face-poseunits"]
+    mhJson = mhExpr["json"]
+    poses = OrderedDict()
+    poseIndex = {}
+    for n,name in enumerate(mhJson["framemapping"]):
+        poseIndex[n] = poses[name] = {}
+
+    buildBvh(mhExpr["bvh"], poseIndex, corr)
+    for key,value in poses.items():
+        rig.MhxFacePoses.struct[key] = value
+
+    if cfg.useFaceRigDrivers:
+        addBoneDrivers(rig, "Mfa", poses)
+        rig.MhxFaceRigDrivers = True
+
+    print("Expressions:")
+    mhxExprs = rig.MhxExpressions.struct
+    for ename in mhExprs.keys():
+        if ename == "face-poseunits":
+            continue
+        print("  ", ename)
+        mhxExprs[ename] = mhExprs[ename]
+
+
+def buildAnimation(mhSkel, rig, cfg):
+    if "animation" not in mhSkel.keys():
+        return
+    mhAnims = mhSkel["animation"]
+    corr = getCorrections(rig)
 
     poses = OrderedDict()
     anims = list(mhAnims.items())
     anims.sort()
     for aname,mhAnim in anims:
-        if aname != "face-poseunits":
-            mhBvh = mhAnim["bvh"]
-            frames = mhBvh["frames"]
-            poseIndex = dict([(n,{}) for n in range(len(frames))])
-            buildBvh(mhBvh, poseIndex, corr)
-            poses[aname] = poseIndex[0]
+        mhBvh = mhAnim["bvh"]
+        frames = mhBvh["frames"]
+        poseIndex = dict([(n,{}) for n in range(len(frames))])
+        buildBvh(mhBvh, poseIndex, corr)
+        poses[aname] = poseIndex[0]
 
     if poses == {}:
         return
@@ -307,7 +329,7 @@ def buildBvh(mhBvh, poseIndex, corr):
                     pose[joint] = qmat.to_quaternion()
 
 #------------------------------------------------------------------------
-#   Buttons
+#   Add Face Rig
 #------------------------------------------------------------------------
 
 class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
@@ -322,7 +344,6 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
         return (rig and rig.MhxFaceRig and not rig.MhxFaceRigDrivers)
 
     def execute(self, context):
-        global _FacePoses
         rig = context.object
         poses = rig.MhxFacePoses.poses
         #poses = getFacePoses(rig)["poses"]
@@ -330,6 +351,9 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
         rig.MhxFaceRigDrivers = True
         return{'FINISHED'}
 
+#------------------------------------------------------------------------
+#   Remove Face Rig
+#------------------------------------------------------------------------
 
 def removeBoneDrivers(rig, prefix, poses):
     bnames = {}
@@ -358,10 +382,35 @@ class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
         return (rig and rig.MhxFaceRigDrivers)
 
     def execute(self, context):
-        global _FacePoses
         rig = context.object
         poses = rig.MhxFacePoses.poses
         #poses = getFacePoses(rig)["poses"]
         removeBoneDrivers(rig, "Mfa", poses)
         rig.MhxFaceRigDrivers = False
         return{'FINISHED'}
+
+#------------------------------------------------------------------------
+#   Set expression
+#------------------------------------------------------------------------
+
+class VIEW3D_OT_SetExpressionButton(bpy.types.Operator):
+    bl_idname = "mhx2.set_expression"
+    bl_label = "Set Expression"
+    bl_description = "Set expression"
+    bl_options = {'UNDO'}
+
+    name = StringProperty()
+
+    def execute(self, context):
+        from .drivers import resetProps, autoKeyProp
+        rig = context.object
+        scn = context.scene
+        struct = rig.MhxExpressions.struct[self.name]
+        resetProps(rig, "Mfa", scn)
+        for key,value in struct["unit_poses"].items():
+            key = "Mfa"+key
+            rig[key] = value
+            autoKeyProp(rig, key, scn)
+        updateScene(context)
+        return{'FINISHED'}
+

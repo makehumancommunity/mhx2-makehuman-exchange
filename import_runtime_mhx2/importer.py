@@ -284,7 +284,7 @@ def addMeshProxy(type, pname, mhHuman, mats, rig, parser, scn, cfg):
 
 def buildSkeleton(mhSkel, scn, cfg):
     from .geometries import getScaleOffset
-    from .bone_drivers import buildAnimation
+    from .bone_drivers import buildAnimation, buildExpressions
 
     rname = mhSkel["name"]
     amt = bpy.data.armatures.new(rname)
@@ -312,6 +312,7 @@ def buildSkeleton(mhSkel, scn, cfg):
 
     bpy.ops.object.mode_set(mode='OBJECT')
     rig.MhxRig = "Exported"
+    buildExpressions(mhSkel, rig, cfg)
     buildAnimation(mhSkel, rig, cfg)
     return rig
 

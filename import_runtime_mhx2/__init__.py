@@ -609,11 +609,35 @@ class FaceComponentsPanel(bpy.types.Panel):
 
     def draw(self, context):
         rig = context.object
-        if rig:
-            layout = self.layout
-            layout.operator("mhx2.reset_props").prefix = "Mfa"
-            layout.operator("mhx2.load_faceshift_bvh")
-            drawProperties(layout, rig, "Mfa")
+        layout = self.layout
+        layout.operator("mhx2.reset_props").prefix = "Mfa"
+        layout.operator("mhx2.load_faceshift_bvh")
+        drawProperties(layout, rig, "Mfa")
+
+#------------------------------------------------------------------------
+#   Expression
+#------------------------------------------------------------------------
+
+class ExpressionPanel(bpy.types.Panel):
+    bl_label = "Expressions"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        rig = context.object
+        return (rig and rig.MhxExpressions.struct)
+
+    def draw(self, context):
+        rig = context.object
+        layout = self.layout
+        exprs = list(rig.MhxExpressions.struct.keys())
+        exprs.sort()
+        for ename in exprs:
+            btn = layout.operator("mhx2.set_expression", text=ename)
+            btn.name = ename
 
 #------------------------------------------------------------------------
 #   Face Shape panel
@@ -711,8 +735,8 @@ def menu_func(self, context):
     self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
 
 def register():
-    from .bone_drivers import MHPoses
-    
+    from .bone_drivers import MHExpressions, MHFacePoses
+
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
     bpy.types.Object.MhxUuid = StringProperty(default="")
@@ -727,6 +751,7 @@ def register():
     bpy.types.Object.MhxFacePanel = BoolProperty(default=False)
     bpy.types.Object.MhxFaceShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
+    bpy.types.Object.MhxExpress = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
 
@@ -767,23 +792,23 @@ def register():
 
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
-    bpy.utils.register_class(MHPoses)
-    bpy.types.Object.MhxFacePoses = PointerProperty(type=MHPoses)
+    bpy.utils.register_class(MHFacePoses)
+    bpy.types.Object.MhxFacePoses = PointerProperty(type=MHFacePoses)
+    bpy.utils.register_class(MHExpressions)
+    bpy.types.Object.MhxExpressions = PointerProperty(type=MHExpressions)
 
     bpy.utils.register_class(ErrorOperator)
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func)
 
+
 def unregister():
-    from .bone_drivers import MHPoses
-    try:
-        bpy.utils.register_class(ErrorOperator)
-    except:
-        pass
-    try:
-        bpy.utils.register_class(MHPoses)
-    except:
-        pass
+    from .bone_drivers import MHFacePoses, MHExpressions
+    for cls in [ErrorOperator, MHFacePoses, MHExpressions]:
+        try:
+            bpy.utils.register_class(cls)
+        except:
+            pass
     try:
         bpy.utils.unregister_module(__name__)
     except:
@@ -792,6 +817,7 @@ def unregister():
         bpy.types.INFO_MT_file_import.remove(menu_func)
     except:
         pass
+
 
 if __name__ == "__main__":
     unregister()
