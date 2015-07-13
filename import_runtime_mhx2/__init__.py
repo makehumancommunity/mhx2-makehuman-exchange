@@ -628,16 +628,15 @@ class ExpressionPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         rig = context.object
-        return (rig and rig.MhxExpressions.struct)
+        return (rig and rig.MhxExpressions)
 
     def draw(self, context):
         rig = context.object
         layout = self.layout
-        exprs = list(rig.MhxExpressions.struct.keys())
-        exprs.sort()
+        exprs = rig.MhxExpressions.split("&")
         for ename in exprs:
             btn = layout.operator("mhx2.set_expression", text=ename)
-            btn.name = ename
+            btn.units = rig["Mhu"+ename]
 
 #------------------------------------------------------------------------
 #   Face Shape panel
@@ -735,8 +734,6 @@ def menu_func(self, context):
     self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
 
 def register():
-    from .bone_drivers import MHExpressions, MHFacePoses
-
     bpy.types.Object.MhxRig = StringProperty(default="")
     bpy.types.Object.MhxHuman = BoolProperty(default=False)
     bpy.types.Object.MhxUuid = StringProperty(default="")
@@ -751,9 +748,9 @@ def register():
     bpy.types.Object.MhxFacePanel = BoolProperty(default=False)
     bpy.types.Object.MhxFaceShapeDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxOtherShapeDrivers = BoolProperty(default=False)
-    bpy.types.Object.MhxExpress = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
+    bpy.types.Object.MhxExpressions = StringProperty(default="")
 
     # License properties
     bpy.types.Object.MhxAuthor = StringProperty(default="")
@@ -788,14 +785,7 @@ def register():
     bpy.types.Scene.MhxUseHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
 
     bpy.types.Scene.MhxUseConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
-
-
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
-
-    bpy.utils.register_class(MHFacePoses)
-    bpy.types.Object.MhxFacePoses = PointerProperty(type=MHFacePoses)
-    bpy.utils.register_class(MHExpressions)
-    bpy.types.Object.MhxExpressions = PointerProperty(type=MHExpressions)
 
     bpy.utils.register_class(ErrorOperator)
     bpy.utils.register_module(__name__)
@@ -803,8 +793,7 @@ def register():
 
 
 def unregister():
-    from .bone_drivers import MHFacePoses, MHExpressions
-    for cls in [ErrorOperator, MHFacePoses, MHExpressions]:
+    for cls in [ErrorOperator]:
         try:
             bpy.utils.register_class(cls)
         except:

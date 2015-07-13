@@ -312,7 +312,7 @@ def buildSkeleton(mhSkel, scn, cfg):
 
     bpy.ops.object.mode_set(mode='OBJECT')
     rig.MhxRig = "Exported"
-    buildExpressions(mhSkel, rig, cfg)
+    buildExpressions(mhSkel, rig, scn, cfg)
     buildAnimation(mhSkel, rig, cfg)
     return rig
 
