@@ -311,6 +311,11 @@ def buildSkeleton(mhSkel, scn, cfg):
             eb.parent = amt.edit_bones[mhBone["parent"]]
 
     bpy.ops.object.mode_set(mode='OBJECT')
+    for mhBone in mhSkel["bones"]:
+        pb = rig.pose.bones[mhBone["name"]]
+        if pb.parent:
+            pb.lock_location = [True,True,True]
+
     rig.MhxRig = "Exported"
     buildExpressions(mhSkel, rig, scn, cfg)
     buildAnimation(mhSkel, rig, cfg)
