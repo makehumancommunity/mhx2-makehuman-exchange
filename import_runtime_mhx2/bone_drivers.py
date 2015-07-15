@@ -280,6 +280,7 @@ def buildAnimation(mhSkel, rig, scn, offset, cfg):
     poses = OrderedDict()
     locations = {}
     roots = {}
+    root = None
     anims = list(mhAnims.items())
     anims.sort()
     for aname,mhAnim in anims:
@@ -288,52 +289,43 @@ def buildAnimation(mhSkel, rig, scn, offset, cfg):
         poseIndex = dict([(n,{}) for n in range(len(frames))])
         buildBvh(mhBvh, poseIndex, corr)
         poses[aname] = poseIndex[0]
-        if "locations" in mhBvh.keys():            
+        if "locations" in mhBvh.keys():
             locations[aname] = Vector(mhBvh["locations"][0]) + offset
-            print(aname, mhBvh["locations"][0], offset, locations[aname])
-            roots[aname] = mhBvh["joints"][0]
+            root = roots[aname] = mhBvh["joints"][0]
         else:
             roots[aname] = None
 
     if poses == {}:
         return
 
-    currframe = scn.frame_current
     if rig.animation_data:
         rig.animation_data.action = None
-
-    for pb in rig.pose.bones:
-        pb.rotation_quaternion = (1,0,0,0)
-        pb.keyframe_insert('rotation_quaternion', frame=1, group=pb.name)
-    root = roots[aname]
-    if root and root in rig.pose.bones.keys():
-        pb = rig.pose.bones[root]
-        pb.location = (0,0,0)
-        pb.keyframe_insert('location', frame=1, group=pb.name)
+    string = "rest:None/(0,0,0)|"
 
     print("Poses:")
-    for frame,data in enumerate(poses.items()):
+    for n,data in enumerate(poses.items()):
         aname,pose = data
-        print("  %d: %s" % (frame+2, aname))
-        for pb in rig.pose.bones:
-            if pb.name in pose.keys():
-                pb.rotation_quaternion = pose[pb.name]
-            else:
-                pb.rotation_quaternion = (1,0,0,0)
-            pb.keyframe_insert('rotation_quaternion', frame=frame+2, group=pb.name)
-        
-        root = roots[aname]
-        if root and root in rig.pose.bones.keys():
-            pb = rig.pose.bones[root]
-            pb.location = zup(locations[aname]) #+ offset
-            pb.keyframe_insert('location', frame=frame+2, group=pb.name)
+        string += "&" + addFrame(rig, aname, n+2, pose, roots, locations)
 
-    if rig.animation_data:
-        act = rig.animation_data.action
-        if act:
-            act.MhxPoseNames = "&".join(["rest"] + list(poses.keys()))
+    rig.MhxPoses = string
 
-    scn.frame_current = currframe
+
+def addFrame(rig, aname, frame, pose, roots, locations):
+    rstring = ""
+    for pb in rig.pose.bones:
+        if pb.name in pose.keys():
+            quat = tuple(pose[pb.name])
+            rstring += "%s/%s;" % (pb.name, quat)
+
+    root = roots[aname]
+    lstring = ""
+    if root and root in rig.pose.bones.keys():
+        rloc = tuple(zup(locations[aname]))
+    else:
+        rloc = (0,0,0)
+    lstring = "%s/%s" % (root, rloc)
+
+    return "%s:%s|%s" % (aname, lstring, rstring[:-1])
 
 
 def buildBvh(mhBvh, poseIndex, corr):
@@ -448,17 +440,40 @@ class VIEW3D_OT_SetExpressionButton(bpy.types.Operator):
 #   Pose rig
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_SetFrameButton(bpy.types.Operator):
-    bl_idname = "mhx2.set_frame"
-    bl_label = "Set Frame"
-    bl_description = "Set current frame to pose the rig"
+class VIEW3D_OT_SetPoseButton(bpy.types.Operator):
+    bl_idname = "mhx2.set_pose"
+    bl_label = "Set Pose"
+    bl_description = "Set pose"
     bl_options = {'UNDO'}
 
-    frame = IntProperty()
+    string = StringProperty()
 
     def execute(self, context):
+        rig = context.object
         scn = context.scene
-        scn.frame_current = self.frame
-        #updateScene(context)
+
+        for pb in rig.pose.bones:
+            pb.rotation_quaternion = (1,0,0,0)
+            pb.location = (0,0,0)
+
+        lstring,rstring = self.string.split("|",1)
+        bname,loc = lstring.split("/",1)
+        if bname == "None":
+            root = None
+        else:
+            root = rig.pose.bones[bname]
+            root.location = eval(loc)
+
+        if rstring:
+            for rword in rstring.split(";"):
+                bname,rot = rword.split("/",1)
+                pb = rig.pose.bones[bname]
+                pb.rotation_quaternion = eval(rot)
+
+        if scn.tool_settings.use_keyframe_insert_auto:
+            if root:
+                root.keyframe_insert("location")
+            for pb in rig.pose.bones:
+                pb.keyframe_insert("rotation_quaternion")
         return{'FINISHED'}
 

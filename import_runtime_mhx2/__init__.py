@@ -677,17 +677,14 @@ class MhxPosePanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         rig = context.object
-        return (rig and 
-                rig.animation_data and
-                rig.animation_data.action and
-                rig.animation_data.action.MhxPoseNames)
+        return (rig and rig.MhxPoses)
 
     def draw(self, context):
         rig = context.object
         layout = self.layout
-        words = rig.animation_data.action.MhxPoseNames.split("&")
-        for n, word in enumerate(words):
-            layout.operator("mhx2.set_frame", text=word).frame = (n+1)
+        for anim in rig.MhxPoses.split("&"):
+            aname,rest = anim.split(":",1)
+            layout.operator("mhx2.set_pose", text=aname).string = rest
 
 #------------------------------------------------------------------------
 #   Other Shape panel
@@ -781,7 +778,7 @@ def register():
     bpy.types.Object.MhxExpressions = StringProperty(default="")
     bpy.types.Object.MhxExprStrength = FloatProperty(name="Expression strength", default=1.0, min=0.0, max=1.0)
 
-    bpy.types.Action.MhxPoseNames = StringProperty(default="")
+    bpy.types.Object.MhxPoses = StringProperty(default="")
 
     # License properties
     bpy.types.Object.MhxAuthor = StringProperty(default="")
