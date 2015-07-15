@@ -318,7 +318,7 @@ def buildSkeleton(mhSkel, scn, cfg):
 
     rig.MhxRig = "Exported"
     buildExpressions(mhSkel, rig, scn, cfg)
-    buildAnimation(mhSkel, rig, cfg)
+    buildAnimation(mhSkel, rig, scn, offset, cfg)
     return rig
 
 #------------------------------------------------------------------------

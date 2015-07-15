@@ -595,8 +595,8 @@ class VisibilityPanel(bpy.types.Panel):
 #   Facerig panel
 #------------------------------------------------------------------------
 
-class FaceComponentsPanel(bpy.types.Panel):
-    bl_label = "Face Components"
+class FaceUnitsPanel(bpy.types.Panel):
+    bl_label = "Face Units"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_category = "MHX2 Runtime"
@@ -610,7 +610,7 @@ class FaceComponentsPanel(bpy.types.Panel):
     def draw(self, context):
         rig = context.object
         layout = self.layout
-        layout.operator("mhx2.reset_props").prefix = "Mfa"
+        layout.operator("mhx2.reset_props", text="Reset Expressions").prefix = "Mfa"
         layout.operator("mhx2.load_faceshift_bvh")
         drawProperties(layout, rig, "Mfa")
 
@@ -633,6 +633,8 @@ class ExpressionPanel(bpy.types.Panel):
     def draw(self, context):
         rig = context.object
         layout = self.layout
+        layout.operator("mhx2.reset_props", text="Reset Expressions").prefix = "Mfa"
+        layout.prop(rig, "MhxExprStrength")
         exprs = rig.MhxExpressions.split("&")
         for ename in exprs:
             btn = layout.operator("mhx2.set_expression", text=ename)
@@ -660,6 +662,32 @@ class MhxFaceShapePanel(bpy.types.Panel):
             layout = self.layout
             layout.operator("mhx2.reset_props").prefix = "Mhf"
             drawProperties(layout, rig, "Mhf")
+
+#------------------------------------------------------------------------
+#   Pose panel
+#------------------------------------------------------------------------
+
+class MhxPosePanel(bpy.types.Panel):
+    bl_label = "Poses"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "TOOLS"
+    bl_category = "MHX2 Runtime"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        rig = context.object
+        return (rig and 
+                rig.animation_data and
+                rig.animation_data.action and
+                rig.animation_data.action.MhxPoseNames)
+
+    def draw(self, context):
+        rig = context.object
+        layout = self.layout
+        words = rig.animation_data.action.MhxPoseNames.split("&")
+        for n, word in enumerate(words):
+            layout.operator("mhx2.set_frame", text=word).frame = (n+1)
 
 #------------------------------------------------------------------------
 #   Other Shape panel
@@ -751,6 +779,9 @@ def register():
     bpy.types.Object.MhxFaceRig = BoolProperty(default=False)
     bpy.types.Object.MhxFaceRigDrivers = BoolProperty(default=False)
     bpy.types.Object.MhxExpressions = StringProperty(default="")
+    bpy.types.Object.MhxExprStrength = FloatProperty(name="Expression strength", default=1.0, min=0.0, max=1.0)
+
+    bpy.types.Action.MhxPoseNames = StringProperty(default="")
 
     # License properties
     bpy.types.Object.MhxAuthor = StringProperty(default="")

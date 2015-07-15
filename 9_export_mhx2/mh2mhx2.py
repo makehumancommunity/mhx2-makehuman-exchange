@@ -73,7 +73,7 @@ def exportMhx2(filepath, cfg):
         mhSkel = mhFile["skeleton"] = OrderedDict()
         addSkeleton(mhSkel, skel, name, cfg)
 
-        if cfg.usePoseUnits:
+        if cfg.useExpressions:
             mhExpr = mhSkel["expressions"] = OrderedDict()
             path = os.path.join("data", "poseunits")
             addAnims(path, mhExpr)
@@ -147,10 +147,11 @@ def addAnim(folder, file, mhAnim):
         if jstruct:
             mhComp["json"] = jstruct
         mhBvh = mhComp["bvh"] = OrderedDict()
-        joints, channels, frames = quick_bvh.loadBvh(path)
+        joints, channels, frames, locations = quick_bvh.loadBvh(path)
         mhBvh["joints"] = joints
         #mhBvh["channels"] = channels
         mhBvh["frames"] = frames
+        mhBvh["locations"] = locations
 
 #-----------------------------------------------------------------------
 #   Materials

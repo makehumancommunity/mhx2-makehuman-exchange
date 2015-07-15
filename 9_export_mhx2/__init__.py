@@ -43,8 +43,8 @@ class ExporterMhx2(Exporter):
         import gui
         Exporter.build(self, options, taskview)
         self.useBinary   = options.addWidget(gui.CheckBox("Binary file", False))
-        self.usePoseUnits   = options.addWidget(gui.CheckBox("Face poses", False))
-        self.usePoses   = options.addWidget(gui.CheckBox("Full poses", False))
+        self.useExpressions   = options.addWidget(gui.CheckBox("Expressions", False))
+        self.usePoses   = options.addWidget(gui.CheckBox("Poses", False))
         #self.feetOnGround   = options.addWidget(gui.CheckBox("Feet on ground", True))
 
     def export(self, human, filename):
@@ -59,7 +59,7 @@ class ExporterMhx2(Exporter):
         cfg = Mhx2Config()
         cfg.useTPose          = False
         cfg.useBinary         = self.useBinary.selected
-        cfg.usePoseUnits      = self.usePoseUnits.selected
+        cfg.useExpressions    = self.useExpressions.selected
         cfg.usePoses          = self.usePoses.selected
         cfg.feetOnGround      = self.feetOnGround.selected
         cfg.scale,cfg.unit    = self.taskview.getScale()

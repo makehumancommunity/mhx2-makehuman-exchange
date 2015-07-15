@@ -271,13 +271,15 @@ def buildExpressions(mhSkel, rig, scn, cfg):
             for unit,uval in units.items()])
 
 
-def buildAnimation(mhSkel, rig, cfg):
+def buildAnimation(mhSkel, rig, scn, offset, cfg):
     if "animation" not in mhSkel.keys():
         return
     mhAnims = mhSkel["animation"]
     corr = getCorrections(rig)
 
     poses = OrderedDict()
+    locations = {}
+    roots = {}
     anims = list(mhAnims.items())
     anims.sort()
     for aname,mhAnim in anims:
@@ -286,15 +288,29 @@ def buildAnimation(mhSkel, rig, cfg):
         poseIndex = dict([(n,{}) for n in range(len(frames))])
         buildBvh(mhBvh, poseIndex, corr)
         poses[aname] = poseIndex[0]
+        if "locations" in mhBvh.keys():            
+            locations[aname] = Vector(mhBvh["locations"][0]) + offset
+            print(aname, mhBvh["locations"][0], offset, locations[aname])
+            roots[aname] = mhBvh["joints"][0]
+        else:
+            roots[aname] = None
 
     if poses == {}:
         return
 
+    currframe = scn.frame_current
     if rig.animation_data:
         rig.animation_data.action = None
+
     for pb in rig.pose.bones:
         pb.rotation_quaternion = (1,0,0,0)
         pb.keyframe_insert('rotation_quaternion', frame=1, group=pb.name)
+    root = roots[aname]
+    if root and root in rig.pose.bones.keys():
+        pb = rig.pose.bones[root]
+        pb.location = (0,0,0)
+        pb.keyframe_insert('location', frame=1, group=pb.name)
+
     print("Poses:")
     for frame,data in enumerate(poses.items()):
         aname,pose = data
@@ -305,6 +321,19 @@ def buildAnimation(mhSkel, rig, cfg):
             else:
                 pb.rotation_quaternion = (1,0,0,0)
             pb.keyframe_insert('rotation_quaternion', frame=frame+2, group=pb.name)
+        
+        root = roots[aname]
+        if root and root in rig.pose.bones.keys():
+            pb = rig.pose.bones[root]
+            pb.location = zup(locations[aname]) #+ offset
+            pb.keyframe_insert('location', frame=frame+2, group=pb.name)
+
+    if rig.animation_data:
+        act = rig.animation_data.action
+        if act:
+            act.MhxPoseNames = "&".join(["rest"] + list(poses.keys()))
+
+    scn.frame_current = currframe
 
 
 def buildBvh(mhBvh, poseIndex, corr):
@@ -410,8 +439,26 @@ class VIEW3D_OT_SetExpressionButton(bpy.types.Operator):
         for unit in units:
             key,value = unit.split(":")
             key = "Mfa"+key
-            rig[key] = float(value)
+            rig[key] = float(value)*rig.MhxExprStrength
             autoKeyProp(rig, key, scn)
         updateScene(context)
+        return{'FINISHED'}
+
+#------------------------------------------------------------------------
+#   Pose rig
+#------------------------------------------------------------------------
+
+class VIEW3D_OT_SetFrameButton(bpy.types.Operator):
+    bl_idname = "mhx2.set_frame"
+    bl_label = "Set Frame"
+    bl_description = "Set current frame to pose the rig"
+    bl_options = {'UNDO'}
+
+    frame = IntProperty()
+
+    def execute(self, context):
+        scn = context.scene
+        scn.frame_current = self.frame
+        #updateScene(context)
         return{'FINISHED'}
 
