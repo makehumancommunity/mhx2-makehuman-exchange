@@ -182,7 +182,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'BASE')
+        default = 'MHX')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
