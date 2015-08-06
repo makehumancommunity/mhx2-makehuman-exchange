@@ -190,8 +190,8 @@ class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
 
     @classmethod
     def poll(self, context):
-        rig = context.object
-        return (rig and rig.type == 'MESH')
+        ob = context.object
+        return (ob and ob.type == 'MESH')
 
     def execute(self, context):
         try:

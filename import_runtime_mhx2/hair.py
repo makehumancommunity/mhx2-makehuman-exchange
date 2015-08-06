@@ -212,3 +212,192 @@ def findDeflector(human):
     print("No deflector mesh found")
     return None
 
+#------------------------------------------------------------------------
+#   Make particle hair from mesh hair
+#------------------------------------------------------------------------
+
+def particlifyHair(context):
+    scn = context.scene
+    human = None
+    hair = None
+    for ob in context.selected_objects:
+        if ob.type == 'MESH':
+            if isBody(ob):
+                human = ob
+            else:
+                hair = ob
+    if human is None or hair is None:
+        print("Missing human or hair object")
+        return
+        
+    reallySelect(human, scn)
+    bpy.ops.object.mode_set(mode='OBJECT')        
+    reallySelect(hair, scn)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    taken = dict([(n,False) for n in range(len(hair.data.edges))])
+
+    vedges = dict([(n,[]) for n in range(len(hair.data.vertices))])
+    for e in hair.data.edges:
+        vn1,vn2 = e.vertices
+        vedges[vn1].append(e.index)
+        vedges[vn2].append(e.index)    
+    
+    efaces = dict([(n,[]) for n in range(len(hair.data.edges))])
+    for f in hair.data.polygons:
+        for vn1,vn2 in f.edge_keys:
+            for en in vedges[vn1]:
+                if en in vedges[vn2]:
+                    efaces[en].append(f.index)
+                    break
+    
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
+    rings = []
+    for en in taken.keys():
+        if taken[en]:
+            continue
+        
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
+        hair.data.edges[en].select = True
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.loop_multi_select(ring=True)
+        bpy.ops.object.mode_set(mode='OBJECT')
+        ring = []
+        for en1 in taken.keys():
+            e1 = hair.data.edges[en1]
+            if e1.select:
+                taken[en1] = True
+                ring.append(en1)    
+        if len(ring) >= hair.MhxMinHairLength:
+            rcoord = getRingCoords(ring, hair, efaces, vedges)
+            if rcoord:
+                rings.append(rcoord)
+
+    '''
+    cross = dict([(n,[]) for n in range(len(rings))])
+    for ln1,ring1 in enumerate(rings):
+        for ln2,ring2 in enumerate(rings[:ln1]):
+            if crosses(ring1, ring2, efaces):
+                cross[ln1].append(ln2)
+                cross[ln2].append(ln1)
+    
+    print(cross.items())
+    '''
+
+    '''
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='DESELECT')
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for ring in rings:
+        print("  ", len(ring))
+        for en in ring:
+            hair.data.edges[en].select = True
+    bpy.ops.object.mode_set(mode='EDIT')
+    '''
+    
+    hcoords = []
+    for ring in rings:
+        hcoord = []
+        for r in ring:
+            hcoord.append(r)
+        hcoords.append(hcoord)
+        print(hcoords[0])
+
+    struct = {
+        "particle_systems" : [{
+            "name" : hair.name,
+            "particles" : {},
+        }]
+    }          
+    
+    reallySelect(human, scn)
+    addHair(human, struct, hcoords, scn)
+    hair.hide = True
+    hair.hide_render = True
+    
+
+def crosses(ring1, ring2, efaces):                                    
+    for en1 in ring1:
+        for en2 in ring2:
+            for f in efaces[en1]:
+                if f in efaces[en2]:
+                    return True
+    return False                
+        
+        
+def getRingCoords(ring, hair, efaces, vedges):
+    finals = []
+    for en in ring:
+        if len(efaces[en]) < 2:
+            finals.append(en)
+
+    if len(finals) != 2:
+        print("Wrong ring:", ring)
+        return None
+
+    en1 = finals[0]
+    en2 = finals[1]
+    r1 = centrum(en1, hair)
+    r2 = centrum(en2, hair)
+    if r1[1] > r2[1]:
+        en0 = en1
+        enlast = en2
+        rcoord = [r1]
+    else:
+        en0 = en2
+        enlast = en1
+        rcoord = [r2]
+    print("Loop", en0, enlast)        
+    en = opposite(en0, -1, efaces, vedges, hair)
+
+    while True:
+        rcoord.append(centrum(en, hair))
+        en1 = opposite(en, en0, efaces, vedges, hair)
+        en0 = en
+        en = en1
+        if en0 == enlast:
+            break
+    print("End loop")        
+    return rcoord            
+            
+
+def opposite(en, en0, efaces, vedges, ob):
+    verts = ob.data.edges[en].vertices
+    for fn in efaces[en]:
+        if en0 < 0 or fn not in efaces[en0]:
+            f = ob.data.polygons[fn]
+            for vn1,vn2 in f.edge_keys:
+                if not (vn1 in verts or vn2 in verts):
+                    for en1 in vedges[vn1]:
+                        if en1 in vedges[vn2]:
+                            return en1
+    print("What", en, en0)   
+    return -1            
+    
+
+def centrum(en, ob):
+    vn1,vn2 = ob.data.edges[en].vertices
+    c = (ob.data.vertices[vn1].co + ob.data.vertices[vn2].co)/2
+    return (c[0], c[2], -c[1])
+    
+
+class VIEW3D_OT_ParticlifyHairButton(bpy.types.Operator):
+    bl_idname = "mhx2.particlify_hair"
+    bl_label = "Particlify Hair"
+    bl_description = "Make particle hair from mesh hair"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        ob = context.object
+        return (ob and ob.type == 'MESH')
+
+    def execute(self, context):
+        try:
+            particlifyHair(context) 
+        except MhxError:
+            handleMhxError(context)
+        return{'FINISHED'}
