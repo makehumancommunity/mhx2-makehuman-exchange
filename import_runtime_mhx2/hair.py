@@ -142,6 +142,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             hair.location = verts[0]
             for n,v in enumerate(hair.hair_keys):
                 v.co = verts[n]
+                pass
 
         bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -229,20 +230,20 @@ def particlifyHair(context):
     if human is None or hair is None:
         print("Missing human or hair object")
         return
-        
+
     reallySelect(human, scn)
-    bpy.ops.object.mode_set(mode='OBJECT')        
+    bpy.ops.object.mode_set(mode='OBJECT')
     reallySelect(hair, scn)
     bpy.ops.object.mode_set(mode='OBJECT')
-    
+
     taken = dict([(n,False) for n in range(len(hair.data.edges))])
 
     vedges = dict([(n,[]) for n in range(len(hair.data.vertices))])
     for e in hair.data.edges:
         vn1,vn2 = e.vertices
         vedges[vn1].append(e.index)
-        vedges[vn2].append(e.index)    
-    
+        vedges[vn2].append(e.index)
+
     efaces = dict([(n,[]) for n in range(len(hair.data.edges))])
     for f in hair.data.polygons:
         for vn1,vn2 in f.edge_keys:
@@ -250,14 +251,15 @@ def particlifyHair(context):
                 if en in vedges[vn2]:
                     efaces[en].append(f.index)
                     break
-    
+
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
-    rings = []
+    hcoords = []
+    nRings = 0
     for en in taken.keys():
         if taken[en]:
             continue
-        
+
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -270,11 +272,15 @@ def particlifyHair(context):
             e1 = hair.data.edges[en1]
             if e1.select:
                 taken[en1] = True
-                ring.append(en1)    
+                ring.append(en1)
         if len(ring) >= hair.MhxMinHairLength:
+            nRings += 1
+            if nRings % 10 == 0:
+                print(nRings)
             rcoord = getRingCoords(ring, hair, efaces, vedges)
-            if rcoord:
-                rings.append(rcoord)
+            hcoord = rebaseHair(rcoord, hair.MhxStrandLength)
+            if hcoord:
+                hcoords.append(hcoord)
 
     '''
     cross = dict([(n,[]) for n in range(len(rings))])
@@ -283,7 +289,7 @@ def particlifyHair(context):
             if crosses(ring1, ring2, efaces):
                 cross[ln1].append(ln2)
                 cross[ln2].append(ln1)
-    
+
     print(cross.items())
     '''
 
@@ -297,37 +303,42 @@ def particlifyHair(context):
             hair.data.edges[en].select = True
     bpy.ops.object.mode_set(mode='EDIT')
     '''
-    
-    hcoords = []
-    for ring in rings:
-        hcoord = []
-        for r in ring:
-            hcoord.append(r)
-        hcoords.append(hcoord)
-        print(hcoords[0])
 
     struct = {
         "particle_systems" : [{
             "name" : hair.name,
             "particles" : {},
         }]
-    }          
-    
+    }
+
     reallySelect(human, scn)
-    addHair(human, struct, hcoords, scn)
+    addHair(human, struct, [hcoords], scn)
     hair.hide = True
     hair.hide_render = True
-    
 
-def crosses(ring1, ring2, efaces):                                    
+
+def crosses(ring1, ring2, efaces):
     for en1 in ring1:
         for en2 in ring2:
             for f in efaces[en1]:
                 if f in efaces[en2]:
                     return True
-    return False                
-        
-        
+    return False
+
+
+def rebaseHair(rcoord, strandLen):
+    hcoord = []
+    ringLen = len(rcoord)
+    for n in range(strandLen):
+        dist = n*ringLen/strandLen
+        idx = (n*ringLen)//strandLen
+        eps = dist - idx
+        r = (1-eps)*rcoord[idx] + eps*rcoord[idx+1]
+        hcoord.append(r)
+    hcoord.append(rcoord[-1])
+    return hcoord
+
+
 def getRingCoords(ring, hair, efaces, vedges):
     finals = []
     for en in ring:
@@ -350,7 +361,6 @@ def getRingCoords(ring, hair, efaces, vedges):
         en0 = en2
         enlast = en1
         rcoord = [r2]
-    print("Loop", en0, enlast)        
     en = opposite(en0, -1, efaces, vedges, hair)
 
     while True:
@@ -360,9 +370,8 @@ def getRingCoords(ring, hair, efaces, vedges):
         en = en1
         if en0 == enlast:
             break
-    print("End loop")        
-    return rcoord            
-            
+    return rcoord
+
 
 def opposite(en, en0, efaces, vedges, ob):
     verts = ob.data.edges[en].vertices
@@ -374,15 +383,15 @@ def opposite(en, en0, efaces, vedges, ob):
                     for en1 in vedges[vn1]:
                         if en1 in vedges[vn2]:
                             return en1
-    print("What", en, en0)   
-    return -1            
-    
+    return -1
+
 
 def centrum(en, ob):
     vn1,vn2 = ob.data.edges[en].vertices
     c = (ob.data.vertices[vn1].co + ob.data.vertices[vn2].co)/2
+    return c
     return (c[0], c[2], -c[1])
-    
+
 
 class VIEW3D_OT_ParticlifyHairButton(bpy.types.Operator):
     bl_idname = "mhx2.particlify_hair"
@@ -397,7 +406,7 @@ class VIEW3D_OT_ParticlifyHairButton(bpy.types.Operator):
 
     def execute(self, context):
         try:
-            particlifyHair(context) 
+            particlifyHair(context)
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}
