@@ -252,13 +252,18 @@ def particlifyHair(context):
                     efaces[en].append(f.index)
                     break
 
+    print("Collecting rings")
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
-    hcoords = []
+    rings = []
+    rcoords = {}
     nRings = 0
     for en in taken.keys():
         if taken[en]:
             continue
+
+        if nRings % 10 == 0:
+            print(nRings)
 
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='DESELECT')
@@ -273,37 +278,67 @@ def particlifyHair(context):
             if e1.select:
                 taken[en1] = True
                 ring.append(en1)
-        if len(ring) >= hair.MhxMinHairLength:
-            nRings += 1
-            if nRings % 10 == 0:
-                print(nRings)
-            rcoord = getRingCoords(ring, hair, efaces, vedges)
-            hcoord = rebaseHair(rcoord, hair.MhxStrandLength)
-            if hcoord:
-                hcoords.append(hcoord)
+        rings.append(ring)
+        rcoords[nRings] = getRingCoords(ring, hair, efaces, vedges)
+        nRings += 1
 
-    '''
-    cross = dict([(n,[]) for n in range(len(rings))])
-    for ln1,ring1 in enumerate(rings):
-        for ln2,ring2 in enumerate(rings[:ln1]):
-            if crosses(ring1, ring2, efaces):
-                cross[ln1].append(ln2)
-                cross[ln2].append(ln1)
+    print("Calculate perpendiculars")
+    perps = dict([(n,[]) for n in range(len(rings))])
+    for rn1,ring1 in enumerate(rings):
+        for rn2,ring2 in enumerate(rings):
+            if rn1 != rn2 and crosses(ring1, ring2, efaces):
+                perps[rn1].append(rn2)
+    for rn in perps.keys():
+        perps[rn].sort()
 
-    print(cross.items())
-    '''
+    print("Calculate clusters")
+    clusters = {}
+    nClusters = 0
+    for rn1 in range(len(rings)):
+        if rn1 % 10 == 0:
+            print(rn1)
+        taken = False
+        for rn2 in perps[rn1]:
+            if taken:
+                break
+            for rn3 in perps[rn2]:
+                if rn3 < rn1:
+                    clusters[rn1] = clusters[rn3]
+                    taken = True
+                    break
+        if not taken:
+            print(rn1, nClusters)
+            clusters[rn1] = nClusters
+            nClusters += 1
 
-    '''
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.select_all(action='DESELECT')
-    bpy.ops.object.mode_set(mode='OBJECT')
-    for ring in rings:
-        print("  ", len(ring))
-        for en in ring:
-            hair.data.edges[en].select = True
-    bpy.ops.object.mode_set(mode='EDIT')
-    '''
+    print("Discard invalid rings")
+    clens = dict([(n,0) for n in range(nClusters)])
+    cnums = dict([(n,0) for n in range(nClusters)])
+    for rn,ring in enumerate(rings):
+        cn = clusters[rn]
+        clens[cn] += len(ring)
+        cnums[cn] += 1
+    cok = {}
+    for cn in range(nClusters):
+        cok[cn] = (cnums[cn] >= hair.MhxMinClusterSize and
+                   clens[cn]/cnums[cn] > hair.MhxMinHairLength)
+        print(cn, cnums[cn], clens[cn]/cnums[cn], cok[cn])
 
+    nrings = {}
+    for rn,ring in enumerate(rings):
+        if cok[clusters[rn]]:
+            nrings[rn] = ring
+    print(nrings.keys())
+
+    print("Calculating coordinates")
+    hcoords = []
+    nRings = 0
+    for rn in nrings.keys():
+        hcoord = rebaseHair(rcoords[rn], hair.MhxStrandLength)
+        if hcoord:
+            hcoords.append(hcoord)
+
+    print("Building hair")
     struct = {
         "particle_systems" : [{
             "name" : hair.name,
@@ -332,8 +367,11 @@ def rebaseHair(rcoord, strandLen):
     for n in range(strandLen):
         dist = n*ringLen/strandLen
         idx = (n*ringLen)//strandLen
-        eps = dist - idx
-        r = (1-eps)*rcoord[idx] + eps*rcoord[idx+1]
+        if idx == ringLen-1:
+            r = rcoord[idx]
+        else:
+            eps = dist - idx
+            r = (1-eps)*rcoord[idx] + eps*rcoord[idx+1]
         hcoord.append(r)
     hcoord.append(rcoord[-1])
     return hcoord

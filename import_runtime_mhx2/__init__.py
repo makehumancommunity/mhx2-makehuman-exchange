@@ -343,6 +343,7 @@ class MhxSetupPanel(bpy.types.Panel):
         box.prop(scn, "MhxUseHairDynamics")
         #box.prop(scn, "MhxUseDeflector")
         box.prop(ob, "MhxMinHairLength")
+        box.prop(ob, "MhxMinClusterSize")
         box.prop(ob, "MhxStrandLength")
         box.operator("mhx2.particlify_hair")
 
@@ -813,8 +814,9 @@ def register():
 
     bpy.types.Scene.MhxHairColor = HairColorProperty
     bpy.types.Object.MhxMinHairLength = IntProperty(default=10, min=4, max=40)
+    bpy.types.Object.MhxMinClusterSize = IntProperty(default=10, min=4, max=40)
     bpy.types.Object.MhxStrandLength = IntProperty(default=10, min=4, max=40)
-    
+
     bpy.types.Scene.MhxUseDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
     bpy.types.Scene.MhxUseHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
 
