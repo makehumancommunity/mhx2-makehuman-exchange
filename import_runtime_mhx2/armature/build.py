@@ -59,6 +59,8 @@ def buildRig(mhHuman, cfg, context):
             eb.layers = getLayers(bone.layers)
         elif cfg.useRigify and bone.layers & (L_PANEL|L_HEAD):
             eb.layers = 10*[False] + [True] + 21*[False]
+        else:
+            eb.layers = [True] + 31*[False]
 
     for bone in parser.bones.values():
         eb = amt.edit_bones[bone.name]
