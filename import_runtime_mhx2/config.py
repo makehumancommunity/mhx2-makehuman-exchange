@@ -70,7 +70,7 @@ class Config:
                 self.mergePenis = not self.usePenisRig
             else:
                 self.usePenisRig = False
-                self.mergePenis = False
+                self.mergePenis = True
             if self.useRig and self.rigType != 'EXPORTED':
                 self.loadPreset(os.path.join("armature/data/rigs", self.rigType.lower() + ".json"))
             if self.rigType != 'MHX':
