@@ -194,7 +194,7 @@ def build(struct, cfg, context):
         proxyTypes = ["Proxymeshes", "Eyebrows", "Eyelashes", "Teeth", "Tongue"]
         addShapeKeys(human, path, mhHuman=mhHuman, proxies=proxies, proxyTypes=proxyTypes)
 
-        if cfg.useFaceDrivers:
+        if cfg.useFaceShapeDrivers:
             from .shapekeys import addShapeKeyDriversToAll
             meshes = [human] + [ob for (_,ob) in proxies]
             addShapeKeyDriversToAll(rig, meshes, "Mhf")

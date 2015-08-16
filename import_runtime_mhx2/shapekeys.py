@@ -31,7 +31,7 @@ from .utils import zup2
 #   Setup shapekeys
 #------------------------------------------------------------------------
 
-def addShapeKeys(human, filename, mhHuman=None, proxies=[], proxyTypes=[]):
+def addShapeKeys(human, filename, mhHuman, proxies=[], proxyTypes=[]):
     from .load_json import loadJsonRelative
     from .proxy import proxifyTargets
 
@@ -107,7 +107,7 @@ class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
 
     def execute(self, context):
         ob = context.object
-        addShapeKeys(ob, self.filename)
+        addShapeKeys(ob, self.filename, getMhHuman())
         ob.MhxHasFaceShapes = True
         return{'FINISHED'}
 
