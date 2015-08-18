@@ -130,18 +130,27 @@ def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
 # ---------------------------------------------------------------------
 
 def getVertexBoneWeights(pweights, parser):
+    from .armature.utils import splitBoneName
+    
     cfg = parser.config
     ngrps = {}
     for oname,data in pweights.items():
         if oname not in MHBones.keys():
             print("Missing MHBone:", oname)
             continue
-        nname = MHBones[oname]
+        nname = MHBones[oname]        
         if nname in cfg.bones.keys():
             nname = cfg.bones[nname]
-        if parser.deformPrefix:
-            nname = parser.deformPrefix + nname
 
+        if cfg.useSplitBones or cfg.useSplitNames:
+            base,ext = splitBoneName(nname)
+            if base in parser.splitBones.keys():
+                npieces = parser.splitBones[base][0]
+                if npieces == 2:
+                    nname = MHSplit2Bones[oname]
+                elif npieces == 3:
+                    nname = MHSplit3Bones[oname]
+            
         idxs,weights = data
         ngrp = [(idx,weights[n]) for n,idx in enumerate(idxs)]
         if nname in ngrps.keys():
@@ -154,7 +163,38 @@ def getVertexBoneWeights(pweights, parser):
             ngrps[nname] = gdict.items()
         else:
             ngrps[nname] = ngrp
+
+    if parser.deformPrefix:
+        vnames = list(ngrps.keys())
+        prlen = len(parser.deformPrefix)
+        for vname in vnames:
+            if vname[0:prlen] != parser.deformPrefix:          
+                ngrps[parser.deformPrefix + vname] = ngrps[vname]
+                del ngrps[vname]
+        
     return ngrps
+
+MHSplit2Bones = {
+    "upperleg01.L" : "thigh.01.L",
+    "upperleg02.L" : "thigh.02.L",
+    "lowerleg01.L" : "shin.01.L",
+    "lowerleg02.L" : "shin.02.L",
+    "upperleg01.R" : "thigh.01.R",
+    "upperleg02.R" : "thigh.02.R",
+    "lowerleg01.R" : "shin.01.R",
+    "lowerleg02.R" : "shin.02.R",
+}
+
+MHSplit3Bones = {
+    "upperleg01.L" : "thigh.01.L",
+    "upperleg02.L" : "thigh.03.L",
+    "lowerleg01.L" : "shin.01.L",
+    "lowerleg02.L" : "shin.03.L",
+    "upperleg01.R" : "thigh.01.R",
+    "upperleg02.R" : "thigh.03.R",
+    "lowerleg01.R" : "shin.01.R",
+    "lowerleg02.R" : "shin.03.R",
+}
 
 MHBones = {
     "upperleg01.L" : "thigh.L",
