@@ -343,11 +343,12 @@ def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
 
         if skel:
             if hasattr(mesh, "getVertexWeights"):
-                pxySeedWeights = pxy.getVertexWeights(rawWeights)
+                pxySeedWeights = pxy.getVertexWeights(rawWeights, skel)
                 weights = mesh.getVertexWeights(pxySeedWeights)
             else:
                 pxySeedWeights = skeleton.getProxyWeights(pxy, rawWeights)
                 weights = mesh.getWeights(pxySeedWeights)
+                
             addWeights(mhMesh, skel, weights)
             if mhProxySeed:
                 addWeights(mhSeed, skel, rawWeights)
