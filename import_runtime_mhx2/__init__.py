@@ -172,17 +172,20 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         entry = (fname.upper(), fname.capitalize(), file)
         if fname == "mhx":
             mhx = entry
+            exp_mhx = ('EXPORTED_MHX', "Exported MHX", mhx[2])
         elif fname == "rigify":
             rigify = entry
+            exp_rigify = ('EXPORTED_RIGIFY', "Exported Rigify", rigify[2])
         else:
             rigTypes.append(entry)
-    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"), mhx, rigify] + rigTypes
+    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"), 
+                exp_mhx, exp_rigify, mhx, rigify] + rigTypes
 
     rigType = EnumProperty(
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'MHX')
+        default = 'EXPORTED_MHX')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
@@ -289,9 +292,9 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if self.useRig:
             box.prop(self, "rigType")
             box.prop(self, "useCustomShapes")
-            if self.rigType == 'MHX':
+            if self.rigType in ('MHX', 'EXPORTED_MHX'):
                 box.prop(self, "useRotationLimits")
-            #elif self.rigType == 'RIGIFY':
+            #elif self.rigType in ('RIGIFY', 'EXPORTED_RIGIFY'):
             #    box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
@@ -414,7 +417,7 @@ class MhxLayersPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxRig == 'MHX')
+        return (context.object and context.object.MhxRig in ('MHX', 'EXPORTED_MHX'))
 
     def draw(self, context):
         layout = self.layout
@@ -422,7 +425,7 @@ class MhxLayersPanel(bpy.types.Panel):
         layout.operator("mhx2.pose_disable_all_layers")
 
         rig = context.object
-        if rig.MhxRig == 'MHX':
+        if rig.MhxRig in ('MHX', 'EXPORTED_MHX'):
             layers = MhxLayers
         else:
             layers = OtherLayers
@@ -456,7 +459,7 @@ class MhxFKIKPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxRig == 'MHX')
+        return (context.object and context.object.MhxRig in ('MHX', 'EXPORTED_MHX'))
 
     def draw(self, context):
         rig = context.object
@@ -535,7 +538,7 @@ class MhxControlPanel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return (context.object and context.object.MhxRig == 'MHX')
+        return (context.object and context.object.MhxRig in ('MHX', 'EXPORTED_MHX'))
 
     def draw(self, context):
         ob = context.object
