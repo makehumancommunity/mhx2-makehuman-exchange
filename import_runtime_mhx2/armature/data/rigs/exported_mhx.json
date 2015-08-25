@@ -5,13 +5,14 @@
 
     "settings" : {
     	"useMhx" : true,
+    	"useExportedBones" : true,
         "useMasterBone" : true,
         "useHeadControl" : true,
-        "useReverseHip" : true,
+        "useReverseHip" : false,
         "useSplitBones" : true,
         "useDeformBones" : true,
         "useFaceRig" : true,
-        "useSockets" : true,
+        "useSockets" : false,
         "useIkArms" : true,
         "useIkLegs" : true,
         "useFingers" : true,

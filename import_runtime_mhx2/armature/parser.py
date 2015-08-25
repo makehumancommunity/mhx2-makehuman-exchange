@@ -50,7 +50,7 @@ from . import rerig
 
 class Parser:
 
-    def __init__(self, mhHuman, cfg):
+    def __init__(self, mhHuman, mhSkel, cfg):
         self.config = cfg
 
         self.defineJointLocations(mhHuman, cfg)
@@ -118,44 +118,69 @@ class Parser:
         if cfg.useDeformBones or cfg.useDeformNames:
             self.deformPrefix = "DEF-"
 
-        self.vertexGroupFiles += ["head", "body", "hand", "joints"]
-        self.vertexGroupFiles += ["tights", "skirt", "genitalia", "hair"]
+        if mhSkel is None:            
+            self.vertexGroupFiles += ["head", "body", "hand", "joints"]
+            self.vertexGroupFiles += ["tights", "skirt", "genitalia", "hair"]
 
-        self.joints = (
-            rig_joints.Joints +
-            rig_spine.Joints +
-            rig_arm.Joints +
-            rig_leg.Joints +
-            rig_hand.Joints +
-            rig_face.Joints
-            )
+            self.joints = (
+                rig_joints.Joints +
+                rig_spine.Joints +
+                rig_arm.Joints +
+                rig_leg.Joints +
+                rig_hand.Joints +
+                rig_face.Joints
+                )
+        else:
+            amt = mergeDicts([
+                rig_spine.Armature,
+                rig_arm.Armature,
+                rig_leg.Armature,
+                rig_hand.Armature,
+                rig_face.Armature,
+                ])        
+            self.joints, self.headsTails, self.armature = rerig.getJoints(mhSkel, amt)
+
+            self.joints += (
+                rig_joints.Joints +
+                rig_spine.Joints +
+                rig_arm.Joints +
+                rig_leg.Joints +
+                rig_hand.Joints +
+                rig_face.Joints
+                )
+            
         if cfg.useMhx:
             self.joints += rig_control.Joints
         if cfg.useFacePanel:
             self.joints += rig_panel.Joints
 
-        self.planes = mergeDicts([
-            rig_spine.Planes,
-            rig_arm.Planes,
-            rig_leg.Planes,
-            rig_hand.Planes,
-            rig_face.Planes,
-        ])
+        if mhSkel is None:
+            self.planes = mergeDicts([
+                rig_spine.Planes,
+                rig_arm.Planes,
+                rig_leg.Planes,
+                rig_hand.Planes,
+                rig_face.Planes,
+            ])
+        else:
+            self.planes = rerig.getPlanes(mhSkel)
 
         if cfg.useMhx:
             self.planeJoints = rig_control.PlaneJoints
         else:
             self.planeJoints = []
 
-        self.headsTails = mergeDicts([
-            rig_spine.HeadsTails,
-            rig_arm.HeadsTails,
-            rig_leg.HeadsTails,
-            rig_hand.HeadsTails,
-            rig_face.HeadsTails,
-            rig_control.HeadsTails,
-            rig_control.RevFootHeadsTails,
-        ])
+        if mhSkel is None:
+            self.headsTails = mergeDicts([
+                rig_spine.HeadsTails,
+                rig_arm.HeadsTails,
+                rig_leg.HeadsTails,
+                rig_hand.HeadsTails,
+                rig_face.HeadsTails,
+                rig_control.HeadsTails,
+                rig_control.RevFootHeadsTails,
+            ])
+            
         if cfg.useFacePanel:
             addDict(rig_panel.HeadsTails, self.headsTails)
 
@@ -226,18 +251,19 @@ class Parser:
             self.splitBones = {}
 
 
-    def createBones(self):
+    def createBones(self, mhSkel):
         cfg = self.config
 
-        self.addBones(rig_spine.Armature)
-        self.addBones(rig_arm.Armature)
-        self.addBones(rig_leg.Armature)
-        self.addBones(rig_hand.Armature)
+        if mhSkel is None:
+            self.addBones(rig_spine.Armature)
+            self.addBones(rig_arm.Armature)
+            self.addBones(rig_leg.Armature)
+            self.addBones(rig_hand.Armature)
+            self.addBones(rig_face.Armature)
         if cfg.useTerminators:
             self.addBones(rig_spine.TerminatorArmature)
         if cfg.usePenisRig:
             self.addBones(rig_spine.PenisArmature)
-        self.addBones(rig_face.Armature)
 
         for bname in cfg.terminals.keys():
             pname,_offset = cfg.terminals[bname]
@@ -354,7 +380,10 @@ class Parser:
             addDict(loadJsonRelative("armature/data/mhx/gizmos-panel.json"), self.gizmos)
 
         if not AutoWeight:
-            vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
+            if mhSkel is None:
+                vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
+            else:
+                vgroups = rerig.getVertexGroups(mhHuman)
             addDict(vgroups, self.vertexGroups)
 
         if cfg.mergeShoulders:
@@ -437,13 +466,13 @@ class Parser:
             return bname
 
 
-    def setup(self):
+    def setup(self, mhSkel):
         cfg = self.config
 
         self.setupJoints()
         self.setupNormals()
         self.setupPlaneJoints()
-        self.createBones()
+        self.createBones(mhSkel)
 
         for bone in self.bones.values():
             hname,tname = self.headsTails[bone.name]
@@ -493,6 +522,7 @@ class Parser:
         self.normals["PlaneYPos"] = Vector((0,0,1))
         self.normals["PlaneYNeg"] = Vector((0,0,-1))
         for plane,joints in self.planes.items():
+            print(plane,joints)
             j1,j2,j3 = joints
             p1 = self.locations[j1]
             p2 = self.locations[j2]
@@ -545,6 +575,8 @@ class Parser:
                 loc = self.jointLocs[data]
                 self.locations[key] = loc
                 self.locations[data] = loc
+            elif type == 'a':                
+                self.locations[key] = Vector((float(data[0]),float(data[1]),float(data[2])))
             elif type == 'v':
                 v = int(data)
                 self.locations[key] = self.coord[v]

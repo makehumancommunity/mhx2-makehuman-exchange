@@ -26,12 +26,12 @@ from ..utils import *
 from .flags import *
 
 
-def buildRig(mhHuman, cfg, context):
+def buildRig(mhHuman, mhSkel, cfg, context):
     from .parser import Parser
 
     scn = context.scene
-    parser = Parser(mhHuman, cfg)
-    parser.setup()
+    parser = Parser(mhHuman, mhSkel, cfg)
+    parser.setup(mhSkel)
 
     rname = mhHuman["name"].split(":")[0]
     amt = bpy.data.armatures.new(rname)

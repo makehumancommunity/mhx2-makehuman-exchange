@@ -117,8 +117,12 @@ def build(struct, cfg, context):
                 if "skeleton" in struct.keys():
                     mhSkel = struct["skeleton"]
                     rig = buildSkeleton(mhSkel, scn, cfg)
+            elif cfg.rigType in ['EXPORTED_MHX', 'EXPORTED_RIGIFY']:
+                if "skeleton" in struct.keys():
+                    mhSkel = struct["skeleton"]
+                    rig,parser = buildRig(mhHuman, mhSkel, cfg, context)
             else:
-                rig,parser = buildRig(mhHuman, cfg, context)
+                rig,parser = buildRig(mhHuman, None, cfg, context)
     elif "skeleton" in struct.keys():
         mhSkel = struct["skeleton"]
         rig = buildSkeleton(mhSkel, scn, cfg)

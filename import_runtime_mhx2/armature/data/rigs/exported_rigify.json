@@ -5,6 +5,7 @@
 
     "settings" : {
     	"useRigify" : true,
+    	"useExportedBones" : true,
         "useSplitNames" : true,
         "useDeformNames" : true,
         "useCustomShapes" : "FACE",

@@ -28,7 +28,7 @@ Attributes = [
     "hairType", "hairColor", "useHairOnProxy", "useDeflector", "useHairDynamics",
     "mergeBodyParts", "mergeToProxy", "mergeMaxType",
     "useFaceShapes", "useFacePanel", "useFaceShapeDrivers", "useFaceRigDrivers",
-    "useMasks", "useConservativeMasks",
+    "useMasks", "useConservativeMasks"
 ]
 
 class Config:
@@ -110,6 +110,7 @@ class Config:
         self.useMhx = False
         self.useRigify = False
         self.finalizeRigify = True
+        self.useExportedBones = False
 
         self.useSplitBones = False
         self.useSplitNames = False
