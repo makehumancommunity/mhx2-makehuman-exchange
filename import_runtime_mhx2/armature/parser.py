@@ -42,6 +42,7 @@ from . import rig_control
 from . import rig_merge
 from . import rig_panel
 from . import rig_rigify
+from . import rerig
 
 #-------------------------------------------------------------------------------
 #   Parser base class.

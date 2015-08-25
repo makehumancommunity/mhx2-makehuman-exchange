@@ -40,6 +40,7 @@ if "bpy" in locals():
     imp.reload(constraints)
     imp.reload(rigify)
     imp.reload(build)
+    imp.reload(rerig)
 else:
     print("Loading MHX2 armature")
     from . import flags
@@ -60,6 +61,7 @@ else:
     from . import constraints
     from . import rigify
     from . import build
+    from . import rerig
 
 import bpy
 print("MHX2 armature loaded")
