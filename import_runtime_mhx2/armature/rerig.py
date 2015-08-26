@@ -42,7 +42,7 @@ Renames = {
     "eye.R" :       "eye.R",
     "breast.R" :    "breast.R",
 
-    #"pelvis.L" :     "",
+    "pelvis.L" :     "pelvis.L",
     "upperleg01.L" : ("thigh.L",1),
     "upperleg02.L" : ("thigh.L",2),
     "lowerleg01.L" : ("shin.L",1),
@@ -50,7 +50,7 @@ Renames = {
     "foot.L" :       "foot.L",
     "toe1-1.L" :     "toe.L",
 
-    #"pelvis.R" :     "",
+    "pelvis.R" :     "pelvis.R",
     "upperleg01.R" : ("thigh.R",1),
     "upperleg02.R" : ("thigh.R",2),
     "lowerleg01.R" : ("shin.R",1),
@@ -58,14 +58,16 @@ Renames = {
     "foot.R" :       "foot.R",
     "toe1-1.R" :     "toe.R",
 
-    "clavicle.L" :      "clavicle.L",
+    "clavicle.L" :      ("clavicle.L",1),
+    "shoulder01.L" :    ("clavicle.L",2),
     "upperarm01.L" :    ("upper_arm.L",1),
     "upperarm02.L" :    ("upper_arm.L",2),
     "lowerarm01.L" :    ("forearm.L",1),
     "lowerarm02.L" :    ("forearm.L",2),
     "wrist.L" :         "hand.L",
 
-    "clavicle.R" :      "clavicle.R",
+    "clavicle.R" :      ("clavicle.R",1),
+    "shoulder01.R" :    ("clavicle.R",2),
     "upperarm01.R" :    ("upper_arm.R",1),
     "upperarm02.R" :    ("upper_arm.R",2),
     "lowerarm01.R" :    ("forearm.R",1),
@@ -150,6 +152,7 @@ def getJoints(mhSkel, oldAmt):
 
     joints = []
     headsTails = {}
+    deformAmt = {}
     amt = OrderedDict()
     for mhBone in mhSkel["bones"]:
         bname = mhBone["name"]
@@ -178,9 +181,8 @@ def getJoints(mhSkel, oldAmt):
             roll,_parent,flags,layers = oldAmt[nname][0:4]
         else:
             flags = F_DEF
-            layers = L_DEF
-        amt[nname] = (roll,parent,flags,layers)
-        #amt["DEF-"+nname] = (roll,defparent,flags,layers)
+            layers = L_DEF|L_TWEAK
+        amt[nname] = deformAmt[nname] = (roll,parent,flags,layers)
 
     #print(joints)
     #print(headsTails.items())
@@ -188,7 +190,7 @@ def getJoints(mhSkel, oldAmt):
 
     addDict(HeadsTails, headsTails)
 
-    return joints, headsTails, amt
+    return joints, headsTails, amt, deformAmt
 
 
 Planes = {

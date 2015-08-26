@@ -76,7 +76,7 @@ ShoulderMergers = {
 
 HipMergers = {
     "hips" : ("hips", (
-        "hips", "DEF-hip.L", "DEF-hip.R", "hipIk.L", "hipIk.R",
+        "hips", "pelvis.L", "pelvis.R", "DEF-hip.L", "DEF-hip.R", "hipIk.L", "hipIk.R",
         "DEF-gluteus.L", "DEF-gluteus.R", "gluteusIk.L", "gluteusIk.R"
         ))
 }

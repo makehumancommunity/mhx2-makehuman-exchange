@@ -148,11 +148,11 @@ SocketArmature = {
     "arm_hinge.R" :     (0, "root", 0, L_HELP),
     "arm_socket.R" :    (0, "arm_hinge.R", F_WIR|F_NOLOCK, L_TWEAK),
 
-    "leg_base.L" :      (0, "hips", 0, L_HELP),
+    "leg_base.L" :      (0, "pelvis.L", 0, L_HELP),
     "leg_hinge.L" :     (0, "root", 0, L_HELP),
     "leg_socket.L" :    (0, "leg_hinge.L", F_WIR|F_NOLOCK, L_TWEAK),
 
-    "leg_base.R" :      (0, "hips", 0, L_HELP),
+    "leg_base.R" :      (0, "pelvis.R", 0, L_HELP),
     "leg_hinge.R" :     (0, "root", 0, L_HELP),
     "leg_socket.R" :    (0, "leg_hinge.R", F_WIR|F_NOLOCK, L_TWEAK),
 }

@@ -55,11 +55,13 @@ Joints = [
 
 
 HeadsTails = {
+    "pelvis.L" :           ("cjoint-0", "l-upper-leg"),
     "thigh.L" :            ("l-upper-leg", "l-knee"),
     "shin.L" :             ("l-knee", "l-ankle"),
     "foot.L" :             ("l-ankle", "l-foot-1"),
     "toe.L" :              ("l-foot-1", "l-toe-2"),
 
+    "pelvis.R" :           ("cjoint-0", "r-upper-leg"),
     "thigh.R" :            ("r-upper-leg", "r-knee"),
     "shin.R" :             ("r-knee", "r-ankle"),
     "foot.R" :             ("r-ankle", "r-foot-1"),
@@ -91,12 +93,14 @@ Planes = {
 }
 
 Armature = {
-    "thigh.L" :            ("PlaneLeg.L", "hips", F_DEF, L_LLEGFK),
+    "pelvis.L" :           (0, "hips", 0, L_HELP),
+    "thigh.L" :            ("PlaneLeg.L", "pelvis.L", F_DEF, L_LLEGFK),
     "shin.L" :             ("PlaneLeg.L", "thigh.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
     "foot.L" :             ("PlaneFoot.L", "shin.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
     "toe.L" :              ("PlaneFoot.L", "foot.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
 
-    "thigh.R" :            ("PlaneLeg.R", "hips", F_DEF, L_RLEGFK),
+    "pelvis.R" :           (0, "hips", 0, L_HELP),
+    "thigh.R" :            ("PlaneLeg.R", "pelvis.R", F_DEF, L_RLEGFK),
     "shin.R" :             ("PlaneLeg.R", "thigh.R", F_DEF|F_CON, L_RLEGFK, P_YZX),
     "foot.R" :             ("PlaneFoot.R", "shin.R", F_DEF|F_CON, L_RLEGFK, P_YZX),
     "toe.R" :              ("PlaneFoot.R", "foot.R", F_DEF|F_CON, L_RLEGFK, P_YZX),

@@ -130,6 +130,14 @@ class Parser:
                 rig_hand.Joints +
                 rig_face.Joints
                 )
+                
+            self.deformArmature = mergeDicts([
+                rig_spine.Armature,
+                rig_arm.Armature,
+                rig_leg.Armature,
+                rig_hand.Armature,
+                rig_face.Armature,
+            ])                
         else:
             amt = mergeDicts([
                 rig_spine.Armature,
@@ -138,7 +146,7 @@ class Parser:
                 rig_hand.Armature,
                 rig_face.Armature,
                 ])
-            self.joints, self.headsTails, self.armature = rerig.getJoints(mhSkel, amt)
+            self.joints, self.headsTails, self.armature, self.deformArmature = rerig.getJoints(mhSkel, amt)
 
             self.joints += (
                 rig_joints.Joints +
@@ -415,17 +423,10 @@ class Parser:
             self.mergeBones(rig_merge.ConstraintMergers)
 
         if cfg.useDeformNames or cfg.useDeformBones:
-            generic = mergeDicts([
-                rig_spine.Armature,
-                rig_arm.Armature,
-                rig_leg.Armature,
-                rig_hand.Armature,
-                rig_face.Armature,
-            ])
             if cfg.usePenisRig:
-                addDict(rig_spine.PenisArmature, generic)
+                addDict(rig_spine.PenisArmature, self.deformArmature)
             if cfg.useDeformBones:
-                self.addDeformBones(generic)
+                self.addDeformBones()
                 #self.renameDeformBones(rig_muscle.Armature)
                 #if cfg.useConstraints:
                 #    self.renameConstraints(rig_muscle.Constraints)
@@ -586,7 +587,8 @@ class Parser:
                 self.locations[key] = loc
                 self.locations[data] = loc
             elif type == 'a':
-                self.locations[key] = Vector((float(data[0]),float(data[1]),float(data[2])))
+                vec = Vector((float(data[0]),float(data[1]),float(data[2])))
+                self.locations[key] = self.scale*vec + self.offset
             elif type == 'v':
                 v = int(data)
                 self.locations[key] = self.coord[v]
@@ -832,7 +834,7 @@ class Parser:
                     self.addConstraint(ikName, cns)
 
 
-    def addDeformBones(self, generic):
+    def addDeformBones(self):
         """
         Add deform bones with CopyTransform constraints to the original bone.
         Deform bones start with self.deformPrefix, as in Rigify.
@@ -841,7 +843,7 @@ class Parser:
 
         cfg = self.config
 
-        for bname in generic.keys():
+        for bname in self.deformArmature.keys():
             try:
                 bone = self.bones[bname]
             except KeyError:
