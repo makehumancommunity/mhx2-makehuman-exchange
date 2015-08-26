@@ -131,14 +131,14 @@ class Parser:
                 rig_hand.Joints +
                 rig_face.Joints
                 )
-                
+
             self.deformArmature = mergeDicts([
                 rig_spine.Armature,
                 rig_arm.Armature,
                 rig_leg.Armature,
                 rig_hand.Armature,
                 rig_face.Armature,
-            ])                
+            ])
         else:
             amt = mergeDicts([
                 rig_spine.Armature,
@@ -147,7 +147,7 @@ class Parser:
                 rig_hand.Armature,
                 rig_face.Armature,
                 ])
-            self.joints, self.headsTails, self.armature, self.deformArmature = rerig.getJoints(mhSkel, amt)            
+            self.joints, self.headsTails, self.armature, self.deformArmature = rerig.getJoints(mhSkel, amt)
             self.joints += (
                 rig_leg.Joints2 +
                 rig_hand.Joints +
@@ -202,7 +202,7 @@ class Parser:
                 self.setConstraints(rig_hand.Constraints)
                 self.setConstraints(rig_face.Constraints)
             else:
-                self.setConstraints(rerig.Constraints)            
+                self.setConstraints(rerig.Constraints)
                 self.setConstraints(rig_face.Constraints)
 
         if cfg.useLocks:
@@ -476,7 +476,6 @@ class Parser:
         self.setupPlaneJoints()
         self.createBones(mhHuman, mhSkel)
 
-        print(list(self.bones.keys()))
         for bone in self.bones.values():
             headTail = self.headsTails[bone.name]
             if isinstance(headTail, tuple):
@@ -531,7 +530,6 @@ class Parser:
         self.normals["PlaneYPos"] = Vector((0,0,1))
         self.normals["PlaneYNeg"] = Vector((0,0,-1))
         for plane,joints in self.planes.items():
-            print(plane,joints)
             j1,j2,j3 = joints
             p1 = self.locations[j1]
             p2 = self.locations[j2]
@@ -580,7 +578,6 @@ class Parser:
 
         cfg = self.config
         for (key, type, data) in self.joints:
-            print("*", key,type,data)
             if type == 'j':
                 loc = self.jointLocs[data]
                 self.locations[key] = loc

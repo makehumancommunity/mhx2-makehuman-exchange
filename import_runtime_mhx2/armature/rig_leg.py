@@ -95,13 +95,13 @@ Planes = {
 }
 
 Armature = {
-    "pelvis.L" :           (0, "hips", 0, L_HELP),
+    "pelvis.L" :           (0, "hips", F_DEF, L_TWEAK),
     "thigh.L" :            ("PlaneLeg.L", "pelvis.L", F_DEF, L_LLEGFK),
     "shin.L" :             ("PlaneLeg.L", "thigh.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
     "foot.L" :             ("PlaneFoot.L", "shin.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
     "toe.L" :              ("PlaneFoot.L", "foot.L", F_DEF|F_CON, L_LLEGFK, P_YZX),
 
-    "pelvis.R" :           (0, "hips", 0, L_HELP),
+    "pelvis.R" :           (0, "hips", F_DEF, L_TWEAK),
     "thigh.R" :            ("PlaneLeg.R", "pelvis.R", F_DEF, L_RLEGFK),
     "shin.R" :             ("PlaneLeg.R", "thigh.R", F_DEF|F_CON, L_RLEGFK, P_YZX),
     "foot.R" :             ("PlaneFoot.R", "shin.R", F_DEF|F_CON, L_RLEGFK, P_YZX),

@@ -218,12 +218,19 @@ def getNewName(bname):
     except KeyError:
         nname = bname
         known = False
-    print(bname, nname)
+    #print(bname, nname)
     if isinstance(nname,tuple):
         nname,idx = nname
     else:
         idx = 0
     return nname,known,idx
+
+
+def isDefaultRig(mhSkel):
+    for bone in mhSkel["bones"]:
+        if bone["name"] == "orbicularis03.L":
+            return True
+    return False
 
 
 HeadsTails = {
@@ -234,21 +241,25 @@ HeadsTails = {
 }
 
 Parents = {
+    "upper_arm.L" :  "clavicle.L",
+    "upper_arm.R" :  "clavicle.R",
     "pelvis.L" :    "hips",
     "pelvis.R" :    "hips",
-    "upperarm.L" :  "clavicle.L",
-    "upperarm.R" :  "clavicle.R",
-}    
+    "thigh.L" :     "hips",
+    "thigh.R" :     "hips",
+}
 
-Constraints = {
+Constraints = {}
+'''
     "shoulder01.L" : [
-        ("IK", 0, 1, ["clavicle.L", "clavicle.L", 1, None, (1,1,1), False])
+        ("IK", 0, 1, ["upper_arm.L", "upper_arm.L", 1, None, (1,0,1), True])
         ],
 
     "shoulder01.R" : [
-        ("IK", 0, 1, ["clavicle.R", "clavicle.R", 1, None, (1,1,1), False])
+        ("IK", 0, 1, ["upper_arm.R", "upper_arm.R", 1, None, (1,0,1), True])
         ],
 }
+'''
 
 def getJoints(mhSkel, oldAmt):
     from .utils import addDict

@@ -28,6 +28,8 @@ from .flags import *
 
 def buildRig(mhHuman, mhSkel, cfg, context):
     from .parser import Parser
+    from ..bone_drivers import buildAnimation, buildExpressions
+    from ..geometries import getScaleOffset
 
     scn = context.scene
     parser = Parser(mhHuman, mhSkel, cfg)
@@ -169,6 +171,12 @@ def buildRig(mhHuman, mhSkel, cfg, context):
     rig["MhxVersion"] = 20
     rig.MhaRotationLimits = 0.8
     rig.MhxFacePanel = cfg.useFacePanel
+
+    if mhSkel is not None:
+        scale,offset = getScaleOffset(mhSkel, cfg, True)
+        buildExpressions(mhSkel, rig, scn, cfg)
+        buildAnimation(mhSkel, rig, scn, offset, cfg)
+
     return rig, parser
 
 

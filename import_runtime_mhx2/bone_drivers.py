@@ -93,6 +93,15 @@ def buildExpressions(mhSkel, rig, scn, cfg):
 
     if "expressions" not in mhSkel.keys():
         return
+    if ("orbicularis03.L" not in rig.data.bones.keys() and
+        "DEF-orbicularis03.L" not in rig.data.bones.keys()):
+        print("Cannot add expressions to rig without face bones. Ignored.")
+        return
+    if "orbicularis03.L" in rig.data.bones.keys():
+        prefix = ""
+    else:
+        prefix = "DEF-"
+
     mhExprs = mhSkel["expressions"]
     if "face-poseunits" not in mhExprs.keys():
         return
@@ -131,6 +140,10 @@ def buildExpressions(mhSkel, rig, scn, cfg):
 def buildAnimation(mhSkel, rig, scn, offset, cfg):
     if "animation" not in mhSkel.keys():
         return
+    if "lowerleg02.L" not in rig.data.bones.keys():
+        print("Can only add animation to default rig. Ignored.")
+        return
+
     mhAnims = mhSkel["animation"]
     corr = getCorrections(rig)
 

@@ -118,9 +118,14 @@ def build(struct, cfg, context):
                     mhSkel = struct["skeleton"]
                     rig = buildSkeleton(mhSkel, scn, cfg)
             elif cfg.rigType in ['EXPORTED_MHX', 'EXPORTED_RIGIFY']:
+                from .armature.rerig import isDefaultRig
                 if "skeleton" in struct.keys():
                     mhSkel = struct["skeleton"]
-                    rig,parser = buildRig(mhHuman, mhSkel, cfg, context)
+                    if isDefaultRig(mhSkel):
+                        rig,parser = buildRig(mhHuman, mhSkel, cfg, context)
+                    else:
+                        print("Can only build %s rig if the Default rig (with or without toes) was exported from MakeHuman." % cfg.rigType)
+                        rig = buildSkeleton(mhSkel, scn, cfg)
             else:
                 rig,parser = buildRig(mhHuman, None, cfg, context)
     elif "skeleton" in struct.keys():
