@@ -55,12 +55,12 @@ class Parser:
 
         self.defineJointLocations(mhHuman, cfg)
 
-        self.bones = {}
+        self.bones = OrderedDict()
         self.locations = {}
         self.terminals = {}
         self.origin = Vector([0,0,0])
         self.normals = {}
-        self.headsTails = None
+        self.headsTails = {}
         self.parents = {}
         self.ikChains = {}
         self.loadedShapes = {}
@@ -118,7 +118,7 @@ class Parser:
         if cfg.useDeformBones or cfg.useDeformNames:
             self.deformPrefix = "DEF-"
 
-        if mhSkel is None:            
+        if mhSkel is None:
             self.vertexGroupFiles += ["head", "body", "hand", "joints"]
             self.vertexGroupFiles += ["tights", "skirt", "genitalia", "hair"]
 
@@ -137,7 +137,7 @@ class Parser:
                 rig_leg.Armature,
                 rig_hand.Armature,
                 rig_face.Armature,
-                ])        
+                ])
             self.joints, self.headsTails, self.armature = rerig.getJoints(mhSkel, amt)
 
             self.joints += (
@@ -148,7 +148,7 @@ class Parser:
                 rig_hand.Joints +
                 rig_face.Joints
                 )
-            
+
         if cfg.useMhx:
             self.joints += rig_control.Joints
         if cfg.useFacePanel:
@@ -177,10 +177,11 @@ class Parser:
                 rig_leg.HeadsTails,
                 rig_hand.HeadsTails,
                 rig_face.HeadsTails,
-                rig_control.HeadsTails,
-                rig_control.RevFootHeadsTails,
             ])
-            
+        if cfg.useMhx:
+            addDict(rig_control.HeadsTails, self.headsTails)
+            addDict(rig_control.RevFootHeadsTails, self.headsTails)
+
         if cfg.useFacePanel:
             addDict(rig_panel.HeadsTails, self.headsTails)
 
@@ -251,7 +252,7 @@ class Parser:
             self.splitBones = {}
 
 
-    def createBones(self, mhSkel):
+    def createBones(self, mhHuman, mhSkel):
         cfg = self.config
 
         if mhSkel is None:
@@ -260,6 +261,8 @@ class Parser:
             self.addBones(rig_leg.Armature)
             self.addBones(rig_hand.Armature)
             self.addBones(rig_face.Armature)
+        else:
+            self.addBones(self.armature)
         if cfg.useTerminators:
             self.addBones(rig_spine.TerminatorArmature)
         if cfg.usePenisRig:
@@ -466,18 +469,25 @@ class Parser:
             return bname
 
 
-    def setup(self, mhSkel):
+    def setup(self, mhHuman, mhSkel):
         cfg = self.config
 
         self.setupJoints()
         self.setupNormals()
         self.setupPlaneJoints()
-        self.createBones(mhSkel)
+        self.createBones(mhHuman, mhSkel)
 
+        print(list(self.bones.keys()))
         for bone in self.bones.values():
-            hname,tname = self.headsTails[bone.name]
-            head = self.findLocation(hname)
-            tail = self.findLocation(tname)
+            headTail = self.headsTails[bone.name]
+            if isinstance(headTail, tuple):
+                hname,tname = headTail
+                head = self.findLocation(hname)
+                tail = self.findLocation(tname)
+            elif isinstance(headTail, str):
+                xbone = self.bones[headTail]
+                head = xbone.head
+                tail = xbone.tail
             bone.setBone(head, tail)
 
         for bone in self.bones.values():
@@ -575,7 +585,7 @@ class Parser:
                 loc = self.jointLocs[data]
                 self.locations[key] = loc
                 self.locations[data] = loc
-            elif type == 'a':                
+            elif type == 'a':
                 self.locations[key] = Vector((float(data[0]),float(data[1]),float(data[2])))
             elif type == 'v':
                 v = int(data)
@@ -734,6 +744,8 @@ class Parser:
         cfg = self.config
 
         for bname in generic.keys():
+            if bname not in self.bones.keys():
+                continue
             bone = self.bones[bname]
             headTail = self.headsTails[bname]
             base,ext = splitBoneName(bname)
@@ -1000,6 +1012,8 @@ class Parser:
         vgroup1 = []
         vgroup2 = []
         vgroup3 = []
+
+        #print(bname,vgroup)
 
         if npieces == 2:
             for vn,w in vgroup:

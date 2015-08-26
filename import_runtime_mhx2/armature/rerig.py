@@ -20,19 +20,20 @@
 # ##### END GPL LICENSE BLOCK #####
 
 from .flags import *
+from collections import OrderedDict
 
 #   ("l-gluteus-1",         "vl", ((0.1, 10955), (0.9, 10859))),
 
 Renames = {
-    "root" :        "hips",
-    "spine05" :     "spine",
-    "spine04" :     "spine-1",
-    "spine03" :     "chest",
-    "spine02" :     "chest-1",
-    #"spine01" :     "",
+    "root" :        None,
+    "spine05" :     "hips",
+    "spine04" :     "spine",
+    "spine03" :     "spine-1",
+    "spine02" :     "chest",
+    "spine01" :     "chest-1",
     "neck01" :      "neck",
-    "neck02" :      "neck-1",
-    #"neck03" :      "",
+    "neck02" :      ("neck-1",1),
+    "neck03" :      ("neck-1",2),
 
     "head" :        "head",
     "jaw" :         "jaw",
@@ -40,35 +41,35 @@ Renames = {
     "breast.L" :    "breast.L",
     "eye.R" :       "eye.R",
     "breast.R" :    "breast.R",
-    
+
     #"pelvis.L" :     "",
-    "upperleg01.L" : "thigh.L",
-    #"upperleg02.L" : "thigh.L",
-    "lowerleg01.L" : "shin.L",
-    #"lowerleg02.L" : "shin.L",
+    "upperleg01.L" : ("thigh.L",1),
+    "upperleg02.L" : ("thigh.L",2),
+    "lowerleg01.L" : ("shin.L",1),
+    "lowerleg02.L" : ("shin.L",2),
     "foot.L" :       "foot.L",
     "toe1-1.L" :     "toe.L",
 
     #"pelvis.R" :     "",
-    "upperleg01.R" : "thigh.R",
-    #"upperleg02.R" : "thigh.R",
-    "lowerleg01.R" : "shin.R",
-    #"lowerleg02.R" : "shin.R",
+    "upperleg01.R" : ("thigh.R",1),
+    "upperleg02.R" : ("thigh.R",2),
+    "lowerleg01.R" : ("shin.R",1),
+    "lowerleg02.R" : ("shin.R",2),
     "foot.R" :       "foot.R",
     "toe1-1.R" :     "toe.R",
 
     "clavicle.L" :      "clavicle.L",
-    "shoulder01.L" :    "upper_arm.L",
-    #"upperarm01.L" :    "upper_arm.L",
-    "lowerarm01.L" :    "forearm.L",
-    #"lowerarm02.L" :    "forearm.L",
+    "upperarm01.L" :    ("upper_arm.L",1),
+    "upperarm02.L" :    ("upper_arm.L",2),
+    "lowerarm01.L" :    ("forearm.L",1),
+    "lowerarm02.L" :    ("forearm.L",2),
     "wrist.L" :         "hand.L",
 
     "clavicle.R" :      "clavicle.R",
-    "shoulder01.R" :    "upper_arm.R",
-    #"upperarm01.R" :    "upper_arm.R",
-    "lowerarm01.R" :    "forearm.R",
-    #"lowerarm02.R" :    "forearm.R",
+    "upperarm01.R" :    ("upper_arm.R",1),
+    "upperarm02.R" :    ("upper_arm.R",2),
+    "lowerarm01.R" :    ("forearm.R",1),
+    "lowerarm02.R" :    ("forearm.R",2),
     "wrist.R" :         "hand.R",
 
     #"tongue00" :     "",
@@ -123,44 +124,72 @@ Renames = {
     "finger5-3.R" :     "f_pinky.03.R",
 }
 
+def getNewName(bname):
+    try:
+        nname = Renames[bname]
+        known = True
+    except KeyError:
+        nname = bname
+        known = False
+    print(bname, nname)
+    if isinstance(nname,tuple):
+        nname,idx = nname
+    else:
+        idx = 0
+    return nname,known,idx
+
+
+HeadsTails = {
+    "eye_parent.L" :    "eye.L",
+    "eye_parent.R" :    "eye.R",
+}
+
+
 def getJoints(mhSkel, oldAmt):
+    from .utils import addDict
+
     joints = []
     headsTails = {}
-    amt = {}
+    amt = OrderedDict()
     for mhBone in mhSkel["bones"]:
         bname = mhBone["name"]
-        try: 
-            nname = Renames[bname]
-            known = True
-        except KeyError:
-            nname = bname
-            known = False
-        print(bname, nname)
+        nname,known,idx = getNewName(bname)
+        if nname is None:
+            continue
+        if idx == 0:
+            joints += [
+                (nname+"_head", "a", mhBone["head"]),
+                (nname+"_tail", "a", mhBone["tail"]),
+                ]
+        elif idx == 1:
+            joints.append((nname+"_head", "a", mhBone["head"]))
+        elif idx == 2:
+            joints.append((nname+"_tail", "a", mhBone["tail"]))
+            continue
 
-        joints += [
-            (nname+"_head", "a", mhBone["head"]),
-            (nname+"_tail", "a", mhBone["tail"]),
-            ]
-            
         headsTails[nname] = (nname+"_head", nname+"_tail")
-        
+
         roll = mhBone["roll"]
         if "parent" in mhBone.keys():
-            parent = mhBone["parent"]
+            parent,_,_ = getNewName(mhBone["parent"])
         else:
             parent = None
-        if known:            
+        if known:
             roll,_parent,flags,layers = oldAmt[nname][0:4]
         else:
             flags = F_DEF
             layers = L_DEF
-        amt[nname] = (roll,parent,flags,layers)            
+        amt[nname] = (roll,parent,flags,layers)
+        #amt["DEF-"+nname] = (roll,defparent,flags,layers)
 
     #print(joints)
     #print(headsTails.items())
     #print(amt.items())
+
+    addDict(HeadsTails, headsTails)
+
     return joints, headsTails, amt
-    
+
 
 Planes = {
     "PlaneArm.L" :         ('l-upper-arm', 'l-elbow-tip', 'l-hand'),
@@ -188,7 +217,7 @@ Planes = {
     "PlanePinky.R" :       ('r-plane-pinky-1', 'r-plane-pinky-2', 'r-plane-pinky-3'),
 }
 
-    
+
 def getPlanes(mhSkel):
     return Planes
 
@@ -200,4 +229,16 @@ def getArmature(mhSkel):
 
 
 def getVertexGroups(mhHuman):
-    pass
+    from .utils import mergeWeights
+
+    weights = mhHuman["seed_mesh"]["weights"]
+    vgroups = OrderedDict()
+    for bname, weight in weights.items():
+        nname,known,idx = getNewName(bname)
+        if nname is None:
+            continue
+        if nname in vgroups.keys():
+            vgroups[nname] = mergeWeights(vgroups[nname] + weight)
+        else:
+            vgroups[nname] = weight
+    return vgroups

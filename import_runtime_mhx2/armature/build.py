@@ -31,7 +31,7 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
     scn = context.scene
     parser = Parser(mhHuman, mhSkel, cfg)
-    parser.setup(mhSkel)
+    parser.setup(mhHuman, mhSkel)
 
     rname = mhHuman["name"].split(":")[0]
     amt = bpy.data.armatures.new(rname)

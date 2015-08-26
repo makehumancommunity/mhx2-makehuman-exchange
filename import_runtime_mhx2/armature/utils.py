@@ -174,6 +174,8 @@ def mergeWeights(vgroup):
             w0 = w
     if vn0 >= 0:
         ngroup.append([vn0,w0])
+    if ngroup != [] and ngroup[0][0] < 0:
+        ngroup = ngroup[1:]
     return ngroup
 
 #-------------------------------------------------------------------------------
