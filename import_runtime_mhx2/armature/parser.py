@@ -126,7 +126,8 @@ class Parser:
                 rig_joints.Joints +
                 rig_spine.Joints +
                 rig_arm.Joints +
-                rig_leg.Joints +
+                rig_leg.Joints1 +
+                rig_leg.Joints2 +
                 rig_hand.Joints +
                 rig_face.Joints
                 )
@@ -146,13 +147,9 @@ class Parser:
                 rig_hand.Armature,
                 rig_face.Armature,
                 ])
-            self.joints, self.headsTails, self.armature, self.deformArmature = rerig.getJoints(mhSkel, amt)
-
+            self.joints, self.headsTails, self.armature, self.deformArmature = rerig.getJoints(mhSkel, amt)            
             self.joints += (
-                rig_joints.Joints +
-                rig_spine.Joints +
-                rig_arm.Joints +
-                rig_leg.Joints +
+                rig_leg.Joints2 +
                 rig_hand.Joints +
                 rig_face.Joints
                 )
@@ -162,16 +159,13 @@ class Parser:
         if cfg.useFacePanel:
             self.joints += rig_panel.Joints
 
-        if mhSkel is None:
-            self.planes = mergeDicts([
-                rig_spine.Planes,
-                rig_arm.Planes,
-                rig_leg.Planes,
-                rig_hand.Planes,
-                rig_face.Planes,
-            ])
-        else:
-            self.planes = rerig.getPlanes(mhSkel)
+        self.planes = mergeDicts([
+            rig_spine.Planes,
+            rig_arm.Planes,
+            rig_leg.Planes,
+            rig_hand.Planes,
+            rig_face.Planes,
+        ])
 
         if cfg.useMhx:
             self.planeJoints = rig_control.PlaneJoints
@@ -201,11 +195,15 @@ class Parser:
         self.headsTailsOrig = dict(self.headsTails)
 
         if cfg.useConstraints:
-            self.setConstraints(rig_spine.Constraints)
-            self.setConstraints(rig_arm.Constraints)
-            self.setConstraints(rig_leg.Constraints)
-            self.setConstraints(rig_hand.Constraints)
-            self.setConstraints(rig_face.Constraints)
+            if mhSkel is None:
+                self.setConstraints(rig_spine.Constraints)
+                self.setConstraints(rig_arm.Constraints)
+                self.setConstraints(rig_leg.Constraints)
+                self.setConstraints(rig_hand.Constraints)
+                self.setConstraints(rig_face.Constraints)
+            else:
+                self.setConstraints(rerig.Constraints)            
+                self.setConstraints(rig_face.Constraints)
 
         if cfg.useLocks:
             addDict(rig_spine.RotationLimits, self.rotationLimits)
@@ -582,13 +580,15 @@ class Parser:
 
         cfg = self.config
         for (key, type, data) in self.joints:
+            print("*", key,type,data)
             if type == 'j':
                 loc = self.jointLocs[data]
                 self.locations[key] = loc
                 self.locations[data] = loc
             elif type == 'a':
                 vec = Vector((float(data[0]),float(data[1]),float(data[2])))
-                self.locations[key] = self.scale*vec + self.offset
+                loc = self.scale*vec + self.offset
+                self.locations[key] = loc
             elif type == 'v':
                 v = int(data)
                 self.locations[key] = self.coord[v]
@@ -624,7 +624,7 @@ class Parser:
                 e1r = rloc - loc1
                 self.locations[key] = rloc - n*e1r.dot(n)
             elif type == 'b':
-                self.locations[key] = self.locations[data]
+                self.locations[key] = self.jointLocs[key] = self.locations[data]
             elif type == 'p':
                 x = self.locations[data[0]]
                 y = self.locations[data[1]]

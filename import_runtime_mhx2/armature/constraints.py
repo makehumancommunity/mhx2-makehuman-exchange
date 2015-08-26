@@ -92,6 +92,10 @@ class CIkConstraint(CConstraint):
         else:
             (self.angle, self.ptar) = (0, None)
         (self.useLoc, self.useRot, self.useStretch) = data[4]
+        if len(data) > 5:
+            self.useTail = data[5]
+        else:
+            self.useTail = True
         self.lockLoc = lockLoc
         self.lockRot = lockRot
         (lockRotX, lockRotY, lockRotZ) = lockRot
@@ -100,8 +104,7 @@ class CIkConstraint(CConstraint):
         cns = CConstraint.build(self, pb, rig, parser)
         cns.target = rig
         cns.subtarget = self.subtar
-        cns.use_tail = True
-        #self.use_tail = False
+        cns.use_tail = self.useTail
 
         #self.pos_lock Array 1 1 1
         #self.rot_lock Array 1 1 1

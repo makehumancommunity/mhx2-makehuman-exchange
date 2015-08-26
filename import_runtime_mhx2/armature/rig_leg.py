@@ -22,7 +22,7 @@
 from .flags import *
 from .rig_joints import *
 
-Joints = [
+Joints1 = [
     ("l-gluteus-1",         "vl", ((0.1, 10955), (0.9, 10859))),
     ("r-gluteus-1",         "vl", ((0.1, 4327), (0.9, 4224))),
     ("l-gluteus-2",         "l", ((0.8, "l-upper-leg"), (0.2, "l-knee"))),
@@ -32,7 +32,9 @@ Joints = [
     ("r-hip-ik",            "v", 4290),
     ("l-hip",               "l", ((0.7, "l-hip-ik"), (0.3, "pelvis"))),
     ("r-hip",               "l", ((0.7, "r-hip-ik"), (0.3, "pelvis"))),
+]
 
+Joints2 = [
     ("l-knee-tip",          "v", 11223),
     ("r-knee-tip",          "v", 4605),
 

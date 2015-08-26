@@ -22,7 +22,94 @@
 from .flags import *
 from collections import OrderedDict
 
-#   ("l-gluteus-1",         "vl", ((0.1, 10955), (0.9, 10859))),
+Joints = [
+    ('ground',          'j', 'ground'),
+
+    # Spine
+    ('pelvis',          'j', 'pelvis'),
+    ('neck',            'b', 'neck_head'),
+    ('head',            'b', 'head_head'),
+    ('head-2',          'b', 'head_tail'),
+
+    # Head
+
+    ('r-eye',           'b', 'eye.L_head'),
+    ('l-eye',           'b', 'eye.R_head'),
+    ('r-eye-target',        'j', 'r-eye-target'),
+    ('l-eye-target',        'j', 'l-eye-target'),
+
+    # Legs
+    ('l-upper-leg',         'b', 'thigh.L_head'),
+    ('l-knee-raw',          'b', 'shin.L_head'),
+    ('l-ankle',             'b', 'foot.L_head'),
+    ('l-foot-1',            'b', 'foot.L_tail'),
+    ('l-foot-2',            'b', 'toe.L_tail'),
+
+    ('r-upper-leg',         'b', 'thigh.R_head'),
+    ('r-knee-raw',          'b', 'shin.R_head'),
+    ('r-ankle',             'b', 'foot.R_head'),
+    ('r-foot-1',            'b', 'foot.R_tail'),
+    ('r-foot-2',            'b', 'toe.R_tail'),
+
+    # Arms
+    ('l-clavicle',          'b', 'clavicle.L_head'),
+    ('l-shoulder',          'b', 'shoulder01.L_head'),
+    ('l-upper-arm',         'b', 'upper_arm.L_head'),
+    ('l-elbow',             'b', 'forearm.L_head'),
+    ('l-elbow-tip',         'j', 'l-elbow'),
+    ('l-hand',              'b', 'hand.L_head'),
+
+    ('r-clavicle',          'b', 'clavicle.R_head'),
+    ('r-shoulder',          'b', 'shoulder01.R_head'),
+    ('r-upper-arm',         'b', 'upper_arm.R_head'),
+    ('r-elbow',             'b', 'forearm.R_head'),
+    ('r-elbow-tip',         'j', 'r-elbow'),
+    ('r-hand',              'b', 'hand.R_head'),
+
+    # Fingers
+    ('l-finger-1-1',        'b', 'thumb.01.L_head'),
+    ('l-finger-1-2',        'b', 'thumb.02.L_head'),
+    ('l-finger-1-3',        'b', 'thumb.03.L_head'),
+    ('l-finger-1-4',        'b', 'thumb.03.L_tail'),
+    ('l-finger-2-1',        'b', 'f_index.01.L_head'),
+    ('l-finger-2-2',        'b', 'f_index.02.L_head'),
+    ('l-finger-2-3',        'b', 'f_index.03.L_head'),
+    ('l-finger-2-4',        'b', 'f_index.03.L_tail'),
+    ('l-finger-3-1',        'b', 'f_middle.01.L_head'),
+    ('l-finger-3-2',        'b', 'f_middle.02.L_head'),
+    ('l-finger-3-3',        'b', 'f_middle.03.L_head'),
+    ('l-finger-3-4',        'b', 'f_middle.03.L_tail'),
+    ('l-finger-4-1',        'b', 'f_ring.01.L_head'),
+    ('l-finger-4-2',        'b', 'f_ring.02.L_head'),
+    ('l-finger-4-3',        'b', 'f_ring.03.L_head'),
+    ('l-finger-4-4',        'b', 'f_ring.03.L_tail'),
+    ('l-finger-5-1',        'b', 'f_pinky.01.L_head'),
+    ('l-finger-5-2',        'b', 'f_pinky.02.L_head'),
+    ('l-finger-5-3',        'b', 'f_pinky.03.L_head'),
+    ('l-finger-5-4',        'b', 'f_pinky.03.L_tail'),
+
+    ('r-finger-1-1',        'b', 'thumb.01.R_head'),
+    ('r-finger-1-2',        'b', 'thumb.02.R_head'),
+    ('r-finger-1-3',        'b', 'thumb.03.R_head'),
+    ('r-finger-1-4',        'b', 'thumb.03.R_tail'),
+    ('r-finger-2-1',        'b', 'f_index.01.R_head'),
+    ('r-finger-2-2',        'b', 'f_index.02.R_head'),
+    ('r-finger-2-3',        'b', 'f_index.03.R_head'),
+    ('r-finger-2-4',        'b', 'f_index.03.R_tail'),
+    ('r-finger-3-1',        'b', 'f_middle.01.R_head'),
+    ('r-finger-3-2',        'b', 'f_middle.02.R_head'),
+    ('r-finger-3-3',        'b', 'f_middle.03.R_head'),
+    ('r-finger-3-4',        'b', 'f_middle.03.R_tail'),
+    ('r-finger-4-1',        'b', 'f_ring.01.R_head'),
+    ('r-finger-4-2',        'b', 'f_ring.02.R_head'),
+    ('r-finger-4-3',        'b', 'f_ring.03.R_head'),
+    ('r-finger-4-4',        'b', 'f_ring.03.R_tail'),
+    ('r-finger-5-1',        'b', 'f_pinky.01.R_head'),
+    ('r-finger-5-2',        'b', 'f_pinky.02.R_head'),
+    ('r-finger-5-3',        'b', 'f_pinky.03.R_head'),
+    ('r-finger-5-4',        'b', 'f_pinky.03.R_tail'),
+
+]
 
 Renames = {
     "root" :        None,
@@ -58,16 +145,14 @@ Renames = {
     "foot.R" :       "foot.R",
     "toe1-1.R" :     "toe.R",
 
-    "clavicle.L" :      ("clavicle.L",1),
-    "shoulder01.L" :    ("clavicle.L",2),
+    "clavicle.L" :      "clavicle.L",
     "upperarm01.L" :    ("upper_arm.L",1),
     "upperarm02.L" :    ("upper_arm.L",2),
     "lowerarm01.L" :    ("forearm.L",1),
     "lowerarm02.L" :    ("forearm.L",2),
     "wrist.L" :         "hand.L",
 
-    "clavicle.R" :      ("clavicle.R",1),
-    "shoulder01.R" :    ("clavicle.R",2),
+    "clavicle.R" :      "clavicle.R",
     "upperarm01.R" :    ("upper_arm.R",1),
     "upperarm02.R" :    ("upper_arm.R",2),
     "lowerarm01.R" :    ("forearm.R",1),
@@ -142,10 +227,28 @@ def getNewName(bname):
 
 
 HeadsTails = {
+    "clavicle.L" :      ("l-clavicle", "upper_arm.L_head"),
+    "clavicle.R" :      ("r-clavicle", "upper_arm.R_head"),
     "eye_parent.L" :    "eye.L",
     "eye_parent.R" :    "eye.R",
 }
 
+Parents = {
+    "pelvis.L" :    "hips",
+    "pelvis.R" :    "hips",
+    "upperarm.L" :  "clavicle.L",
+    "upperarm.R" :  "clavicle.R",
+}    
+
+Constraints = {
+    "shoulder01.L" : [
+        ("IK", 0, 1, ["clavicle.L", "clavicle.L", 1, None, (1,1,1), False])
+        ],
+
+    "shoulder01.R" : [
+        ("IK", 0, 1, ["clavicle.R", "clavicle.R", 1, None, (1,1,1), False])
+        ],
+}
 
 def getJoints(mhSkel, oldAmt):
     from .utils import addDict
@@ -170,10 +273,13 @@ def getJoints(mhSkel, oldAmt):
             joints.append((nname+"_tail", "a", mhBone["tail"]))
             continue
 
-        headsTails[nname] = (nname+"_head", nname+"_tail")
+        if nname not in headsTails.keys():
+            headsTails[nname] = (nname+"_head", nname+"_tail")
 
         roll = mhBone["roll"]
-        if "parent" in mhBone.keys():
+        if nname in Parents.keys():
+            parent = Parents[nname]
+        elif "parent" in mhBone.keys():
             parent,_,_ = getNewName(mhBone["parent"])
         else:
             parent = None
@@ -188,40 +294,10 @@ def getJoints(mhSkel, oldAmt):
     #print(headsTails.items())
     #print(amt.items())
 
+    joints += Joints
     addDict(HeadsTails, headsTails)
 
     return joints, headsTails, amt, deformAmt
-
-
-Planes = {
-    "PlaneArm.L" :         ('l-upper-arm', 'l-elbow-tip', 'l-hand'),
-    "PlaneHand.L" :        ('l-plane-hand-1', 'l-plane-hand-2', 'l-plane-hand-3'),
-    "PlaneArm.R" :         ('r-shoulder', 'r-elbow-tip', 'r-hand'),
-    "PlaneHand.R" :        ('r-plane-hand-1', 'r-plane-hand-2', 'r-plane-hand-3'),
-
-    "PlaneEye.L" :         ('l-eye', 'l-eye-end', 'l-eye-top'),
-    "PlaneEye.R" :         ('r-eye', 'r-eye-end', 'r-eye-top'),
-
-    "PlaneLeg.L" :         ("thigh.L_head", "shin.L_head", "shin.L_tail"),
-    "PlaneFoot.L" :        ("foot.L_head", "toe.L_head", "toe.L_tail"),
-    "PlaneLeg.R" :         ("thigh.R_head", "shin.R_head", "shin.R_tail"),
-    "PlaneFoot.R" :        ("foot.R_head", "toe.R_head", "toe.R_tail"),
-    "PlaneThumb.L" :       ('l-plane-thumb-1', 'l-plane-thumb-2', 'l-plane-thumb-3'),
-    "PlaneIndex.L" :       ('l-plane-index-1', 'l-plane-index-2', 'l-plane-index-3'),
-    "PlaneMiddle.L" :      ('l-plane-middle-1', 'l-plane-middle-2', 'l-plane-middle-3'),
-    "PlaneRing.L" :        ('l-plane-ring-1', 'l-plane-ring-2', 'l-plane-ring-3'),
-    "PlanePinky.L" :       ('l-plane-pinky-1', 'l-plane-pinky-2', 'l-plane-pinky-3'),
-
-    "PlaneThumb.R" :       ('r-plane-thumb-1', 'r-plane-thumb-2', 'r-plane-thumb-3'),
-    "PlaneIndex.R" :       ('r-plane-index-1', 'r-plane-index-2', 'r-plane-index-3'),
-    "PlaneMiddle.R" :      ('r-plane-middle-1', 'r-plane-middle-2', 'r-plane-middle-3'),
-    "PlaneRing.R" :        ('r-plane-ring-1', 'r-plane-ring-2', 'r-plane-ring-3'),
-    "PlanePinky.R" :       ('r-plane-pinky-1', 'r-plane-pinky-2', 'r-plane-pinky-3'),
-}
-
-
-def getPlanes(mhSkel):
-    return Planes
 
 
 def getArmature(mhSkel):
