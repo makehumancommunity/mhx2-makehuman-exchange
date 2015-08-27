@@ -392,7 +392,7 @@ class Parser:
             if mhSkel is None:
                 vgroups = self.readVertexGroupFiles(self.vertexGroupFiles)
             else:
-                vgroups = rerig.getVertexGroups(mhHuman)
+                vgroups = rerig.getVertexGroups(mhHuman, mhSkel)
             addDict(vgroups, self.vertexGroups)
 
         if cfg.mergeShoulders:
@@ -412,6 +412,7 @@ class Parser:
             (cfg.mergeFingers, rig_merge.FingerMergers),
             (cfg.mergeHead, rig_merge.HeadMergers),
             (cfg.mergeFeet, rig_merge.FeetMergers),
+            #(cfg.mergeToes, rig_merge.ToesMergers),
             (cfg.mergePenis, rig_merge.PenisMergers),
             ]:
             if flag:

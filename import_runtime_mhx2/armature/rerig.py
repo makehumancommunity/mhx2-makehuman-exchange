@@ -41,15 +41,15 @@ Joints = [
     # Legs
     ('l-upper-leg',         'b', 'thigh.L_head'),
     ('l-knee-raw',          'b', 'shin.L_head'),
-    ('l-ankle',             'b', 'foot.L_head'),
-    ('l-foot-1',            'b', 'foot.L_tail'),
-    ('l-foot-2',            'b', 'toe.L_tail'),
+    ('l-ankle',             'j', 'l-ankle'),
+    ('l-foot-1',            'j', 'l-foot-1'),
+    ('l-foot-2',            'j', 'l-foot-2'),
 
     ('r-upper-leg',         'b', 'thigh.R_head'),
     ('r-knee-raw',          'b', 'shin.R_head'),
-    ('r-ankle',             'b', 'foot.R_head'),
-    ('r-foot-1',            'b', 'foot.R_tail'),
-    ('r-foot-2',            'b', 'toe.R_tail'),
+    ('r-ankle',             'j', 'r-ankle'),
+    ('r-foot-1',            'j', 'r-foot-1'),
+    ('r-foot-2',            'j', 'r-foot-2'),
 
     # Arms
     ('l-clavicle',          'b', 'clavicle.L_head'),
@@ -134,7 +134,7 @@ Renames = {
     "upperleg02.L" : ("thigh.L",2),
     "lowerleg01.L" : ("shin.L",1),
     "lowerleg02.L" : ("shin.L",2),
-    "foot.L" :       "foot.L",
+    "foot.L" :       ("foot.L",1),
     "toe1-1.L" :     "toe.L",
 
     "pelvis.R" :     "pelvis.R",
@@ -142,7 +142,7 @@ Renames = {
     "upperleg02.R" : ("thigh.R",2),
     "lowerleg01.R" : ("shin.R",1),
     "lowerleg02.R" : ("shin.R",2),
-    "foot.R" :       "foot.R",
+    "foot.R" :       ("foot.R",1),
     "toe1-1.R" :     "toe.R",
 
     "clavicle.L" :      "clavicle.L",
@@ -211,18 +211,63 @@ Renames = {
     "finger5-3.R" :     "f_pinky.03.R",
 }
 
-def getNewName(bname):
-    try:
-        nname = Renames[bname]
-        known = True
-    except KeyError:
-        nname = bname
+RenameToes = {
+    "toe1-1.L":     ("toe.L", 3),
+    "toe1-2.L":     ("toe.L", 3),
+    "toe1-3.L":     ("toe.L", 3),
+    "toe2-1.L":     ("toe.L", 3),
+    "toe2-2.L":     ("toe.L", 3),
+    "toe2-3.L":     ("toe.L", 3),
+    "toe3-1.L":     ("toe.L", 1),
+    "toe3-2.L":     ("toe.L", 3),
+    "toe3-3.L":     ("toe.L", 2),
+    "toe4-1.L":     ("toe.L", 3),
+    "toe4-2.L":     ("toe.L", 3),
+    "toe4-3.L":     ("toe.L", 3),
+    "toe5-1.L":     ("toe.L", 3),
+    "toe5-2.L":     ("toe.L", 3),
+    "toe5-3.L":     ("toe.L", 3),
+
+    "toe1-1.R":     ("toe.R", 3),
+    "toe1-2.R":     ("toe.R", 3),
+    "toe1-3.R":     ("toe.R", 3),
+    "toe2-1.R":     ("toe.R", 3),
+    "toe2-2.R":     ("toe.R", 3),
+    "toe2-3.R":     ("toe.R", 3),
+    "toe3-1.R":     ("toe.R", 1),
+    "toe3-2.R":     ("toe.R", 3),
+    "toe3-3.R":     ("toe.R", 2),
+    "toe4-1.R":     ("toe.R", 3),
+    "toe4-2.R":     ("toe.R", 3),
+    "toe4-3.R":     ("toe.R", 3),
+    "toe5-1.R":     ("toe.R", 3),
+    "toe5-2.R":     ("toe.R", 3),
+    "toe5-3.R":     ("toe.R", 3),
+}
+
+def getNewName(bname, hasToes):
+    if hasToes:
+        try:
+            nname = RenameToes[bname]
+            known = True
+        except KeyError:
+            known = False
+    else:
         known = False
-    #print(bname, nname)
+
+    if not known:
+        try:
+            nname = Renames[bname]
+            known = True
+        except KeyError:
+            nname = bname
+            known = False
+
     if isinstance(nname,tuple):
         nname,idx = nname
     else:
         idx = 0
+
     return nname,known,idx
 
 
@@ -233,11 +278,22 @@ def isDefaultRig(mhSkel):
     return False
 
 
+def isRigWithToes(mhSkel):
+    for bone in mhSkel["bones"]:
+        if bone["name"] == "toe3-1.L":
+            return True
+    return False
+
+
 HeadsTails = {
     "clavicle.L" :      ("l-clavicle", "upper_arm.L_head"),
     "clavicle.R" :      ("r-clavicle", "upper_arm.R_head"),
     "eye_parent.L" :    "eye.L",
     "eye_parent.R" :    "eye.R",
+    "foot.L" :          ("l-ankle", "l-foot-1"),
+    "foot.R" :          ("r-ankle", "r-foot-1"),
+    "toe.L" :           ("l-foot-1", "l-toe-2"),
+    "toe.R" :           ("r-foot-1", "r-toe-2"),
 }
 
 Parents = {
@@ -247,6 +303,8 @@ Parents = {
     "pelvis.R" :    "hips",
     "thigh.L" :     "hips",
     "thigh.R" :     "hips",
+    "toe.L" :       "foot.L",
+    "toe.R" :       "foot.R",
 }
 
 Constraints = {}
@@ -268,12 +326,13 @@ def getJoints(mhSkel, oldAmt):
     headsTails = {}
     deformAmt = {}
     amt = OrderedDict()
+    hasToes = isRigWithToes(mhSkel)
     for mhBone in mhSkel["bones"]:
         bname = mhBone["name"]
-        nname,known,idx = getNewName(bname)
+        nname,known,idx = getNewName(bname, hasToes)
         if nname is None:
             continue
-        if idx == 0:
+        elif idx == 0:
             joints += [
                 (nname+"_head", "a", mhBone["head"]),
                 (nname+"_tail", "a", mhBone["tail"]),
@@ -283,6 +342,8 @@ def getJoints(mhSkel, oldAmt):
         elif idx == 2:
             joints.append((nname+"_tail", "a", mhBone["tail"]))
             continue
+        elif idx == 3:
+            continue
 
         if nname not in headsTails.keys():
             headsTails[nname] = (nname+"_head", nname+"_tail")
@@ -291,7 +352,7 @@ def getJoints(mhSkel, oldAmt):
         if nname in Parents.keys():
             parent = Parents[nname]
         elif "parent" in mhBone.keys():
-            parent,_,_ = getNewName(mhBone["parent"])
+            parent,_,_ = getNewName(mhBone["parent"], hasToes)
         else:
             parent = None
         if known:
@@ -317,13 +378,14 @@ def getArmature(mhSkel):
     pass
 
 
-def getVertexGroups(mhHuman):
+def getVertexGroups(mhHuman, mhSkel):
     from .utils import mergeWeights
 
     weights = mhHuman["seed_mesh"]["weights"]
     vgroups = OrderedDict()
+    hasToes = isRigWithToes(mhSkel)
     for bname, weight in weights.items():
-        nname,known,idx = getNewName(bname)
+        nname,known,idx = getNewName(bname, hasToes)
         if nname is None:
             continue
         if nname in vgroups.keys():

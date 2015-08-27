@@ -9,7 +9,8 @@
         "useSplitNames" : true,
         "useDeformNames" : true,
         "useCustomShapes" : "FACE",
-        "useConstraints" : true
+        "useConstraints" : true,
+        "mergeToes" : true
     },
 
     "bones" : {

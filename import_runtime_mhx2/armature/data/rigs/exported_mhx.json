@@ -20,7 +20,8 @@
         "useConstraints" : true,
         "useLocks" : true,
         "useBoneGroups" : true,
-        "useCorrectives": true
+        "useCorrectives": true,
+        "mergeToes" :true
     },
     
     "properties" : {

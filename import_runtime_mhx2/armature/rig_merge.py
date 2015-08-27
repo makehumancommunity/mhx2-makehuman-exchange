@@ -86,6 +86,23 @@ FeetMergers = {
     "foot.R" : ("toe.R", ("foot.R", "toe.R")),
 }
 
+ToesMergers = {
+    "toe.L" : ("toe.L", (
+        "toe.L", "toe1-2.L", "toe1-3.L",
+        "toe2-1.L", "toe2-2.L", "toe2-3.L",
+        "toe3-1.L", "toe3-2.L", "toe3-3.L",
+        "toe4-1.L", "toe4-2.L", "toe4-3.L",
+        "toe5-1.L", "toe5-2.L", "toe5-3.L",
+        )),
+    "toe.R" : ("toe.R", (
+        "toe.R", "toe1-2.R", "toe1-3.R",
+        "toe2-1.R", "toe2-2.R", "toe2-3.R",
+        "toe3-1.R", "toe3-2.R", "toe3-3.R",
+        "toe4-1.R", "toe4-2.R", "toe4-3.R",
+        "toe5-1.R", "toe5-2.R", "toe5-3.R",
+        )),
+}
+
 PenisMergers = {
     "hips" : ("hips", (
         "hips", "penis_1", "penis_2", "penis_3", "scrotum.L", "scrotum.R"

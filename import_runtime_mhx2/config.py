@@ -101,6 +101,7 @@ class Config:
         self.mergePalms = False
         self.mergeHead = False
         self.mergeFeet = False
+        self.mergeToes = False
         self.mergePenis = True
 
         self.merge = None
