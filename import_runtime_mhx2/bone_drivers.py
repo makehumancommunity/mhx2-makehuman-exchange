@@ -93,8 +93,7 @@ def buildExpressions(mhSkel, rig, scn, cfg):
 
     if "expressions" not in mhSkel.keys():
         return
-    if ("orbicularis03.L" not in rig.data.bones.keys() and
-        "DEF-orbicularis03.L" not in rig.data.bones.keys()):
+    if "orbicularis03.L" not in rig.data.bones.keys():
         print("Cannot add expressions to rig without face bones. Ignored.")
         return
     if "orbicularis03.L" in rig.data.bones.keys():

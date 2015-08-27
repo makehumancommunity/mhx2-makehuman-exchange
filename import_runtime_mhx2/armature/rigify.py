@@ -68,7 +68,7 @@ class RigifyBone:
         self.face = False
 
         if eb.layers[10]:   # Face
-            self.layer = 0
+            self.layer = 1
             self.face = True
         elif eb.layers[9]:  # Tweak
             self.layer = 2
@@ -86,7 +86,7 @@ def checkRigifyEnabled(context):
     return False
 
 
-def rigifyMhx(context, taken={}):
+def rigifyMhx(context, parser, taken={}):
     from collections import OrderedDict
     from ..error import MhxError
 
@@ -201,16 +201,15 @@ def rigifyMhx(context, taken={}):
                 change = False
             except KeyError:
                 change = True
-            if not change:
-                bone.realname = bone.name
-            elif bone.name[0:4] == "DEF-":
+            if ((not change) or
+                (bone.name[0:4] == "DEF-") or
+                bone.face):
                 bone.realname = bone.name
             elif bone.deform:
                 bone.realname = "DEF-" + bone.name
-            elif bone.face:
-                bone.realname = bone.name
             else:
                 bone.realname = "MCH-" + bone.name
+
             eb = gen.data.edit_bones.new(bone.realname)
             eb.head = bone.head
             eb.tail = bone.tail
@@ -231,7 +230,7 @@ def rigifyMhx(context, taken={}):
             else:
                 layers[0] = True
             eb.layers = layers
-
+    
     bpy.ops.object.mode_set(mode='OBJECT')
     for bone in bones.values():
         if not bone.original:
@@ -264,6 +263,16 @@ def rigifyMhx(context, taken={}):
             fcu2 = pb.driver_add(channel, fcu1.array_index)
             copyDriver(fcu1, fcu2, gen)
 
+    # Fix vertex groups
+    for gname,vgrp in list(parser.vertexGroups.items()):
+        if gname in gen.data.bones.keys():
+            continue
+        elif gname[0:4] == "DEF-" and gname[4:] in gen.data.bones.keys():
+            parser.vertexGroups[gname[4:]] = vgrp
+            del parser.vertexGroups[gname]
+        else:
+            print("Warning: missing vertex group %s" % gname)    
+    
     if group:
         group.objects.link(gen)
 
@@ -453,7 +462,7 @@ class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
             children = list(context.object.children)
             setParents(children, None)
             taken = listUsedVgroups(children)
-            gen = rigifyMhx(context, taken)
+            gen = rigifyMhx(context, parser, taken)
             fixRigifyMeshes(children)
             setParents(children, gen)
         except MhxError:
