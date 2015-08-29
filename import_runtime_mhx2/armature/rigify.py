@@ -46,6 +46,16 @@ Extras = [
     ("neck-1", "neck", "head"),
 ]
 
+Parents = {
+    "clavicle.L" : "ORG-chest",
+    "clavicle.R" : "ORG-chest",
+    "shoulder.L" : "clavicle.L",
+    "shoulder.R" : "clavicle.R",
+    "ORG-shoulder.L" : "clavicle.L",
+    "ORG-shoulder.R" : "clavicle.R",
+
+}
+
 class RigifyBone:
     def __init__(self, eb):
         self.name = eb.name
@@ -65,13 +75,17 @@ class RigifyBone:
         self.child = None
         self.connect = False
         self.original = False
-        self.face = False
+        self.nodef = False
 
-        if eb.layers[10]:   # Face
-            self.layer = 1
-            self.face = True
-        elif eb.layers[9]:  # Tweak
+        if (eb.name in [
+                "clavicle.L", "clavicle.R",
+                "breast.L", "breast.R",
+                "pelvis.L", "pelvis.R"]):
             self.layer = 2
+            self.nodef = True
+        elif eb.layers[10]:   # Face
+            self.layer = 1
+            self.nodef = True
         else:
             self.layer = 1  # Muscle
 
@@ -203,7 +217,7 @@ def rigifyMhx(context, parser, taken={}):
                 change = True
             if ((not change) or
                 (bone.name[0:4] == "DEF-") or
-                bone.face):
+                bone.nodef):
                 bone.realname = bone.name
             elif bone.deform:
                 bone.realname = "DEF-" + bone.name
@@ -223,14 +237,23 @@ def rigifyMhx(context, parser, taken={}):
                     eb.parent = gen.data.edit_bones[parent.realname1]
                 else:
                     print(bone)
+
             eb.use_connect = (eb.parent != None and eb.parent.tail == eb.head)
             layers = 32*[False]
             if change:
                 layers[bone.layer] = True
             else:
                 layers[0] = True
+            if bone.deform:
+                layers[29] = True
             eb.layers = layers
-    
+
+    # Fix parents
+    if "clavicle.L" in gen.data.edit_bones.keys():
+        for bname in Parents.keys():
+            eb = gen.data.edit_bones[bname]
+            eb.parent = gen.data.edit_bones[Parents[bname]]
+
     bpy.ops.object.mode_set(mode='OBJECT')
     for bone in bones.values():
         if not bone.original:
@@ -271,8 +294,8 @@ def rigifyMhx(context, parser, taken={}):
             parser.vertexGroups[gname[4:]] = vgrp
             del parser.vertexGroups[gname]
         else:
-            print("Warning: missing vertex group %s" % gname)    
-    
+            print("Warning: missing vertex group %s" % gname)
+
     if group:
         group.objects.link(gen)
 

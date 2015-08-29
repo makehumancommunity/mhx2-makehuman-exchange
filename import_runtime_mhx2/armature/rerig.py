@@ -286,8 +286,8 @@ def isRigWithToes(mhSkel):
 
 
 HeadsTails = {
-    "clavicle.L" :      ("l-clavicle", "upper_arm.L_head"),
-    "clavicle.R" :      ("r-clavicle", "upper_arm.R_head"),
+    #"clavicle.L" :      ("l-clavicle", "upper_arm.L_head"),
+    #"clavicle.R" :      ("r-clavicle", "upper_arm.R_head"),
     "eye_parent.L" :    "eye.L",
     "eye_parent.R" :    "eye.R",
     "foot.L" :          ("l-ankle", "l-foot-1"),
@@ -297,8 +297,8 @@ HeadsTails = {
 }
 
 Parents = {
-    "upper_arm.L" :  "clavicle.L",
-    "upper_arm.R" :  "clavicle.R",
+    #"upper_arm.L" :  "clavicle.L",
+    #"upper_arm.R" :  "clavicle.R",
     "pelvis.L" :    "hips",
     "pelvis.R" :    "hips",
     "thigh.L" :     "hips",

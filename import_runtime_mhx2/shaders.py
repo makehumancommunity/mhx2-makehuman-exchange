@@ -19,9 +19,19 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
+from .materials import NodeTree
 
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
 
+
+def buildSkinShader(mat, mhMat, scn, cfg):
+    print("Creating skin shader", mat.name)
+    mat.use_nodes= True
+    mat.node_tree.nodes.clear()
+    tree = NodeTree(mat.node_tree)
+    links = mat.node_tree.links
+    texco = tree.addNode(1, 'ShaderNodeTexCoord')
+
+    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg)

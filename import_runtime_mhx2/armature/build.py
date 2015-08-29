@@ -59,8 +59,8 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
         if cfg.useMhx:
             eb.layers = getLayers(bone.layers)
-        elif cfg.useRigify and bone.layers & (L_PANEL|L_HEAD|L_TWEAK):
-            eb.layers = 10*[False] + 1*[True] + 21*[False]
+        elif cfg.useRigify and bone.layers & (L_PANEL|L_HEAD):
+            eb.layers = 9*[False] + 1*[True] + 22*[False]
         else:
             eb.layers = [True] + 31*[False]
 
