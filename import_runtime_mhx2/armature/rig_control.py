@@ -140,11 +140,11 @@ MasterArmature = {
 }
 
 SocketArmature = {
-    "arm_base.L" :      (0, "clavicle.L", 0, L_HELP),
+    "arm_base.L" :      (0, "shoulder01.L", 0, L_HELP),
     "arm_hinge.L" :     (0, "root", 0, L_HELP),
     "arm_socket.L" :    (0, "arm_hinge.L", F_WIR|F_NOLOCK, L_TWEAK),
 
-    "arm_base.R" :      (0, "clavicle.R", 0, L_HELP),
+    "arm_base.R" :      (0, "shoulder01.R", 0, L_HELP),
     "arm_hinge.R" :     (0, "root", 0, L_HELP),
     "arm_socket.R" :    (0, "arm_hinge.R", F_WIR|F_NOLOCK, L_TWEAK),
 
@@ -213,11 +213,11 @@ RevFootArmature = {
 
 IkArmArmature = {
     "hand.ik.L" :      ("hand.L", None, F_WIR|F_NOLOCK, L_LARMIK),
-    "elbow.pt.ik.L" :  (0, "clavicle.L", F_WIR|F_NOLOCK, L_LARMIK),
+    "elbow.pt.ik.L" :  (0, "shoulder01.L", F_WIR|F_NOLOCK, L_LARMIK),
     "elbow.link.L" :   (0, "upper_arm.ik.L", F_RES, L_LARMIK),
 
     "hand.ik.R" :      ("hand.R", None, F_WIR|F_NOLOCK, L_RARMIK),
-    "elbow.pt.ik.R" :  (0, "clavicle.R", F_WIR|F_NOLOCK, L_RARMIK),
+    "elbow.pt.ik.R" :  (0, "shoulder01.R", F_WIR|F_NOLOCK, L_RARMIK),
     "elbow.link.R" :   (0, "upper_arm.ik.R", F_RES, L_RARMIK),
 }
 

@@ -75,22 +75,24 @@ HeadsTails = {
     "clavicle.L" :          ("l-clavicle", "l-clav-end"),
     "scap-parent.L" :       ("l-clavicle", "l-clav-1"),
     "DEF-scapula.L" :       ("l-scapula-2", "l-scapula-1"),
-    "serratusIk.L" :    ("l-serratus-ik", ("l-serratus-ik", ysmall)),
+    "serratusIk.L" :        ("l-serratus-ik", ("l-serratus-ik", ysmall)),
     "DEF-deltoid.L" :        ("l-deltoid-1", "l-deltoid-2"),
     "shoulderIk.L" :         ("l-deltoid-2", ("l-deltoid-2", ysmall)),
 
     "clavicle.R" :          ("r-clavicle", "r-clav-end"),
     "scap-parent.R" :       ("r-clavicle", "r-clav-1"),
     "DEF-scapula.R" :       ("r-scapula-2", "r-scapula-1"),
-    "serratusIk.R" :    ("r-serratus-ik", ("r-serratus-ik", ysmall)),
+    "serratusIk.R" :        ("r-serratus-ik", ("r-serratus-ik", ysmall)),
     "DEF-deltoid.R" :       ("r-deltoid-1", "r-deltoid-2"),
     "shoulderIk.R" :        ("r-deltoid-2", ("r-deltoid-2", ysmall)),
 
+    "shoulder01.L" :          ("l-clav-end", "l-upper-arm"),
     "upper_arm.L" :         ("l-upper-arm", "l-elbow"),
     "forearm.L" :           ("l-elbow", "l-hand"),
     "DEF-elbow_fan.L" :         ("l-elbow", "l-forearm-1"),
     "hand.L" :              ("l-hand", "l-hand-end"),
 
+    "shoulder01.R" :          ("r-clav-end", "r-upper-arm"),
     "upper_arm.R" :         ("r-shoulder", "r-elbow"),
     "forearm.R" :           ("r-elbow", "r-hand"),
     "DEF-elbow_fan.R" :         ("r-elbow", "r-forearm-1"),
@@ -108,11 +110,13 @@ Planes = {
 Armature = {
     "DEF-sternum" :         (0, "chest-1", F_DEF|F_CON, L_DEF),
 
-    "clavicle.L" :          (0, "chest-1", F_DEF, L_LARMFK|L_LARMIK),
+    "clavicle.L" :          (0, "chest-1", F_DEF, L_SPINE|L_LARMFK|L_LARMIK),
+    "shoulder01.L" :          (0, "clavicle.L", 0, L_HELP),
     "scap-parent.L" :       (0, "chest-1", 0, L_HELP),
     "DEF-scapula.L" :       (0, "scap-parent.L", F_DEF, L_DEF),
 
-    "clavicle.R" :          (0, "chest-1", F_DEF, L_RARMFK|L_RARMIK),
+    "clavicle.R" :          (0, "chest-1", F_DEF, L_SPINE|L_RARMFK|L_RARMIK),
+    "shoulder01.R" :          (0, "clavicle.R", 0, L_HELP),
     "scap-parent.R" :       (0, "chest-1", 0, L_HELP),
     "DEF-scapula.R" :       (0, "scap-parent.R", F_DEF, L_DEF),
 
@@ -122,13 +126,13 @@ Armature = {
     "pectIk.L" :            (0, "clavicle.L", 0, L_HELP),
     "pectIk.R" :            (0, "clavicle.R", 0, L_HELP),
 
-    "upper_arm.L" :         ("PlaneArm.L", "clavicle.L", F_DEF, L_LARMFK),
+    "upper_arm.L" :         ("PlaneArm.L", "shoulder01.L", F_DEF, L_LARMFK),
     "shoulderIk.L" :        (0, "upper_arm.L", 0, L_HELP),
     "serratusIk.L" :        (0, "upper_arm.L", 0, L_HELP),
     "forearm.L" :           ("PlaneArm.L", "upper_arm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
     "hand.L" :              ("PlaneHand.L", "forearm.L", F_DEF|F_CON, L_LARMFK, P_YZX),
 
-    "upper_arm.R" :         ("PlaneArm.R", "clavicle.R", F_DEF, L_RARMFK),
+    "upper_arm.R" :         ("PlaneArm.R", "shoulder01.R", F_DEF, L_RARMFK),
     "shoulderIk.R" :        (0, "upper_arm.R", 0, L_HELP),
     "serratusIk.R" :        (0, "upper_arm.R", 0, L_HELP),
     "forearm.R" :           ("PlaneArm.R", "upper_arm.R", F_DEF|F_CON, L_RARMFK, P_YZX),

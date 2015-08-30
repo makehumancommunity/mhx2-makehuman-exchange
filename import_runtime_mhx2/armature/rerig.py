@@ -146,6 +146,7 @@ Renames = {
     "toe1-1.R" :     "toe.R",
 
     "clavicle.L" :      "clavicle.L",
+    "shoulder01.L" :    "shoulder01.L",
     "upperarm01.L" :    ("upper_arm.L",1),
     "upperarm02.L" :    ("upper_arm.L",2),
     "lowerarm01.L" :    ("forearm.L",1),
@@ -153,6 +154,7 @@ Renames = {
     "wrist.L" :         "hand.L",
 
     "clavicle.R" :      "clavicle.R",
+    "shoulder01.R" :    "shoulder01.R",
     "upperarm01.R" :    ("upper_arm.R",1),
     "upperarm02.R" :    ("upper_arm.R",2),
     "lowerarm01.R" :    ("forearm.R",1),
@@ -307,6 +309,12 @@ Parents = {
     "toe.R" :       "foot.R",
 }
 
+Armature = {
+    "shoulder01.L" :  (0, "clavicle.L", F_DEF, L_SPINE|L_LARMFK|L_LARMIK),
+    "shoulder01.R" :  (0, "clavicle.R", F_DEF, L_SPINE|L_RARMFK|L_RARMIK),
+}
+
+
 Constraints = {}
 '''
     "shoulder01.L" : [
@@ -355,7 +363,10 @@ def getJoints(mhSkel, oldAmt):
             parent,_,_ = getNewName(mhBone["parent"], hasToes)
         else:
             parent = None
-        if known:
+
+        if nname in Armature.keys():
+            roll,_parent,flags,layers = Armature[nname]
+        elif known:
             roll,_parent,flags,layers = oldAmt[nname][0:4]
         else:
             flags = F_DEF

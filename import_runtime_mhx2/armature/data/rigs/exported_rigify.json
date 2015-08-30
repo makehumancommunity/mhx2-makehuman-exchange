@@ -14,9 +14,9 @@
     },
 
     "bones" : {
-        "shoulder01.L" : "shoulder.L",
-        "shoulder01.R" : "shoulder.R",
-
+    	"shoulder01.L" : "shoulder.L",
+    	"shoulder01.R" : "shoulder.R",
+    	
         "palm_index.L" : "palm.01.L",
         "palm_middle.L" : "palm.02.L",
         "palm_ring.L" : "palm.03.L",

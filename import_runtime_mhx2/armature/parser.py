@@ -78,7 +78,7 @@ class Parser:
         self.vertexGroups = OrderedDict()
 
         if cfg.useMhx:
-            layers = L_MAIN|L_UPSPNFK|L_LARMFK|L_RARMFK|L_LLEGFK|L_RLEGFK|L_HEAD
+            layers = L_MAIN|L_SPINE|L_LARMFK|L_RARMFK|L_LLEGFK|L_RLEGFK|L_HEAD
             if cfg.useFingers:
                 layers |= L_LHANDIK|L_RHANDIK
             else:
@@ -101,7 +101,7 @@ class Parser:
 
         if cfg.useMhx:
             self.boneGroups = [
-                ('Spine', 'THEME01', L_UPSPNFK),
+                ('Spine', 'THEME01', L_SPINE),
                 ('ArmFK.L', 'THEME02', L_LARMFK),
                 ('ArmFK.R', 'THEME03', L_RARMFK),
                 ('ArmIK.L', 'THEME04', L_LARMIK),

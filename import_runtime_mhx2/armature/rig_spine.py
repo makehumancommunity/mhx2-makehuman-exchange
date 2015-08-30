@@ -100,14 +100,14 @@ Planes = {
 }
 
 Armature = {
-    "hips" :               (0, None, F_DEF, L_UPSPNFK),
-    "spine" :              (0, "hips", F_DEF|F_CON, L_UPSPNFK),
+    "hips" :               (0, None, F_DEF, L_SPINE),
+    "spine" :              (0, "hips", F_DEF|F_CON, L_SPINE),
     "spine-1" :            (0, "spine", F_DEF|F_CON, L_TWEAK),
-    "chest" :              (0, "spine-1", F_DEF|F_CON, L_UPSPNFK),
+    "chest" :              (0, "spine-1", F_DEF|F_CON, L_SPINE),
     "chest-1" :            (0, "chest", F_DEF|F_CON, L_TWEAK),
-    "neck" :               (0, "chest-1", F_DEF|F_CON, L_UPSPNFK),
+    "neck" :               (0, "chest-1", F_DEF|F_CON, L_SPINE),
     "neck-1" :             (0, "neck", F_DEF|F_CON, L_TWEAK),
-    "head" :               (0, "neck-1", F_DEF|F_CON, L_UPSPNFK),
+    "head" :               (0, "neck-1", F_DEF|F_CON, L_SPINE),
 
     "DEF-serratus.L" :     (0, "chest", F_DEF, L_DEF),
     "DEF-serratus.R" :     (0, "chest", F_DEF, L_DEF),
