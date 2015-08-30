@@ -83,14 +83,14 @@ class RigifyBone:
                 "pelvis.L", "pelvis.R"]):
             self.layer = 2
             self.nodef = True
-        elif eb.layers[10]:   # Face
+        elif eb.layers[1]:   # Face
             self.layer = 1
             self.nodef = True
         else:
-            self.layer = 1  # Muscle
+            self.layer = 27  # Muscle
 
     def __repr__(self):
-        return ("<RigifyBone %s %s %s %d>" % (self.name, self.realname, self.realname1, self.layer))
+        return ("<RigifyBone %s %s %s %d %d>" % (self.name, self.realname, self.realname1, self.layer, self.nodef))
 
 
 def checkRigifyEnabled(context):

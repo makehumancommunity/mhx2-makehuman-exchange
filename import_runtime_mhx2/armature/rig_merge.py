@@ -43,7 +43,7 @@ NeckMergers = {
 }
 
 ChestMergers = {
-    "chest" : ("chest-1", ("chest", "chest-1")),
+    "chest" : ("chest-1", ("chest", "chest-1", "breast.L", "breast.R")),
 }
 
 SpineMergers = {
@@ -52,7 +52,7 @@ SpineMergers = {
 
 ShoulderMergers = {
     "chest" : ("chest", (
-        "DEF-serratus.L", "DEF-serratus.R", "DEF-serratusIk.L", "DEF-serratusIk.R",
+        "DEF-serratus.L", "DEF-serratus.R", "serratusIk.L", "serratusIk.R",
         "DEF-pect.L", "DEF-pect.R", "pectIk.L", "pectIk.R",
         )),
     "chest-1" : ("chest-1", (
@@ -62,12 +62,14 @@ ShoulderMergers = {
         )),
     "clavicle.L" : ("clavicle.L", (
         "clavicle.L", "DEF-clav-0.L", "DEF-clav-1.L", "DEF-clav-2.L", "DEF-clav-3.L", "DEF-clav-4.L", "DEF-deltoid-1.L",
+        "shoulder01.L", "scap-parent.L",
         )),
     "upper_arm.L" : ("upper_arm.L", (
         "upper_arm.L", "DEF-deltoid-2.L", "shoulderIk.L"
         )),
     "clavicle.R" : ("clavicle.R", (
         "clavicle.R", "DEF-clav-0.R", "DEF-clav-1.R", "DEF-clav-2.R", "DEF-clav-3.R", "DEF-clav-4.R", "DEF-deltoid-1.R",
+        "shoulder01.R", "scap-parent.R",
         )),
     "upper_arm.R" : ("upper_arm.R", (
         "upper_arm.R", "DEF-deltoid-2.R", "shoulderIk.R"

@@ -169,14 +169,16 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     folder = os.path.dirname(__file__)
     for file in os.listdir(os.path.join(folder, "armature/data/rigs")):
         fname = os.path.splitext(file)[0]
-        entry = (fname.upper(), fname.capitalize(), file)
         if fname == "mhx":
-            mhx = entry
-            exp_mhx = ('EXPORTED_MHX', "Exported MHX", mhx[2])
+            mhx = ("MHX", "MHX", "An advanced control rig")
+        elif fname == "exported_mhx":
+            exp_mhx = ("EXPORTED_MHX", "Exported MHX", "MHX rig based on exported deform rig")
         elif fname == "rigify":
-            rigify = entry
-            exp_rigify = ('EXPORTED_RIGIFY', "Exported Rigify", rigify[2])
+            rigify = ("RIGIFY", "Rigify", "Modified Rigify rig")
+        elif fname == "exported_rigify":
+            exp_rigify = ("EXPORTED_RIGIFY", "Exported Rigify", "Rigify rig based on exported deform rig")
         else:
+            entry = (fname.upper(), fname.capitalize(), "%s-compatible rig" % fname.capitalize())
             rigTypes.append(entry)
     rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"),
                 exp_mhx, exp_rigify, mhx, rigify] + rigTypes
@@ -185,7 +187,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         items = rigTypes,
         name = "Rig Type",
         description = "Rig type",
-        default = 'EXPORTED_RIGIFY')
+        default = 'EXPORTED')
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),

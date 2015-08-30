@@ -395,12 +395,14 @@ class Parser:
                 vgroups = rerig.getVertexGroups(mhHuman, mhSkel)
             addDict(vgroups, self.vertexGroups)
 
+
         if cfg.mergeShoulders:
             for bname in ["DEF-deltoid.L", "DEF-deltoid.R"]:
                 vgroup = self.vertexGroups[bname]
                 self.splitVertexGroup(bname, vgroup)
                 del self.vertexGroups[bname]
                 del self.bones[bname]
+
 
         for flag,mergers in [
             (cfg.mergeShoulders, rig_merge.ShoulderMergers),
