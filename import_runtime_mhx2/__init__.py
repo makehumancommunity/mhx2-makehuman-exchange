@@ -41,6 +41,7 @@ if "bpy" in locals():
     imp.reload(load_json)
     imp.reload(masks)
     imp.reload(materials)
+    imp.reload(shaders)
     imp.reload(proxy)
     imp.reload(hair)
     imp.reload(geometries)
@@ -64,6 +65,7 @@ else:
     from . import load_json
     from . import masks
     from . import materials
+    from . import shaders
     from . import proxy
     from . import hair
     from . import geometries
@@ -319,6 +321,7 @@ class MhxSetupPanel(bpy.types.Panel):
         scn = context.scene
 
         layout.operator("import_scene.makehuman_mhx2")
+        layout.operator("mhx2.make_skin_shader")
 
         if (ob is None or
             (ob.type == 'MESH' and not ob.MhxUuid) or
