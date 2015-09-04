@@ -299,7 +299,8 @@ def particlifyHair(context):
 
     print("Grouping")
     groups = dict([(rn,-1) for rn in range(nRings)])
-    averageLength = {}
+    strandLength = {}
+    groupsWithLength = {}
     nGroups = 0
     for rn,ring in enumerate(rings):
         if groups[rn] < 0:
@@ -321,8 +322,20 @@ def particlifyHair(context):
                     groups[rn2] = nGroups
                     lsum += ringLength(rcoords[rn2])
                     nrings += 1
-            averageLength[nGroups] = lsum/nrings
-            nGroups += 1
+            slen = int(round(lsum/nrings/scn.MhxHairKeySeparation)) + 2
+            if slen in groupsWithLength.keys():
+                groupsWithLength[slen].append(nGroups)
+                strandLength[nGroups] = slen
+            else:
+                slen1 = getCloseGroup(slen, groupsWithLength)
+                if slen1 is None:
+                    groupsWithLength[slen] = [nGroups]
+                    strandLength[nGroups] = slen
+                else:
+                    groupsWithLength[slen1].append(nGroups)
+                    strandLength[nGroups] = slen1
+
+            nGroups += 1                    
 
     '''
     print("Calculate perpendiculars")
@@ -375,23 +388,24 @@ def particlifyHair(context):
     '''
 
     print("Calculating coordinates")
-    hcoords = dict([(gn,[]) for gn in range(nGroups)])
+    hcoords = dict([(ln,[]) for ln in groupsWithLength.keys()])
     nRings = 0
     for rn in range(len(rings)):
         gn = groups[rn]
-        nKeys = int(averageLength[gn]/scn.MhxHairKeySeparation + 2)
-        hcoord = rebaseHair(rcoords[rn], nKeys)
-        if hcoord:
-            hcoords[gn].append(hcoord)
+        slen = strandLength[gn]
+        hcoord = rebaseHair(rcoords[rn], slen)
+        if hcoord:            
+            hcoords[slen].append(hcoord)
 
     print("Building hair")
     struct = {
         "particle_systems" : [{
-            "name" : "%s%02d" % (hair.name, pn),
+            "name" : "%s%02d" % (hair.name, ln),
             "particles" : {},
-        } for pn in range(nGroups)]
+        } for ln in groupsWithLength.keys()]
     }
 
+    print(struct)
     override = {
         "child_nbr" : 2,
         "rendered_child_count" : 20,
@@ -399,11 +413,18 @@ def particlifyHair(context):
 
     reallySelect(human, scn)
     addHair(human, struct, list(hcoords.values()), scn, override=override)
-    #addHairMeshes(hcoords.values(), scn)
+    #addHairMeshes(hcoords, scn)
     hair.hide = True
     hair.hide_render = True
     print("Done")
 
+
+def getCloseGroup(slen, groupsWithLength):
+    for slen1 in groupsWithLength.keys():
+        if slen < 1.2*slen1 and slen > 0.8*slen1:
+            return slen1
+    return None
+    
 
 def getOrientation(rcoord):
     sum = Vector((0,0,0))
@@ -426,7 +447,7 @@ def ringLength(rcoord):
 
 
 def addHairMeshes(hcoords, scn):
-    for hn,hcoord in enumerate(hcoords):
+    for ln,hcoord in hcoords.items():
         verts = []
         edges = []
         nverts = 0
@@ -435,9 +456,9 @@ def addHairMeshes(hcoords, scn):
             edges += [(vn,vn+1) for vn in range(nverts, nverts+len(coord)-1)]
             nverts += len(coord)
 
-        me = bpy.data.meshes.new("HairMesh%0d" % hn)
+        me = bpy.data.meshes.new("HairMesh%0d" % ln)
         me.from_pydata(verts, edges, [])
-        ob = bpy.data.objects.new("HairObject", me)
+        ob = bpy.data.objects.new("HairObject%0d" % ln, me)
         scn.objects.link(ob)
 
 
