@@ -235,8 +235,6 @@ def particlifyHair(context):
     bpy.ops.object.mode_set(mode='OBJECT')
     reallySelect(hair, scn)
     bpy.ops.object.mode_set(mode='OBJECT')
-    
-    taken = dict([(n,False) for n in range(len(hair.data.edges))])
 
     vedges = dict([(n,[]) for n in range(len(hair.data.vertices))])
     for e in hair.data.edges:
@@ -260,8 +258,10 @@ def particlifyHair(context):
     rings = []
     rcoords = {}
     nRings = 0
-    for en in taken.keys():
-        if taken[en]:
+    ringNums = dict([(n,-1) for n in range(len(hair.data.edges))])
+
+    for en in ringNums.keys():
+        if ringNums[en] >= 0:
             continue
 
         bpy.ops.object.mode_set(mode='EDIT')
@@ -272,26 +272,57 @@ def particlifyHair(context):
         bpy.ops.mesh.loop_multi_select(ring=True)
         bpy.ops.object.mode_set(mode='OBJECT')
         ring = []
-        for en1 in taken.keys():
+        for en1 in ringNums.keys():
             e1 = hair.data.edges[en1]
             if e1.select:
-                taken[en1] = True
+                ringNums[en1] = nRings
                 ring.append(en1)
-        ring = sortRing(ring, efaces, fedges) 
+        ring = sortRing(ring, efaces, fedges)
         if ring is None:
             continue
         rcoord = getSortedRingCoords(ring, hair, efaces, vedges)
-        
-        orient = getOrientation(rcoord)        
-        if abs(orient) > hair.MhxMinHairOrientation:
+
+        orient = getOrientation(rcoord)
+        if abs(orient) > scn.MhxMinHairOrientation:
             rcoords[nRings] = rcoord
             rings.append(ring)
             nRings += 1
             if nRings % 10 == 0:
                 print(nRings)
 
+    if rings == []:
+        print("No rings found")
+        return
 
+    print("Grouping")
+    groups = dict([(rn,-1) for rn in range(nRings)])
+    averageLength = {}
+    nGroups = 0
+    for rn,ring in enumerate(rings):
+        if groups[rn] < 0:
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='DESELECT')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            en = ring[0]
+            hair.data.edges[en].select = True
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_linked(limit=False)
+            bpy.ops.object.mode_set(mode='OBJECT')
 
+            lsum = 0
+            nedges = 0
+            for e in hair.data.edges:
+                if e.select:
+                    groups[ringNums[e.index]] = nGroups
+                    lsum += edgeLength(e, hair)
+                    nedges += 1
+            averageLength[nGroups] = lsum/nedges
+            nGroups += 1
+
+    #print(averageLength.items())
+    #print(groups.items())
+    #print(ringNums.items())
+    #halt
     '''
     print("Calculate perpendiculars")
     perps = dict([(n,[]) for n in range(len(rings))])
@@ -308,16 +339,16 @@ def particlifyHair(context):
     for rn1 in range(len(rings)):
         if rn1 % 10 == 0:
             print(rn1)
-        taken = False
+        ringNums = False
         for rn2 in perps[rn1]:
-            if taken:
+            if ringNums:
                 break
             for rn3 in perps[rn2]:
                 if rn3 < rn1:
                     clusters[rn1] = clusters[rn3]
-                    taken = True
+                    ringNums = True
                     break
-        if not taken:
+        if not ringNums:
             print(rn1, nClusters)
             clusters[rn1] = nClusters
             nClusters += 1
@@ -331,8 +362,8 @@ def particlifyHair(context):
         cnums[cn] += 1
     cok = {}
     for cn in range(nClusters):
-        cok[cn] = (cnums[cn] >= hair.MhxMinClusterSize and
-                   clens[cn]/cnums[cn] > hair.MhxMinHairLength)
+        cok[cn] = (cnums[cn] >= scn.MhxMinClusterSize and
+                   clens[cn]/cnums[cn] > scn.MhxMinHairLength)
         print(cn, cnums[cn], clens[cn]/cnums[cn], cok[cn])
 
     nrings = {}
@@ -343,12 +374,14 @@ def particlifyHair(context):
     '''
 
     print("Calculating coordinates")
-    hcoords = []
+    hcoords = dict([(gn,[]) for gn in range(nGroups)])
     nRings = 0
     for rn in range(len(rings)):
-        hcoord = rebaseHair(rcoords[rn], hair.MhxStrandLength)
+        gn = groups[rn]
+        nKeys = int(averageLength[gn]/scn.MhxHairKeySeparation + 1)
+        hcoord = rebaseHair(rcoords[rn], nKeys)
         if hcoord:
-            hcoords.append(hcoord)
+            hcoords[gn].append(hcoord)
 
     print("Building hair")
     struct = {
@@ -359,8 +392,8 @@ def particlifyHair(context):
     }
 
     reallySelect(human, scn)
-    #addHair(human, struct, [hcoords], scn)
-    addHairMesh(hcoords, scn)
+    #addHair(human, struct, hcoords.values(), scn)
+    addHairMeshes(hcoords.values(), scn)
     hair.hide = True
     hair.hide_render = True
     print("Done")
@@ -376,19 +409,26 @@ def getOrientation(rcoord):
     return sum[2]/(sum[0]+sum[1])
 
 
-def addHairMesh(coords, scn):
-    verts = []
-    edges = []
-    nverts = 0
-    for coord in coords:
-        verts += coord
-        edges += [(vn,vn+1) for vn in range(nverts, nverts+len(coord)-1)]
-        nverts += len(coord)
-        
-    me = bpy.data.meshes.new("HairMesh")
-    me.from_pydata(verts, edges, [])
-    ob = bpy.data.objects.new("HairObject", me)
-    scn.objects.link(ob)    
+def edgeLength(e, hair):
+    vn1,vn2 = e.vertices
+    vec = hair.data.vertices[vn1].co - hair.data.vertices[vn2].co
+    return vec.length
+
+
+def addHairMeshes(hcoords, scn):
+    for hn,hcoord in enumerate(hcoords):
+        verts = []
+        edges = []
+        nverts = 0
+        for coord in hcoord:
+            verts += coord
+            edges += [(vn,vn+1) for vn in range(nverts, nverts+len(coord)-1)]
+            nverts += len(coord)
+
+        me = bpy.data.meshes.new("HairMesh%0d" % hn)
+        me.from_pydata(verts, edges, [])
+        ob = bpy.data.objects.new("HairObject", me)
+        scn.objects.link(ob)
 
 
 def sortRing(ring, efaces, fedges):
@@ -402,26 +442,26 @@ def sortRing(ring, efaces, fedges):
                     neighbors[en1].append(en2)
         if len(neighbors[en1]) == 1:
             endpoints.append(en1)
-            
+
     if len(endpoints) != 2:
         print("Ring with %d endpoints" % (len(endpoints)), endpoints, ring)
         return None
-    
+
     nring = []
     en1 = endpoints[0]
     nring.append(en1)
     en2 = neighbors[en1][0]
     while len(neighbors[en2]) == 2:
-        nring.append(en2)        
-        for en3 in list(neighbors[en2]):        
+        nring.append(en2)
+        for en3 in list(neighbors[en2]):
             if en3 != en1:
                 en1 = en2
                 en2 = en3
                 break
-    nring.append(en2)                
-    #print("Sort", endpoints, nring)  
+    nring.append(en2)
+    #print("Sort", endpoints, nring)
     return nring
-            
+
 
 def crosses(ring1, ring2, efaces):
     for en1 in ring1:
@@ -486,8 +526,8 @@ def getSortedRingCoords(ring, hair, efaces, vedges):
     rcoord = []
     for en in ring:
         rcoord.append(centrum(en, hair))
-    return rcoord        
-    
+    return rcoord
+
 
 def opposite(en, en0, efaces, vedges, ob):
     verts = ob.data.edges[en].vertices
