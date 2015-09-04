@@ -50,7 +50,7 @@ def getHairCoords(mhHuman, mhGeo):
 #
 # ---------------------------------------------------------------------
 
-def addHair(ob, struct, hcoords, scn, cfg=None):
+def addHair(ob, struct, hcoords, scn, cfg=None, override={}):
     from .materials import buildBlenderMaterial, buildHairMaterial
 
     nsys = len(ob.particle_systems)
@@ -113,6 +113,9 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
             pset.child_type = 'SIMPLE'
             pset.child_radius = 0.1*ob.MhxScale
 
+        for key,value in override.items():
+            setattr(pset, key, value)
+
         pset.material = len(ob.data.materials)
         pset.path_start = 0
         pset.path_end = 1
@@ -127,7 +130,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
         ccset.root_width = 1.0
         ccset.tip_width = 0
         ccset.radius_scale = 0.01*ob.MhxScale
-
+        
         bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
         pedit = scn.tool_settings.particle_edit
         pedit.use_emitter_deflect = False
@@ -145,7 +148,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None):
                 pass
 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+        
         if not useHairDynamics:
             psys.use_hair_dynamics = False
         else:
@@ -258,10 +261,10 @@ def particlifyHair(context):
     rings = []
     rcoords = {}
     nRings = 0
-    ringNums = dict([(n,-1) for n in range(len(hair.data.edges))])
+    taken = dict([(n,False) for n in range(len(hair.data.edges))])
 
-    for en in ringNums.keys():
-        if ringNums[en] >= 0:
+    for en in taken.keys():
+        if taken[en]:
             continue
 
         bpy.ops.object.mode_set(mode='EDIT')
@@ -272,10 +275,10 @@ def particlifyHair(context):
         bpy.ops.mesh.loop_multi_select(ring=True)
         bpy.ops.object.mode_set(mode='OBJECT')
         ring = []
-        for en1 in ringNums.keys():
+        for en1 in taken.keys():
             e1 = hair.data.edges[en1]
             if e1.select:
-                ringNums[en1] = nRings
+                taken[en1] = True
                 ring.append(en1)
         ring = sortRing(ring, efaces, fedges)
         if ring is None:
@@ -306,23 +309,21 @@ def particlifyHair(context):
             en = ring[0]
             hair.data.edges[en].select = True
             bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.select_linked(limit=False)
+            bpy.ops.mesh.select_linked()
             bpy.ops.object.mode_set(mode='OBJECT')
 
             lsum = 0
-            nedges = 0
-            for e in hair.data.edges:
-                if e.select:
-                    groups[ringNums[e.index]] = nGroups
-                    lsum += edgeLength(e, hair)
-                    nedges += 1
-            averageLength[nGroups] = lsum/nedges
+            nrings = 0
+            for rn2,ring2 in enumerate(rings):
+                en2 = ring2[0]
+                e2 = hair.data.edges[en2]
+                if e2.select:
+                    groups[rn2] = nGroups
+                    lsum += ringLength(rcoords[rn2])
+                    nrings += 1
+            averageLength[nGroups] = lsum/nrings
             nGroups += 1
 
-    #print(averageLength.items())
-    #print(groups.items())
-    #print(ringNums.items())
-    #halt
     '''
     print("Calculate perpendiculars")
     perps = dict([(n,[]) for n in range(len(rings))])
@@ -339,16 +340,16 @@ def particlifyHair(context):
     for rn1 in range(len(rings)):
         if rn1 % 10 == 0:
             print(rn1)
-        ringNums = False
+        taken = False
         for rn2 in perps[rn1]:
-            if ringNums:
+            if taken:
                 break
             for rn3 in perps[rn2]:
                 if rn3 < rn1:
                     clusters[rn1] = clusters[rn3]
-                    ringNums = True
+                    taken = True
                     break
-        if not ringNums:
+        if not taken:
             print(rn1, nClusters)
             clusters[rn1] = nClusters
             nClusters += 1
@@ -378,7 +379,7 @@ def particlifyHair(context):
     nRings = 0
     for rn in range(len(rings)):
         gn = groups[rn]
-        nKeys = int(averageLength[gn]/scn.MhxHairKeySeparation + 1)
+        nKeys = int(averageLength[gn]/scn.MhxHairKeySeparation + 2)
         hcoord = rebaseHair(rcoords[rn], nKeys)
         if hcoord:
             hcoords[gn].append(hcoord)
@@ -386,14 +387,19 @@ def particlifyHair(context):
     print("Building hair")
     struct = {
         "particle_systems" : [{
-            "name" : hair.name,
+            "name" : "%s%02d" % (hair.name, pn),
             "particles" : {},
-        }]
+        } for pn in range(nGroups)]
+    }
+
+    override = {
+        "child_nbr" : 2,
+        "rendered_child_count" : 20,
     }
 
     reallySelect(human, scn)
-    #addHair(human, struct, hcoords.values(), scn)
-    addHairMeshes(hcoords.values(), scn)
+    addHair(human, struct, list(hcoords.values()), scn, override=override)
+    #addHairMeshes(hcoords.values(), scn)
     hair.hide = True
     hair.hide_render = True
     print("Done")
@@ -409,10 +415,14 @@ def getOrientation(rcoord):
     return sum[2]/(sum[0]+sum[1])
 
 
-def edgeLength(e, hair):
-    vn1,vn2 = e.vertices
-    vec = hair.data.vertices[vn1].co - hair.data.vertices[vn2].co
-    return vec.length
+def ringLength(rcoord):
+    x = rcoord[0]
+    dist = 0.0
+    for y in rcoord[1:]:
+        vec = y-x
+        dist += vec.length
+        x = y
+    return dist        
 
 
 def addHairMeshes(hcoords, scn):
