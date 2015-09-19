@@ -193,8 +193,10 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 
     genitalia = EnumProperty(
         items = [("NONE", "None", "None"),
-                 ("PENIS", "Male", "Add male genitalia"),
-                 ("VULVA", "Female", "Add female genitalia")],
+                 ("PENIS", "Male", "Male genitalia"),
+                 ("PENIS2", "Male 2", "Better male genitalia"),
+                 ("VULVA", "Female", "Female genitalia"),
+                 ("VULVA2", "Female 2", "Better female genitalia")],
         name = "Genitalia",
         description = "Genitalia",
         default = 'NONE')
@@ -277,8 +279,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
         if self.mergeBodyParts:
             box.prop(self, "mergeMaxType")
 
-        layout.label("Add Genitalia:")
-        layout.prop(self, "genitalia", expand=True)
+        layout.prop(self, "genitalia", text="Genitalia")
 
         layout.separator()
         box = layout.box()
@@ -302,7 +303,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             #    box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
-            if self.genitalia == 'PENIS' and self.rigType != 'EXPORTED':
+            if self.genitalia[0:5] == 'PENIS' and self.rigType != 'EXPORTED':
                 box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------
@@ -353,7 +354,9 @@ class MhxSetupPanel(bpy.types.Panel):
         box.prop(scn, "MhxMinHairLength")
         box.prop(scn, "MhxMinHairOrientation")
         box.prop(scn, "MhxHairKeySeparation")
-        box.operator("mhx2.particlify_hair")
+
+        #Not in release
+        #box.operator("mhx2.particlify_hair")
 
         layout.separator()
         box = layout.box()

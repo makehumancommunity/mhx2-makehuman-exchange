@@ -20,7 +20,7 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy_extras.io_utils import ImportHelper
+from bpy_extras.io_utils import ImportHelper, ExportHelper
 from bpy.props import *
 from mathutils import Vector
 from .error import *
@@ -131,14 +131,14 @@ def proxifyVertexGroups(mhProxy, mhHuman, parser=None):
 
 def getVertexBoneWeights(pweights, parser):
     from .armature.utils import splitBoneName
-    
+
     cfg = parser.config
     ngrps = {}
     for oname,data in pweights.items():
         if oname not in MHBones.keys():
             print("Missing MHBone:", oname)
             continue
-        nname = MHBones[oname]        
+        nname = MHBones[oname]
         if nname in cfg.bones.keys():
             nname = cfg.bones[nname]
 
@@ -150,7 +150,7 @@ def getVertexBoneWeights(pweights, parser):
                     nname = MHSplit2Bones[oname]
                 elif npieces == 3:
                     nname = MHSplit3Bones[oname]
-            
+
         idxs,weights = data
         ngrp = [(idx,weights[n]) for n,idx in enumerate(idxs)]
         if nname in ngrps.keys():
@@ -168,10 +168,10 @@ def getVertexBoneWeights(pweights, parser):
         vnames = list(ngrps.keys())
         prlen = len(parser.deformPrefix)
         for vname in vnames:
-            if vname[0:prlen] != parser.deformPrefix:          
+            if vname[0:prlen] != parser.deformPrefix:
                 ngrps[parser.deformPrefix + vname] = ngrps[vname]
                 del ngrps[vname]
-        
+
     return ngrps
 
 MHSplit2Bones = {
@@ -276,7 +276,7 @@ def proxifyTargets(mhProxy, targets):
     return ntrgs
 
 # ---------------------------------------------------------------------
-#
+#   Add proxy to current human
 # ---------------------------------------------------------------------
 
 def getProxyCoordinates(mhHuman, filepath):

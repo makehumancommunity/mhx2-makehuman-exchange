@@ -65,7 +65,7 @@ class Config:
             self.description = ""
             self.bones = {}
             self.merge = {}
-            if settings.genitalia == 'PENIS':
+            if settings.genitalia[0:5] == 'PENIS':
                 self.usePenisRig = settings.usePenisRig
                 self.mergePenis = not self.usePenisRig
             else:
