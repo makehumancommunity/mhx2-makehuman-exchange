@@ -102,11 +102,11 @@ Planes = {
 Armature = {
     "hips" :               (0, None, F_DEF, L_SPINE),
     "spine" :              (0, "hips", F_DEF|F_CON, L_SPINE),
-    "spine-1" :            (0, "spine", F_DEF|F_CON, L_TWEAK),
+    "spine-1" :            (0, "spine", F_DEF|F_CON, L_SPINE),
     "chest" :              (0, "spine-1", F_DEF|F_CON, L_SPINE),
-    "chest-1" :            (0, "chest", F_DEF|F_CON, L_TWEAK),
+    "chest-1" :            (0, "chest", F_DEF|F_CON, L_SPINE),
     "neck" :               (0, "chest-1", F_DEF|F_CON, L_SPINE),
-    "neck-1" :             (0, "neck", F_DEF|F_CON, L_TWEAK),
+    "neck-1" :             (0, "neck", F_DEF|F_CON, L_SPINE),
     "head" :               (0, "neck-1", F_DEF|F_CON, L_SPINE),
 
     "DEF-serratus.L" :     (0, "chest", F_DEF, L_DEF),
@@ -141,6 +141,8 @@ RotationLimits = {
     "chest-1" :         (-20,20, 0,0, -20,20),
     "neck" :            (-45,45, -45,45, -60,60),
 }
+
+Locks = {}
 
 CustomShapes = {
     "root" :            "GZM_Root",

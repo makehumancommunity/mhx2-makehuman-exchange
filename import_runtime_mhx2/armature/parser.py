@@ -69,6 +69,7 @@ class Parser:
         self.constraints = {}
         self.locationLimits = {}
         self.rotationLimits = {}
+        self.locks = {}
         self.drivers = []
         self.propDrivers = []
         self.lrPropDrivers = []
@@ -205,7 +206,7 @@ class Parser:
                 self.setConstraints(rerig.Constraints)
                 self.setConstraints(rig_face.Constraints)
 
-        if cfg.useLocks:
+        if cfg.useRotationLimits:
             addDict(rig_spine.RotationLimits, self.rotationLimits)
             addDict(rig_arm.RotationLimits, self.rotationLimits)
             addDict(rig_hand.RotationLimits, self.rotationLimits)
@@ -213,8 +214,17 @@ class Parser:
             addDict(rig_face.RotationLimits, self.rotationLimits)
             addDict(rig_face.LocationLimits, self.locationLimits)
             addDict(rig_control.RotationLimits, self.rotationLimits)
+
+        if cfg.useLocks:
+            addDict(rig_spine.Locks, self.locks)
+            addDict(rig_arm.Locks, self.locks)
+            addDict(rig_hand.Locks, self.locks)
+            addDict(rig_leg.Locks, self.locks)
+            addDict(rig_face.Locks, self.locks)
+            addDict(rig_control.Locks, self.locks)
+
         if cfg.useFacePanel:
-            addDict(rig_panel.RotationLimits, self.rotationLimits)
+            addDict(rig_panel.Locks, self.locks)
             addDict(rig_panel.LocationLimits, self.locationLimits)
 
         if cfg.useCustomShapes:
@@ -336,22 +346,23 @@ class Parser:
         if cfg.useFingers and cfg.useConstraints:
             self.addBones(rig_control.FingerArmature)
 
-        if cfg.useConstraints and cfg.useLocks:
+        if cfg.useLocks:
+            for bname,lock in self.locks.items():
+                try:
+                    bone = self.bones[bname]
+                except KeyError:
+                    continue
+                bone.lockRotation = lock
+                print(bone.name, bone.lockRotation)
+
+        if cfg.useConstraints and cfg.useRotationLimits:
             for bname,limits in self.rotationLimits.items():
                 try:
                     bone = self.bones[bname]
                 except KeyError:
                     continue
-                minX,maxX, minY,maxY, minZ,maxZ = limits
-                lockX,lockY,lockZ = bone.lockRotation
-                if minX == maxX == 0:
-                    lockX = 1
-                if minY == maxY == 0:
-                    lockY = 1
-                if minZ == maxZ == 0:
-                    lockZ = 1
-                bone.lockRotation = lockX,lockY,lockZ
-                if minX != None and cfg.useRotationLimits and bone.lockRotation != (1,1,1):
+                if bone.lockRotation != (1,1,1):
+                    minX,maxX, minY,maxY, minZ,maxZ = limits
                     cns = ("LimitRot", C_LOCAL, 0.8, ["LimitRot", limits, (1,1,1)])
                     self.addConstraint(bname, cns)
                     self.propDrivers.append((bname, "LimitRot", ["RotationLimits"], "x1"))
@@ -785,13 +796,11 @@ class Parser:
                     self.customShapes[bone.name] = None
                 bone.layers = L_HELP
 
-                if cfg.useLocks:
-                    try:
-                        limits = self.rotationLimits[bname]
-                    except KeyError:
-                        limits = None
-                    if limits:
-                        self.rotationLimits[fkName] = limits
+                if bname in self.locks.keys():
+                    self.locks[fkName] = self.locks[bname]
+                if cfg.useRotationLimits:
+                    if bname in self.rotationLimits.keys():
+                        self.rotationLimits[fkName] = self.rotationLimits[bname]
                         del self.rotationLimits[bname]
 
                 if type == "DownStream":

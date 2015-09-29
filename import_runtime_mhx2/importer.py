@@ -33,7 +33,7 @@ from .error import *
 from .utils import *
 
 LowestVersion = 22
-HighestVersion = 29
+HighestVersion = 49
 
 # ---------------------------------------------------------------------
 #

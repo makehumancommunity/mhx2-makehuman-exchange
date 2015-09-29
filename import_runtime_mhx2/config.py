@@ -73,7 +73,7 @@ class Config:
                 self.mergePenis = True
             if self.useRig and self.rigType != 'EXPORTED':
                 self.loadPreset(os.path.join("armature/data/rigs", self.rigType.lower() + ".json"))
-            if self.rigType != 'MHX':
+            if self.rigType not in ['MHX', 'EXPORTED_MHX']:
                 self.useRotationLimits = False
         return self
 

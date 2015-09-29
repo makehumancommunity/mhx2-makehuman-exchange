@@ -22,7 +22,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,27),
+    'version': (0,28),
     "blender": (2, 74, 0),
     'location': "File > Import > MakeHuman (.mhx2)",
     'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
@@ -322,7 +322,7 @@ class MhxSetupPanel(bpy.types.Panel):
         scn = context.scene
 
         layout.operator("import_scene.makehuman_mhx2")
-        layout.operator("mhx2.make_skin_shader")
+        #layout.operator("mhx2.make_skin_shader")
 
         if (ob is None or
             (ob.type == 'MESH' and not ob.MhxUuid) or
@@ -367,7 +367,7 @@ class MhxSetupPanel(bpy.types.Panel):
         layout.separator()
         box = layout.box()
         box.label("Facial Rig")
-        box.operator("mhx2.add_facerig_drivers")
+        #box.operator("mhx2.add_facerig_drivers")
         box.operator("mhx2.remove_facerig_drivers")
 
         layout.separator()
@@ -643,7 +643,7 @@ class ExpressionPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         rig = context.object
-        return (rig and rig.MhxExpressions)
+        return (rig and rig.MhxFaceRigDrivers and rig.MhxExpressions != "")
 
     def draw(self, context):
         rig = context.object

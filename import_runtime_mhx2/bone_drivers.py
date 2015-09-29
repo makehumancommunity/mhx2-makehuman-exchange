@@ -238,7 +238,6 @@ class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
         rig = context.object
         addBoneDrivers(rig, "Mfa", theFacePoses)
         rig.MhxFaceRigDrivers = True
-        rig.MhxExpressions = True
         return{'FINISHED'}
 
 #------------------------------------------------------------------------
@@ -276,7 +275,6 @@ class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
         rig = context.object
         removeBoneDrivers(rig, "Mfa", theFacePoses)
         rig.MhxFaceRigDrivers = False
-        rig.MhxExpressions = False
         return{'FINISHED'}
 
 #------------------------------------------------------------------------

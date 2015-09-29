@@ -202,26 +202,28 @@ Armature = {
     'f_pinky.03.R' :       ("PlanePinky.R", 'f_pinky.02.R', F_DEF|F_CON, L_RHANDFK, P_YZX),
 }
 
-RotationLimits = {
-    'thumb.03.L' :      (None,None, 0,0, 0,0),
-    'f_index.02.L' :    (None,None, 0,0, 0,0),
-    'f_index.03.L' :    (None,None, 0,0, 0,0),
-    'f_middle.02.L' :   (None,None, 0,0, 0,0),
-    'f_middle.03.L' :   (None,None, 0,0, 0,0),
-    'f_ring.02.L' :     (None,None, 0,0, 0,0),
-    'f_ring.03.L' :     (None,None, 0,0, 0,0),
-    'f_pinky.02.L' :    (None,None, 0,0, 0,0),
-    'f_pinky.03.L' :    (None,None, 0,0, 0,0),
+RotationLimits = {}
 
-    'thumb.03.R' :      (None,None, 0,0, 0,0),
-    'f_index.02.R' :    (None,None, 0,0, 0,0),
-    'f_index.03.R' :    (None,None, 0,0, 0,0),
-    'f_middle.02.R' :   (None,None, 0,0, 0,0),
-    'f_middle.03.R' :   (None,None, 0,0, 0,0),
-    'f_ring.02.R' :     (None,None, 0,0, 0,0),
-    'f_ring.03.R' :     (None,None, 0,0, 0,0),
-    'f_pinky.02.R' :    (None,None, 0,0, 0,0),
-    'f_pinky.03.R' :    (None,None, 0,0, 0,0),
+Locks = {
+    'thumb.03.L' :      (0,1,1),
+    'f_index.02.L' :    (0,1,1),
+    'f_index.03.L' :    (0,1,1),
+    'f_middle.02.L' :   (0,1,1),
+    'f_middle.03.L' :   (0,1,1),
+    'f_ring.02.L' :     (0,1,1),
+    'f_ring.03.L' :     (0,1,1),
+    'f_pinky.02.L' :    (0,1,1),
+    'f_pinky.03.L' :    (0,1,1),
+
+    'thumb.03.R' :      (0,1,1),
+    'f_index.02.R' :    (0,1,1),
+    'f_index.03.R' :    (0,1,1),
+    'f_middle.02.R' :   (0,1,1),
+    'f_middle.03.R' :   (0,1,1),
+    'f_ring.02.R' :     (0,1,1),
+    'f_ring.03.R' :     (0,1,1),
+    'f_pinky.02.R' :    (0,1,1),
+    'f_pinky.03.R' :    (0,1,1),
 }
 
 CustomShapes = {}

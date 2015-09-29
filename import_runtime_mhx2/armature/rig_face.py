@@ -124,6 +124,13 @@ RotationLimits = {
     'lolid.R':  (-45,10, 0,0, 0,0),
 }
 
+Locks = {
+    "uplid.L" :  (0,1,1),
+    "uplid.R" :  (0,1,1),
+    "lolid.L" :  (0,1,1),
+    "lolid.R" :  (0,1,1),
+}
+
 #
 #    DeformDrivers(fp, amt):
 #

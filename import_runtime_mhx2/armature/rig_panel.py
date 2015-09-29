@@ -179,8 +179,9 @@ LocationLimits = {
 }
 
 RotationLimits = {}
+Locks = {}
 for bone in LocationLimits.keys():
-    RotationLimits[bone] = (0,0, 0,0, 0,0)
+    Locks[bone] = (1,1,1)
 
 pos = (0,4)
 neg = (0,-4)

@@ -235,12 +235,18 @@ RotationLimits = {
     #"arm_socket.R" :    (0,0, 0,0, 0,0),
     #"leg_socket.L" :    (0,0, 0,0, 0,0),
     #"leg_socket.R" :    (0,0, 0,0, 0,0),
-    #"foot.rev.L" :   (-20,60, 0,0, 0,0),
-    #"foot.rev.R" :   (-20,60, 0,0, 0,0),
-    #"toe.rev.L" :    (-10,45, 0,0, 0,0),
-    #"toe.rev.R" :    (-10,45, 0,0, 0,0),
+    "foot.rev.L" :   (-20,60, 0,0, 0,0),
+    "foot.rev.R" :   (-20,60, 0,0, 0,0),
+    "toe.rev.L" :    (-10,45, 0,0, 0,0),
+    "toe.rev.R" :    (-10,45, 0,0, 0,0),
 }
 
+Locks = {
+    "foot.rev.L" :  (0,1,1),
+    "foot.rev.R" :  (0,1,1),
+    "toe.rev.L" :   (0,1,1),
+    "toe.rev.R" :   (0,1,1),
+}
 
 FingerArmature = {
     "thumb.L" :        ("thumb.02.L", "thumb.01.L", F_WIR, L_LHANDIK),
