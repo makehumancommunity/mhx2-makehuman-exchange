@@ -48,7 +48,9 @@ Joints = [
     ("pubis",               "v", 4372),
     ("pubis-1",             "v", 4259),
     ("pubis-2",             "v", 4370),
+]
 
+PenisJoints = [
     ("penis-1",             "vl", ((0.5, 15152), (0.5, 15169))),
     ("penis-2",             "vl", ((0.5, 15272), (0.5, 15274))),
     ("penis-3",             "vl", ((0.5, 15320), (0.5, 15326))),
@@ -60,7 +62,6 @@ Joints = [
     ("r-scrotum-2",         "v", 15231),
 
 ]
-
 
 HeadsTails = {
     "hips" :               ("cjoint-0", "cjoint-1"),
@@ -87,7 +88,9 @@ HeadsTails = {
     "skull" :              ("head-2", ("head-2", ysmall)),
 
     "pubis" :              ("pelvis", "pubis"),
+}
 
+PenisHeadsTails = {
     "penis_1" :            ("penis-1", "penis-2"),
     "penis_2" :            ("penis-2", "penis-3"),
     "penis_3" :            ("penis-3", "penis-4"),

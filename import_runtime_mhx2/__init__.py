@@ -22,7 +22,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,28),
+    'version': (0,27),
     "blender": (2, 74, 0),
     'location': "File > Import > MakeHuman (.mhx2)",
     'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
@@ -303,7 +303,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             #    box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
-            if self.genitalia[0:5] == 'PENIS' and self.rigType != 'EXPORTED':
+            if self.genitalia[0:5] == 'PENIS' and self.rigType[0:8] != 'EXPORTED':
                 box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------

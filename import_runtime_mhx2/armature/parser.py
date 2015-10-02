@@ -155,6 +155,8 @@ class Parser:
                 rig_face.Joints
                 )
 
+        if cfg.usePenisRig:
+            self.joints += rig_spine.PenisJoints
         if cfg.useMhx:
             self.joints += rig_control.Joints
         if cfg.useFacePanel:
@@ -181,6 +183,8 @@ class Parser:
                 rig_hand.HeadsTails,
                 rig_face.HeadsTails,
             ])
+        if cfg.usePenisRig:
+            addDict(rig_spine.PenisHeadsTails, self.headsTails)
         if cfg.useMhx:
             addDict(rig_control.HeadsTails, self.headsTails)
             addDict(rig_control.RevFootHeadsTails, self.headsTails)
@@ -353,7 +357,6 @@ class Parser:
                 except KeyError:
                     continue
                 bone.lockRotation = lock
-                print(bone.name, bone.lockRotation)
 
         if cfg.useConstraints and cfg.useRotationLimits:
             for bname,limits in self.rotationLimits.items():
@@ -598,8 +601,7 @@ class Parser:
                 self.locations[data] = loc
             elif type == 'a':
                 vec = Vector((float(data[0]),float(data[1]),float(data[2])))
-                loc = self.scale*vec + self.offset
-                self.locations[key] = loc
+                self.locations[key] = vec + self.offset
             elif type == 'v':
                 v = int(data)
                 self.locations[key] = self.coord[v]

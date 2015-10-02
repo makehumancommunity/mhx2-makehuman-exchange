@@ -65,7 +65,8 @@ class Config:
             self.description = ""
             self.bones = {}
             self.merge = {}
-            if settings.genitalia[0:5] == 'PENIS':
+            if (settings.genitalia[0:5] == 'PENIS' and
+                self.rigType[0:8] != 'EXPORTED'):
                 self.usePenisRig = settings.usePenisRig
                 self.mergePenis = not self.usePenisRig
             else:
