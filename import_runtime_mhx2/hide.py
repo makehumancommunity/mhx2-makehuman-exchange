@@ -57,7 +57,7 @@ class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
 def addHideDriver(clo, rig):
     cloname = getClothesName(clo)
     if not cloname:
-        return
+        cloname = clo.name
     prop = "Mhh%s" % cloname
     rig[prop] = True
     rig["_RNA_UI"][prop] = {
