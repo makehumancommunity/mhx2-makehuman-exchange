@@ -303,6 +303,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             #    box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
+            if self.rigType[0:8] == 'EXPORTED':                
+                box.prop(self, "useFaceRigDrivers")                
             if self.genitalia[0:5] == 'PENIS' and self.rigType[0:8] != 'EXPORTED':
                 box.prop(self, "usePenisRig")
 

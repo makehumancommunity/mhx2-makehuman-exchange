@@ -117,11 +117,13 @@ def buildExpressions(mhSkel, rig, scn, cfg):
     for key,value in poses.items():
         theFacePoses[key] = value
 
-    if cfg.useFaceRigDrivers:
-        addBoneDrivers(rig, "Mfa", poses)
-        rig.MhxFaceRigDrivers = True
+    if not cfg.useFaceRigDrivers:
+        return
+        
+    addBoneDrivers(rig, "Mfa", poses)
+    rig.MhxFaceRigDrivers = True
 
-    print("Expressions:")
+    #print("Expressions:")
     enames = list(mhExprs.keys())
     enames.sort()
     string = "&".join([ename for ename in enames if ename != "face-poseunits"])
@@ -130,7 +132,7 @@ def buildExpressions(mhSkel, rig, scn, cfg):
     for ename in enames:
         if ename == "face-poseunits":
             continue
-        print("  ", ename)
+        #print("  ", ename)
         units = mhExprs[ename]["unit_poses"]
         rig["Mhu"+ename] = "&".join(["%s:%.4f" % (unit,uval)
             for unit,uval in units.items()])

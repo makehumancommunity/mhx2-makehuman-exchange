@@ -370,7 +370,7 @@ def getJoints(mhSkel, oldAmt):
             roll,_parent,flags,layers = oldAmt[nname][0:4]
         else:
             flags = F_DEF
-            layers = L_DEF|L_HEAD
+            layers = L_DEF|L_PANEL
         amt[nname] = deformAmt[nname] = (roll,parent,flags,layers)
 
     #print(joints)
