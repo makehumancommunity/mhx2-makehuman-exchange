@@ -125,8 +125,12 @@ Renames = {
     "head" :        "head",
     "jaw" :         "jaw",
     "eye.L" :       "eye.L",
+    "orbicularis03.L" : "uplid.L",
+    "orbicularis04.L" : "lolid.L",
     "breast.L" :    "breast.L",
     "eye.R" :       "eye.R",
+    "orbicularis03.R" : "uplid.R",
+    "orbicularis04.R" : "lolid.R",
     "breast.R" :    "breast.R",
 
     "pelvis.L" :     "pelvis.L",
@@ -338,6 +342,18 @@ def getJoints(mhSkel, oldAmt):
     for mhBone in mhSkel["bones"]:
         bname = mhBone["name"]
         nname,known,idx = getNewName(bname, hasToes)
+        
+        if nname in ["eye.L", "eye.R"]:
+            hx,hy,hz = mhBone["head"]
+            tx,ty,tz = mhBone["tail"]
+            mhBone["tail"] = (hx,hy+1e-4,tz)
+            mhBone["roll"] = 0
+        elif nname in ["uplid.L", "lolid.L", "uplid.R", "lolid.R"]:
+            hx,hy,hz = mhBone["head"]
+            tx,ty,tz = mhBone["tail"]
+            mhBone["tail"] = (hx,ty,tz)
+            mhBone["roll"] = 0
+        
         if nname is None:
             continue
         elif idx == 0:
