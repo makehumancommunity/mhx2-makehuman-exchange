@@ -81,6 +81,33 @@ def mergeSelectedObjects(context):
     return matnums
 
 
+def selectBoundaries(ob):
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='DESELECT')
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    vertpairs = dict([(vn,[]) for vn in range(len(ob.data.vertices))])
+    for f in ob.data.polygons:
+        for vn1,vn2 in f.edge_keys:
+            vertpairs[vn1].append(vn2)
+
+    select = []
+    for vn,vlist in vertpairs.items():
+        vlist.sort()
+        while vlist:
+            if len(vlist) == 1:
+                select += [vn, vlist[0]]
+                vlist = []
+            elif vlist[0] == vlist[1]:
+                vlist = vlist[2:]
+            else:
+                select += [vn, vlist[0]]
+                vlist = vlist[1:]
+
+    for vn in select:
+        ob.data.vertices[vn].select = True
+
+
 def mergeObjects(human, clothes):
     print("Merge %s to %s" % ([clo.name for clo in clothes], human.name))
 
@@ -107,9 +134,9 @@ def mergeObjects(human, clothes):
 
     firstCloVert = len(human.data.vertices)
     bpy.ops.object.join()
+    selectBoundaries(human)
     bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.mesh.remove_doubles(threshold=1e-3)
+    bpy.ops.mesh.remove_doubles(threshold=1e-4)
     bpy.ops.object.mode_set(mode='OBJECT')
     lastCloVert = len(human.data.vertices)
 
