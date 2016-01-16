@@ -136,7 +136,7 @@ def mergeObjects(human, clothes):
     bpy.ops.object.join()
     selectBoundaries(human)
     bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.remove_doubles(threshold=1e-4)
+    bpy.ops.mesh.remove_doubles(threshold=1e-3*human.MhxScale)
     bpy.ops.object.mode_set(mode='OBJECT')
     lastCloVert = len(human.data.vertices)
 

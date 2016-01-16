@@ -93,10 +93,10 @@ def buildExpressions(mhSkel, rig, scn, cfg):
 
     if "expressions" not in mhSkel.keys():
         return
-    if "orbicularis03.L" not in rig.data.bones.keys():
+    if "levator03.L" not in rig.data.bones.keys():
         print("Cannot add expressions to rig without face bones. Ignored.")
         return
-    if "orbicularis03.L" in rig.data.bones.keys():
+    if "levator03.L" in rig.data.bones.keys():
         prefix = ""
     else:
         prefix = "DEF-"
@@ -118,6 +118,7 @@ def buildExpressions(mhSkel, rig, scn, cfg):
         theFacePoses[key] = value
 
     if not cfg.useFaceRigDrivers:
+        print("Don't use face rig drivers")
         return
         
     addBoneDrivers(rig, "Mfa", poses)
