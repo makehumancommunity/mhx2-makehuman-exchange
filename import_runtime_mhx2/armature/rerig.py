@@ -33,10 +33,10 @@ Joints = [
 
     # Head
 
-    ('r-eye',           'b', 'eye.L_head'),
-    ('l-eye',           'b', 'eye.R_head'),
-    ('r-eye-target',        'j', 'r-eye-target'),
+    ('l-eye',           'b', 'eye.L_head'),
+    ('r-eye',           'b', 'eye.R_head'),
     ('l-eye-target',        'j', 'l-eye-target'),
+    ('r-eye-target',        'j', 'r-eye-target'),
 
     # Legs
     ('l-upper-leg',         'b', 'thigh.L_head'),
@@ -333,26 +333,17 @@ Constraints = {}
 
 def getJoints(mhSkel, oldAmt):
     from .utils import addDict
+    from .rig_face import HeadsTails as faceHeadsTails
 
     joints = []
     headsTails = {}
     deformAmt = {}
     amt = OrderedDict()
     hasToes = isRigWithToes(mhSkel)
+    scale = mhSkel["scale"]
     for mhBone in mhSkel["bones"]:
         bname = mhBone["name"]
         nname,known,idx = getNewName(bname, hasToes)
-        
-        if nname in ["eye.L", "eye.R"]:
-            hx,hy,hz = mhBone["head"]
-            tx,ty,tz = mhBone["tail"]
-            mhBone["tail"] = (hx,hy+1e-4,tz)
-            mhBone["roll"] = 0
-        elif nname in ["uplid.L", "lolid.L", "uplid.R", "lolid.R"]:
-            hx,hy,hz = mhBone["head"]
-            tx,ty,tz = mhBone["tail"]
-            mhBone["tail"] = (hx,ty,tz)
-            mhBone["roll"] = 0
         
         if nname is None:
             continue
@@ -369,7 +360,9 @@ def getJoints(mhSkel, oldAmt):
         elif idx == 3:
             continue
 
-        if nname not in headsTails.keys():
+        if nname in ["eye.L", "eye.R", "uplid.L", "lolid.L", "uplid.R", "lolid.R"]:
+            headsTails[nname] = faceHeadsTails[nname]
+        elif nname not in headsTails.keys():
             headsTails[nname] = (nname+"_head", nname+"_tail")
 
         roll = mhBone["roll"]
@@ -395,7 +388,6 @@ def getJoints(mhSkel, oldAmt):
 
     joints += Joints
     addDict(HeadsTails, headsTails)
-
     return joints, headsTails, amt, deformAmt
 
 

@@ -417,7 +417,6 @@ class Parser:
                 del self.vertexGroups[bname]
                 del self.bones[bname]
 
-
         for flag,mergers in [
             (cfg.mergeShoulders, rig_merge.ShoulderMergers),
             (cfg.mergeHips, rig_merge.HipMergers),
