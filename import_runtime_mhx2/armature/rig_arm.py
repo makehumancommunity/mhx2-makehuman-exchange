@@ -56,7 +56,7 @@ Joints = [
     ("r-elbow-tip",         "v", 3390),
 
     ("l-elbow",             "n", ("l-elbow-raw", "l-upper-arm", "l-elbow-tip", "l-hand")),
-    ("r-elbow",             "n", ("r-elbow-raw", "r-shoulder", "r-elbow-tip", "r-hand")),
+    ("r-elbow",             "n", ("r-elbow-raw", "r-upper-arm", "r-elbow-tip", "r-hand")),
 
     ("l-forearm-1",         "l", ((0.75, "l-elbow"), (0.25, "l-hand"))),
     ("r-forearm-1",         "l", ((0.75, "r-elbow"), (0.25, "r-hand"))),
@@ -93,7 +93,7 @@ HeadsTails = {
     "hand.L" :              ("l-hand", "l-hand-end"),
 
     "shoulder01.R" :          ("r-clav-end", "r-upper-arm"),
-    "upper_arm.R" :         ("r-shoulder", "r-elbow"),
+    "upper_arm.R" :         ("r-upper-arm", "r-elbow"),
     "forearm.R" :           ("r-elbow", "r-hand"),
     "DEF-elbow_fan.R" :         ("r-elbow", "r-forearm-1"),
     "hand.R" :              ("r-hand", "r-hand-end"),
@@ -103,7 +103,7 @@ HeadsTails = {
 Planes = {
     "PlaneArm.L" :         ('l-upper-arm', 'l-elbow-tip', 'l-hand'),
     "PlaneHand.L" :        ('l-plane-hand-1', 'l-plane-hand-2', 'l-plane-hand-3'),
-    "PlaneArm.R" :         ('r-shoulder', 'r-elbow-tip', 'r-hand'),
+    "PlaneArm.R" :         ('r-upper-arm', 'r-elbow-tip', 'r-hand'),
     "PlaneHand.R" :        ('r-plane-hand-1', 'r-plane-hand-2', 'r-plane-hand-3'),
 }
 
