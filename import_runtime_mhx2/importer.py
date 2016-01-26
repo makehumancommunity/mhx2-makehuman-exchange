@@ -224,6 +224,12 @@ def build(struct, cfg, context):
         elif cfg.useMasks == 'IGNORE':
             pass
 
+    if (cfg.useOverride and cfg.useRig and cfg.useFaceRigDrivers and 
+        cfg.rigType in ['EXPORTED_MHX', 'EXPORTED_RIGIFY']):
+        from .armature.rerig import makeBonesPosable
+        scn.objects.active = rig
+        makeBonesPosable(rig, cfg.useMhx)
+
     if cfg.deleteHelpers:
         selectHelpers(human)
 

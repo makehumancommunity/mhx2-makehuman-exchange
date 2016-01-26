@@ -160,7 +160,6 @@ def buildRig(mhHuman, mhSkel, cfg, context):
         eb.name = nname
 
     bpy.ops.object.mode_set(mode='OBJECT')
-
     if cfg.useRigify:
         from .rigify import rigifyMhx
         rig.MhxRigify = True

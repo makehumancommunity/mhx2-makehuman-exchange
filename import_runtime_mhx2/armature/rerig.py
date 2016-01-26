@@ -21,6 +21,7 @@
 
 from .flags import *
 from collections import OrderedDict
+import bpy
 
 Joints = [
     ('ground',          'j', 'ground'),
@@ -412,3 +413,72 @@ def getVertexGroups(mhHuman, mhSkel):
         else:
             vgroups[nname] = weight
     return vgroups
+
+
+def makeBonesPosable(rig, useMhx):
+    if useMhx:
+        helpLayer = 14*[False] + [True] + 17*[False]
+        faceLayer = 8
+        useDeform = True
+    else:
+        helpLayer = 24*[False] + [True] + 7*[False]
+        faceLayer = 1
+        useDeform = False
+
+    posableBones = [
+        ("jaw", "jaw-1"),
+        ("eye.L", "eye-1.L"),
+        ("eye.R", "eye-1.R"),
+    ]
+    for b in rig.data.bones:
+        if b.layers[faceLayer]:
+            words = b.name.split(".", 2)
+            if len(words) == 1:
+                nname = b.name + "-1"
+            else:
+                nname = words[0] + "-1." + words[1]
+            posableBones.append((b.name,nname))
+        
+    bpy.ops.object.mode_set(mode='EDIT')
+    children = {}
+    for bname,nname in posableBones:
+        eb = rig.data.edit_bones[bname]
+        nb = rig.data.edit_bones.new(nname)
+        nb.layers = eb.layers
+        nb.head = eb.head
+        nb.tail = eb.tail
+        nb.roll = eb.roll
+        nb.parent = eb
+        eb.layers = helpLayer
+        childs = children[nname] = []
+        for cb in rig.data.edit_bones:
+            if cb.parent == eb:
+                childs.append(cb)
+        for nname,childs in children.items():              
+            nb = rig.data.edit_bones[nname]
+            for cb in childs:
+                cb.parent = nb
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for bname,nname in posableBones:
+        pb = rig.pose.bones[bname]
+        nb = rig.pose.bones[nname]
+        nb.custom_shape = pb.custom_shape
+        nb.lock_location = pb.lock_location
+        nb.lock_rotation = pb.lock_rotation
+        nb.lock_scale = pb.lock_scale
+        pb.custom_shape = None
+        if useDeform:
+            db = rig.pose.bones["DEF-" + bname]
+            for cns in db.constraints:
+                if cns.type == 'COPY_TRANSFORMS':
+                    cns.subtarget = nname
+                    break
+        for ob in rig.children:
+            if (ob.type == 'MESH' and 
+                bname in ob.vertex_groups.keys()):
+                    vg = ob.vertex_groups[bname]
+                    vg.name = nname
+                    print(vg)
+        
+        
