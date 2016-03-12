@@ -212,7 +212,7 @@ def buildBvh(mhBvh, poseIndex, corr):
         pose = poseIndex[m]
         for n,vec in enumerate(frame):
             x,y,z = vec
-            euler = Euler((x*d2r, y*d2r, z*d2r), 'XZY')
+            euler = Euler((x*d2r, y*d2r, z*d2r), 'ZYX') # ZYX   # XZY
             quat = euler.to_quaternion()
             if abs(quat.to_axis_angle()[1]) > 1e-4:
                 joint = joints[n]
