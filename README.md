@@ -2,7 +2,7 @@ MHX2 - MakeHuman eXchange format 2
 
 MHX2 replaces the old MHX format that has been bundled with MakeHuman. Contrary to the first version, which was a Blender-specific format, MHX2 is not tied to a specific application. Instead it exports relevant information about the MakeHuman meshes and materials, which allows importers to build their own application-specific rigs. Currently there is only an importer for Blender, but mhx2 importers for other applications will eventually be welcomed. Support for the old MHX format will eventually be terminated.
 
-MHX2 is not part of the MakeHuman distribution. It is hosted separately at https://bitbucket.org/ThomasMakeHuman/mhx2-makehuman-exchange. To download the repository as a zip file, go to https://bitbucket.org/ThomasMakeHuman/mhx2-makehuman-exchange/downloads.
+MHX2 is not part of the MakeHuman distribution. It is hosted separately at https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange. To download the repository as a zip file, go to https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange/downloads.
 
 Instructions.
 
