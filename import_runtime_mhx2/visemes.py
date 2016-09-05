@@ -72,6 +72,20 @@ def getMoho():
 #   Set viseme
 # ---------------------------------------------------------------------
 
+def getMeshes(rig):
+    if rig.type == 'MESH':
+        return [rig]
+    elif rig.type == 'ARMATURE':
+        meshes = []
+        for ob in rig.children:
+            if (ob.type == 'MESH' and
+                ob.MhxHasFaceShapes):
+                meshes.append(ob)
+        return meshes
+    else:
+        return []
+
+
 def setViseme(rig, vis, useKey=False, frame=1):
     if rig.MhxFaceShapeDrivers:
         for key in getMouthShapes():
@@ -90,6 +104,22 @@ def setViseme(rig, vis, useKey=False, frame=1):
             for key in getMouthShapes():
                 pb,_fac,idx = getBoneFactor(rig, key)
                 pb.keyframe_insert("location", index=idx, frame=frame)
+    else:
+        for ob in getMeshes(rig):
+            if ob.data.shape_keys:
+                for key in getMouthShapes():
+                    if key in ob.data.shape_keys.key_blocks.keys():
+                        skey = ob.data.shape_keys.key_blocks[key]
+                        skey.value = 0.0
+                for key,value in getVisemes()[vis]:
+                    if key in ob.data.shape_keys.key_blocks.keys():
+                        skey = ob.data.shape_keys.key_blocks[key]
+                        skey.value = value
+                if useKey:
+                    for key in getMouthShapes():
+                        if key in ob.data.shape_keys.key_blocks.keys():
+                            skey = ob.data.shape_keys.key_blocks[key]
+                            skey.keyframe_insert("value", frame=frame)
 
 
 def getBoneFactor(rig, key):
@@ -131,7 +161,10 @@ class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
     viseme = StringProperty()
 
     def execute(self, context):
-        rig = getArmature(context.object)
+        ob = context.object
+        rig = getArmature(ob)
+        if rig is None and ob.type == 'MESH':
+            rig = ob
         scn = context.scene
         if rig:
             auto = scn.tool_settings.use_keyframe_insert_auto
@@ -187,6 +220,32 @@ class VIEW3D_OT_LoadMohoButton(bpy.types.Operator, ImportHelper):
 # ---------------------------------------------------------------------
 
 def deleteLipsync(rig):
+    if (rig.MhxFaceShapeDrivers or
+        rig.MhxFacePanel):
+        deleteLipsyncRig(rig)
+    else:
+        for ob in getMeshes(rig):
+            deleteLipsyncMesh(ob)
+
+
+def deleteLipsyncMesh(ob):
+    if (ob.data.shape_keys is None or
+        ob.data.shape_keys.animation_data is None):
+        return
+    act = ob.data.shape_keys.animation_data.action
+    if act is None:
+        return
+    n = len('key_blocks["')
+    for fcu in act.fcurves:
+        if fcu.data_path[n:n+4] in ["mout", "lips", "tong"]:
+            act.fcurves.remove(fcu)
+    for key in getMouthShapes():
+        if key in ob.data.shape_keys.key_blocks.keys():
+            skey = ob.data.shape_keys.key_blocks[key]
+            skey.value = 0.0
+
+
+def deleteLipsyncRig(rig):
     if rig.animation_data is None:
         return
     act = rig.animation_data.action
@@ -216,8 +275,69 @@ class VIEW3D_OT_DeleteLipsyncButton(bpy.types.Operator):
     bl_options = {'UNDO'}
 
     def execute(self, context):
+        ob = context.object
+        if ob.type == 'MESH':
+            deleteLipsyncMesh(ob)
+        else:
+            rig = getArmature(ob)
+            if rig:
+                deleteLipsync(rig)
+        updateScene(context)
+        return{'FINISHED'}
+
+# ---------------------------------------------------------------------
+#   Bake face animation
+# ---------------------------------------------------------------------
+
+def bakeFaceAnim(rig):
+    if not rig.MhxFaceShapeDrivers:
+        print("")
+        return
+    if rig.animation_data is None:
+        return
+    act = rig.animation_data.action
+    if act is None:
+        return
+    if rig.MhxFaceShapeDrivers:
+        keypoints = {}
+        for fcu in act.fcurves:
+            if fcu.data_path[0:5] == '["Mhf':
+                key = fcu.data_path.split('"')[1][3:]
+                keypoints[key] = [tuple(kp.co) for kp in fcu.keyframe_points]
+                act.fcurves.remove(fcu)
+        for key in rig.keys():
+            if key[0:3] == "Mhf":
+                del rig[key]
+        rig.MhxFaceShapeDrivers = False
+        for ob in getMeshes(rig):
+            if ob.data.shape_keys:
+                for skey in ob.data.shape_keys.key_blocks:
+                    skey.driver_remove("value")
+                for key in keypoints.keys():
+                    if key in ob.data.shape_keys.key_blocks.keys():
+                        skey = ob.data.shape_keys.key_blocks[key]
+                        for frame,value in keypoints[key]:
+                            skey.value = value
+                            skey.keyframe_insert("value", frame=frame)
+
+
+
+class VIEW3D_OT_BakeFaceAnimButton(bpy.types.Operator):
+    bl_idname = "mhx2.bake_face_anim"
+    bl_label = "Bake Face Animation"
+    bl_description = "Move facial F-curves from rig to mesh"
+    bl_options = {'UNDO'}
+
+    @classmethod
+    def poll(self, context):
+        rig = context.object
+        return (rig and
+                rig.type == 'ARMATURE' and
+                rig.MhxFaceShapeDrivers)
+
+    def execute(self, context):
         rig = getArmature(context.object)
         if rig:
-            deleteLipsync(rig)
+            bakeFaceAnim(rig)
         updateScene(context)
         return{'FINISHED'}

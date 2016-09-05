@@ -41,6 +41,8 @@ def addShapeKeys(human, filename, mhHuman, proxies=[], proxyTypes=[]):
     if human:
         addTargets(human, struct["targets"], scales)
         human.MhxHasFaceShapes = True
+        if human.parent and human.parent.type == 'ARMATURE':
+            human.parent.MhxHasFaceShapes = True
 
     for mhGeo,ob in proxies:
         mhProxy = mhGeo["proxy"]

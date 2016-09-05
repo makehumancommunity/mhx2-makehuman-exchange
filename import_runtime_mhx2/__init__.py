@@ -303,8 +303,8 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
             #    box.prop(self, "finalizeRigify")
             if self.useFaceShapes and not self.useFaceShapeDrivers:
                 box.prop(self, "useFacePanel")
-            if self.rigType[0:8] == 'EXPORTED':                
-                box.prop(self, "useFaceRigDrivers")                
+            if self.rigType[0:8] == 'EXPORTED':
+                box.prop(self, "useFaceRigDrivers")
             if self.genitalia[0:5] == 'PENIS' and self.rigType[0:8] != 'EXPORTED':
                 box.prop(self, "usePenisRig")
 
@@ -754,7 +754,7 @@ class MhxVisemesPanel(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         ob = context.object
-        return (ob and (ob.MhxFaceShapeDrivers or ob.MhxFacePanel))
+        return (ob and (ob.MhxFaceShapeDrivers or ob.MhxHasFaceShapes or ob.MhxFacePanel))
 
     def draw(self, context):
         from .visemes import getLayout
@@ -765,6 +765,7 @@ class MhxVisemesPanel(bpy.types.Panel):
 
         self.layout.separator()
         self.layout.operator("mhx2.load_moho")
+        self.layout.operator("mhx2.bake_face_anim")
         self.layout.operator("mhx2.delete_lipsync")
 
 
