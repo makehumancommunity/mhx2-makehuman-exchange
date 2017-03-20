@@ -16,18 +16,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
+
 import gzip
 import numpy as np
 import log
 
-
 def saveJson(struct, filepath, binary=False):
     if binary:
-        bytes = encodeJsonData(struct, "")
-        #bytes = json.dumps(struct)
+        bdata = bytes(encodeJsonData(struct, ""), 'utf8')
         with gzip.open(filepath, 'wb') as fp:
-            fp.write(bytes)
+            fp.write(bdata)
     else:
         import codecs
         string = encodeJsonData(struct, "")
@@ -49,10 +47,12 @@ def encodeJsonData(data, pad=""):
             return "0"
         else:
             return "%.5g" % data
-    elif isinstance(data, (int, np.int32, np.uint32)):
+    elif isinstance(data, (int, np.int32, np.uint32, np.int64, np.uint64)):
         return str(data)
-    elif isinstance(data, (str, unicode)):
+    elif isinstance(data, str):
         return "\"%s\"" % data
+    elif isinstance(data, bytes):
+        return "\"%s\"" % str(data, 'utf8')
     elif isinstance(data, (list, tuple, np.ndarray)):
         if leafList(data):
             string = "["

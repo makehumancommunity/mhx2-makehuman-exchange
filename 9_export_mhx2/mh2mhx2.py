@@ -137,7 +137,7 @@ def addAnims(folder, mhAnim):
 
 
 def addAnim(folder, file, mhAnim):
-    import quick_bvh
+    from . import quick_bvh
 
     path = os.path.join(folder, file)
     fname,ext = os.path.splitext(file)
