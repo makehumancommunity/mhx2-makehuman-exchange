@@ -21,6 +21,7 @@
 
 import os
 import math
+import bpy
 from mathutils import Vector
 
 from collections import OrderedDict
@@ -261,13 +262,17 @@ class Parser:
                 "forearm" :     (2, "hand", False, True),
                 "thigh" :       (2, "shin", False, True),
                 "shin" :        (2, "foot", False, True),
-
-                "thumb.01" :    (2, "thumb.02", True, True),
-                "f_index.01" :  (2, "f_index.02", True, True),
-                "f_middle.01" : (2, "f_middle.02", True, True),
-                "f_ring.01" :   (2, "f_ring.02", True, True),
-                "f_pinky.01" :  (2, "f_pinky.02", True, True),
             }
+
+            if bpy.app.version < (2, 79, 0):
+                splitFingers =  {
+                    "thumb.01" :    (2, "thumb.02", True, True),
+                    "f_index.01" :  (2, "f_index.02", True, True),
+                    "f_middle.01" : (2, "f_middle.02", True, True),
+                    "f_ring.01" :   (2, "f_ring.02", True, True),
+                    "f_pinky.01" :  (2, "f_pinky.02", True, True),
+                }
+                addDict(splitFingers, self.splitBones)
         else:
             self.splitBones = {}
 

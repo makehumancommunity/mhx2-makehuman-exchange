@@ -33,28 +33,71 @@ from bpy.props import *
 from ..utils import reallySelect
 from ..error import *
 
-Renames = [
-    ("chest", "chest-0"),
-    ("chest-1", "chest"),
-    ("spine", "spine-0"),
-    ("spine-1", "spine"),
-]
+if bpy.app.version < (2, 79, 0):
+    # Blender 2.78 and before
+    Renames = [
+        ("chest", "chest-0"),
+        ("chest-1", "chest"),
+        ("spine", "spine-0"),
+        ("spine-1", "spine"),
+    ]
 
-Extras = [
-    ("spine-0", "hips", "spine"),
-    ("chest-0", "spine", "chest"),
-    ("neck-1", "neck", "head"),
-]
+    Extras = [
+        ("spine-0", "hips", "spine"),
+        ("chest-0", "spine", "chest"),
+        ("neck-1", "neck", "head"),
+    ]
 
-Parents = {
-    "clavicle.L" : "ORG-chest",
-    "clavicle.R" : "ORG-chest",
-    "shoulder.L" : "clavicle.L",
-    "shoulder.R" : "clavicle.R",
-    "ORG-shoulder.L" : "clavicle.L",
-    "ORG-shoulder.R" : "clavicle.R",
+    Parents = {
+        "clavicle.L" : "ORG-chest",
+        "clavicle.R" : "ORG-chest",
+        "shoulder.L" : "clavicle.L",
+        "shoulder.R" : "clavicle.R",
+        "ORG-shoulder.L" : "clavicle.L",
+        "ORG-shoulder.R" : "clavicle.R",
+    }
 
-}
+    def deleteHead(meta):
+        return
+
+else:
+    # Blender 2.79 and later
+    Renames = [
+        ("spine", "spine.001"),
+        ("hips", "spine"),
+        ("spine-1", "spine.002"),
+        ("chest", "spine.003"),
+        ("chest-1", "spine.004"),
+        ("neck", "spine.005"),
+        #("neck-1", "spine.005"),
+        ("head", "spine.006"),
+    ]
+
+    Extras = [
+        #("spine-0", "hips", "spine"),
+        #("chest-0", "spine", "chest"),
+        ("neck-1", "spine.005", "spine.006"),
+    ]
+
+    Parents = {
+        "clavicle.L" : "ORG-chest",
+        "clavicle.R" : "ORG-chest",
+        "shoulder.L" : "clavicle.L",
+        "shoulder.R" : "clavicle.R",
+        "ORG-shoulder.L" : "clavicle.L",
+        "ORG-shoulder.R" : "clavicle.R",
+    }
+
+    def deleteHead(meta):
+        head = meta.data.edit_bones["spine.006"]
+        deleteChildren(head, meta)
+
+
+def deleteChildren(eb, meta):
+    for child in eb.children:
+        deleteChildren(child, meta)
+        meta.data.edit_bones.remove(child)
+
 
 class RigifyBone:
     def __init__(self, eb):
@@ -159,6 +202,7 @@ def rigifyMhx(context, parser, taken={}):
     # Fit metarig to default MHX rig
     meta = context.object
     bpy.ops.object.mode_set(mode='EDIT')
+    deleteHead(meta)
     extra = []
     for bone in bones.values():
         try:
@@ -172,22 +216,22 @@ def rigifyMhx(context, parser, taken={}):
             bone.original = True
 
     for bname,pname,cname in Extras:
-            extra.append(bname)
-            bone = bones[bname]
-            bone.original = True
-            eb = meta.data.edit_bones.new(bname)
-            eb.use_connect = False
-            eb.head = bones[pname].tail
-            eb.tail = bones[cname].head
-            eb.roll = bone.roll
-            parent = meta.data.edit_bones[pname]
-            child = meta.data.edit_bones[cname]
-            child.parent = eb
-            child.head = bones[bone.child].head
-            parent.tail = bones[bone.parent].tail
-            eb.parent = parent
-            eb.use_connect = True
-            eb.layers = list(child.layers)
+        extra.append(bname)
+        bone = bones[bname]
+        bone.original = True
+        eb = meta.data.edit_bones.new(bname)
+        eb.use_connect = False
+        eb.head = bones[pname].tail
+        eb.tail = bones[cname].head
+        eb.roll = bone.roll
+        parent = meta.data.edit_bones[pname]
+        child = meta.data.edit_bones[cname]
+        child.parent = eb
+        child.head = bones[bone.child].head
+        parent.tail = bones[bone.parent].tail
+        eb.parent = parent
+        eb.use_connect = True
+        eb.layers = list(child.layers)
 
     # Add rigify properties to extra bones
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -269,10 +313,10 @@ def rigifyMhx(context, parser, taken={}):
                 fixConstraint(cns1, cns2, gen, bones)
 
     # Rescale gizmos
-    from .build import rescaleGizmo
-    for bname in ["spine-0", "spine"]:
-        pb = gen.pose.bones[bname]
-        #pb.custom_shape = rescaleGizmo(pb.custom_shape, 3.0)
+    #from .build import rescaleGizmo
+    #for bname in ["spine-0", "spine"]:
+    #    pb = gen.pose.bones[bname]
+    #    #pb.custom_shape = rescaleGizmo(pb.custom_shape, 3.0)
 
     # Add MHX properties
     for key in rig.keys():
@@ -287,13 +331,33 @@ def rigifyMhx(context, parser, taken={}):
             copyDriver(fcu1, fcu2, gen)
 
     # Fix vertex groups
+    vgrps = list(parser.vertexGroups.keys())
+    vgrps.sort()
+    #print("VG", vgrps)
+
     for gname,vgrp in list(parser.vertexGroups.items()):
+        if gname[0:4] == "DEF-":
+            gname = "DEF-" + rename(gname[4:])
+
+        nname = None
         if gname in gen.data.bones.keys():
             continue
-        elif gname[0:4] == "DEF-" and gname[4:] in gen.data.bones.keys():
-            parser.vertexGroups[gname[4:]] = vgrp
+        elif gname[0:4] == "DEF-":
+            if gname[4:] in gen.data.bones.keys():
+                nname = gname[4:]
+            else:
+                words = gname.split(".")
+                if len(words) == 3:
+                    if words[1] == "01":
+                        nname = ("%s.%s" % (words[0], words[2]))
+                    elif words[1] == "02":
+                        nname = ("%s.%s.001" % (words[0], words[2]))
+            if nname in gen.data.bones.keys():
+                parser.vertexGroups[nname] = vgrp
+            else:
+                nname = None
             del parser.vertexGroups[gname]
-        else:
+        if nname is None:
             print("Warning: missing vertex group %s" % gname)
 
     if group:
@@ -335,10 +399,10 @@ def fixRigifyMeshes(children):
     for ob in children:
         if ob.type == 'MESH':
             for bname,bname1 in Renames:
-                vgname = "DEF-" + bname
-                for vg in ob.vertex_groups:
-                    if vg.name == vgname:
-                        vg.name = "DEF-" + bname1
+                for vgname in [bname, "DEF-" + bname]:
+                    for vg in ob.vertex_groups:
+                        if vg.name == vgname:
+                            vg.name = "DEF-" + bname1
 
             '''
             if ob.data.animation_data:
@@ -453,6 +517,12 @@ def changeDriverTarget(fcu, id):
         targ = var.targets[0]
         targ.id = id
 
+
+def rename(bname):
+    for oname,nname in Renames:
+        if bname == oname:
+            return nname
+    return bname
 
 #------------------------------------------------------------------------
 #   Finalize
