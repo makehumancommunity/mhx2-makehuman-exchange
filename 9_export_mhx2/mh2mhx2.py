@@ -1,3 +1,6 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+
 #
 #    MakeHuman .mhx2 exporter
 #    Copyright (C) Thomas Larsson 2014
@@ -184,7 +187,7 @@ def addMaterial(mhMaterials, mat, mname, texhandler):
 
     mhMat["sssEnabled"] = mat.sssEnabled
     mhMat["sssRScale"] = mat.sssRScale
-    mhMat["sssGScale"] = mat.sssBScale
+    mhMat["sssGScale"] = mat.sssGScale
     mhMat["sssBScale"] = mat.sssBScale
 
     texhandler.addTexture(mhMat, "diffuse_texture", mat.diffuseTexture)
