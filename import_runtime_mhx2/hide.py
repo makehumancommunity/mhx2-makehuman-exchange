@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
 from .drivers import *
 from .utils import *
 
@@ -28,7 +27,7 @@ from .utils import *
 #    Setup: Add and remove hide drivers
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_MhxAddHidersButton(bpy.types.Operator):
+class MHX_OT_MhxAddHiders(bpy.types.Operator):
     bl_idname = "mhx2.add_hide_drivers"
     bl_label = "Add Visibility Drivers"
     bl_description = "Control visibility with rig property. For file linking."
@@ -86,7 +85,7 @@ def getMaskModifiers(cloname, rig):
     return mods
 
 
-class VIEW3D_OT_MhxRemoveHidersButton(bpy.types.Operator):
+class MHX_OT_MhxRemoveHiders(bpy.types.Operator):
     bl_idname = "mhx2.remove_hide_drivers"
     bl_label = "Remove Visibility Drivers"
     bl_description = "Remove ability to control visibility from rig property"
@@ -126,10 +125,10 @@ def removeHideDrivers(clo, rig):
 def prettifyPanel(rig, prefix):
     for prop in rig.keys():
         if prop[0:3] == prefix:
-            setattr(bpy.types.Object, prop, BoolProperty(default=True))
+            setattr(bpy.types.Object, prop, bpy.props.BoolProperty(default=True))
 
 
-class VIEW3D_OT_MhxPrettifyButton(bpy.types.Operator):
+class MHX_OT_MhxPrettify(bpy.types.Operator):
     bl_idname = "mhx2.prettify_visibility"
     bl_label = "Prettify Visibility Panel"
     bl_description = "Prettify visibility panel"
@@ -140,5 +139,22 @@ class VIEW3D_OT_MhxPrettifyButton(bpy.types.Operator):
         prettifyPanel(rig, "Mhh")
         return{'FINISHED'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
 
+classes = [
+    MHX_OT_MhxAddHiders,
+    MHX_OT_MhxRemoveHiders,
+    MHX_OT_MhxPrettify,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
 

@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -490,7 +490,7 @@ def makeSimpleMaterials(ob, scn):
                     break
 
 
-class VIEW3D_OT_AddSimpleMaterialsButton(bpy.types.Operator):
+class MHX_OT_AddSimpleMaterials(bpy.types.Operator):
     bl_idname = "mhx2.add_simple_materials"
     bl_label = "Add Simple Materials"
     bl_description = "Add simple materials to helper geometry"
@@ -504,3 +504,20 @@ class VIEW3D_OT_AddSimpleMaterialsButton(bpy.types.Operator):
     def execute(self, context):
         makeSimpleMaterials(context.object, context.scene)
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_AddSimpleMaterials,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

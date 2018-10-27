@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -22,10 +22,10 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,28),
-    "blender": (2, 74, 0),
+    'version': (0,30),
+    "blender": (2, 80, 0),
     'location': "File > Import > MakeHuman (.mhx2)",
-    'description': 'Import files in the new MakeHuman eXhange format (.mhx2)',
+    'description': 'Import files in the new MakeHuman eXchange format (.mhx2)',
     'warning': '',
     'wiki_url': 'http://thomasmakehuman.wordpress.com/mhx2-documentation/',
     'category': 'MakeHuman'}
@@ -33,9 +33,15 @@ bl_info = {
 if "bpy" in locals():
     print("Reloading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     import imp
+    imp.reload(utils)
+    if bpy.app.version < (2,80,0):
+        imp.reload(buttons27)
+        from .buttons27 import Mhx2Import
+    else:
+        imp.reload(buttons28)
+        from .buttons28 import Mhx2Import
     imp.reload(armature)
     imp.reload(hm8)
-    imp.reload(utils)
     imp.reload(error)
     imp.reload(config)
     imp.reload(load_json)
@@ -57,9 +63,16 @@ if "bpy" in locals():
     imp.reload(importer)
 else:
     print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
+    import bpy
+    from . import utils
+    if bpy.app.version < (2,80,0):
+        from . import buttons27
+        from .buttons27 import Mhx2Import
+    else:
+        from . import buttons28
+        from .buttons28 import Mhx2Import
     from . import armature
     from . import hm8
-    from . import utils
     from . import error
     from . import config
     from . import load_json
@@ -80,7 +93,6 @@ else:
     from . import merge
     from . import importer
 
-import bpy
 from bpy.props import *
 from bpy_extras.io_utils import ImportHelper
 from .error import *
@@ -105,7 +117,7 @@ HairColorProperty = FloatVectorProperty(
 #
 # ---------------------------------------------------------------------
 
-class ImportMHX2(bpy.types.Operator, ImportHelper):
+class ImportMHX2(bpy.types.Operator, Mhx2Import):
     """Import from MHX2 file format (.mhx2)"""
     bl_idname = "import_scene.makehuman_mhx2"
     bl_description = 'Import from MHX2 file format (.mhx2)'
@@ -113,10 +125,6 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_options = {'PRESET', 'UNDO'}
-
-    filename_ext = ".mhx2"
-    filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
-    filepath = StringProperty(subtype='FILE_PATH')
 
     useHelpers = BoolProperty(name="Helper Geometry", description="Keep helper geometry", default=False)
     useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
@@ -312,7 +320,7 @@ class ImportMHX2(bpy.types.Operator, ImportHelper):
 #    Setup panel
 #------------------------------------------------------------------------
 
-class MhxSetupPanel(bpy.types.Panel):
+class MHX_PT_Setup(bpy.types.Panel):
     bl_label = "MHX Setup"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -389,7 +397,7 @@ class MhxSetupPanel(bpy.types.Panel):
 #    Mhx License Panel
 #------------------------------------------------------------------------
 
-class MhxLicensePanel(bpy.types.Panel):
+class MHX_PT_License(bpy.types.Panel):
     bl_label = "License"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -418,7 +426,7 @@ class MhxLicensePanel(bpy.types.Panel):
 
 from .layers import MhxLayers, OtherLayers
 
-class MhxLayersPanel(bpy.types.Panel):
+class MHX_PT_Layers(bpy.types.Panel):
     bl_label = "Layers"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -460,7 +468,7 @@ class MhxLayersPanel(bpy.types.Panel):
 #    Mhx FK/IK switch panel
 #------------------------------------------------------------------------
 
-class MhxFKIKPanel(bpy.types.Panel):
+class MHX_PT_FKIK(bpy.types.Panel):
     bl_label = "FK/IK Switch"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -483,12 +491,12 @@ class MhxFKIKPanel(bpy.types.Panel):
         layout.label("FK/IK switch")
         row = layout.row()
         row.label("Arm")
-        self.toggleButton(row, rig, "MhaArmIk_L", " 3", " 2")
-        self.toggleButton(row, rig, "MhaArmIk_R", " 19", " 18")
+        self.toggle(row, rig, "MhaArmIk_L", " 3", " 2")
+        self.toggle(row, rig, "MhaArmIk_R", " 19", " 18")
         row = layout.row()
         row.label("Leg")
-        self.toggleButton(row, rig, "MhaLegIk_L", " 5", " 4")
-        self.toggleButton(row, rig, "MhaLegIk_R", " 21", " 20")
+        self.toggle(row, rig, "MhaLegIk_L", " 5", " 4")
+        self.toggle(row, rig, "MhaLegIk_R", " 21", " 20")
 
         layout.label("IK Influence")
         row = layout.row()
@@ -528,7 +536,7 @@ class MhxFKIKPanel(bpy.types.Panel):
         row.operator("mhx2.snap_ik_fk", text="Snap R IK Leg").data = "MhaLegIk_R 20 21 28"
 
 
-    def toggleButton(self, row, rig, prop, fk, ik):
+    def toggle(self, row, rig, prop, fk, ik):
         if getattr(rig, prop) > 0.5:
             row.operator("mhx2.toggle_fk_ik", text="IK").toggle = prop + " 0" + fk + ik
         else:
@@ -539,7 +547,7 @@ class MhxFKIKPanel(bpy.types.Panel):
 #   MHX Control panel
 #------------------------------------------------------------------------
 
-class MhxControlPanel(bpy.types.Panel):
+class MHX_PT_Control(bpy.types.Panel):
     bl_label = "MHX Control"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -582,7 +590,7 @@ class MhxControlPanel(bpy.types.Panel):
 #   Visibility panel
 #------------------------------------------------------------------------
 
-class VisibilityPanel(bpy.types.Panel):
+class Visibility(bpy.types.Panel):
     bl_label = "Visibility"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -612,7 +620,7 @@ class VisibilityPanel(bpy.types.Panel):
 #   Facerig panel
 #------------------------------------------------------------------------
 
-class FaceUnitsPanel(bpy.types.Panel):
+class FaceUnits(bpy.types.Panel):
     bl_label = "Face Units"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -635,7 +643,7 @@ class FaceUnitsPanel(bpy.types.Panel):
 #   Expression
 #------------------------------------------------------------------------
 
-class ExpressionPanel(bpy.types.Panel):
+class Expression(bpy.types.Panel):
     bl_label = "Expressions"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -661,7 +669,7 @@ class ExpressionPanel(bpy.types.Panel):
 #   Face Shape panel
 #------------------------------------------------------------------------
 
-class MhxFaceShapePanel(bpy.types.Panel):
+class MHX_PT_FaceShape(bpy.types.Panel):
     bl_label = "Facial Shapes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -684,7 +692,7 @@ class MhxFaceShapePanel(bpy.types.Panel):
 #   Pose panel
 #------------------------------------------------------------------------
 
-class MhxPosePanel(bpy.types.Panel):
+class MHX_PT_Pose(bpy.types.Panel):
     bl_label = "Poses"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -707,7 +715,7 @@ class MhxPosePanel(bpy.types.Panel):
 #   Other Shape panel
 #------------------------------------------------------------------------
 
-class MhxOtherShapePanel(bpy.types.Panel):
+class MHX_PT_OtherShape(bpy.types.Panel):
     bl_label = "Other Shapes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -744,7 +752,7 @@ def drawProperties(layout, rig, prefix):
 #   Visemes panel
 #------------------------------------------------------------------------
 
-class MhxVisemesPanel(bpy.types.Panel):
+class MHX_PT_Visemes(bpy.types.Panel):
     bl_label = "Visemes"
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -772,6 +780,20 @@ class MhxVisemesPanel(bpy.types.Panel):
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
+
+classes = [
+    MHX_PT_Setup,
+    MHX_PT_License,
+    MHX_PT_Layers,
+    MHX_PT_FKIK,
+    MHX_PT_Control,
+    MHX_PT_FaceShape,
+    MHX_PT_Pose,
+    MHX_PT_OtherShape,
+    MHX_PT_Visemes,
+
+    ErrorOperator
+]
 
 def menu_func(self, context):
     self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
@@ -837,29 +859,53 @@ def register():
     bpy.types.Scene.MhxUseConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
     bpy.types.Scene.MhxDesignHuman = StringProperty(default="None")
 
-    bpy.utils.register_class(ErrorOperator)
-    bpy.utils.register_module(__name__)
+    bone_drivers.initialize()
+    drivers.initialize()
+    faceshift.initialize()
+    fkik.initialize()
+    hair.initialize()
+    hide.initialize()
+    importer.initialize()
+    layers.initialize()
+    materials.initialize()
+    merge.initialize()
+    proxy.initialize()
+    shaders.initialize()
+    shapekeys.initialize()
+    #varia.initialize()
+    visemes.initialize()
+    armature.rigify.initialize()
+
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
     bpy.types.INFO_MT_file_import.append(menu_func)
 
 
 def unregister():
-    for cls in [ErrorOperator]:
-        try:
-            bpy.utils.register_class(cls)
-        except:
-            pass
-    try:
-        bpy.utils.unregister_module(__name__)
-    except:
-        pass
-    try:
-        bpy.types.INFO_MT_file_import.remove(menu_func)
-    except:
-        pass
+    bone_drivers.uninitialize()
+    drivers.uninitialize()
+    faceshift.uninitialize()
+    fkik.uninitialize()
+    hair.uninitialize()
+    hide.uninitialize()
+    importer.uninitialize()
+    layers.uninitialize()
+    materials.uninitialize()
+    merge.uninitialize()
+    proxy.uninitialize()
+    shaders.uninitialize()
+    shapekeys.uninitialize()
+    #varia.uninitialize()
+    visemes.uninitialize()
+    armature.rigify.uninitialize()
+
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+    bpy.types.INFO_MT_file_import.remove(menu_func)
 
 
 if __name__ == "__main__":
-    unregister()
     register()
 
 print("MHX2 successfully (re)loaded")

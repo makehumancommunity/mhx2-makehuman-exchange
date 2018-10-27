@@ -544,7 +544,7 @@ def listUsedVgroups(children):
     return taken
 
 
-class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
+class MHX_OT_MhxFinalizeRigify(bpy.types.Operator):
     bl_idname = "mhx2.finalize_rigify"
     bl_label = "Finalize Rigify"
     bl_description = "Finalize Rigify"
@@ -562,3 +562,19 @@ class VIEW3D_OT_MhxFinalizeRigifyButton(bpy.types.Operator):
             handleMhxError(context)
         return{'FINISHED'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_MhxFinalizeRigify,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

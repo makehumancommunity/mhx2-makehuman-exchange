@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -48,13 +48,13 @@ def buildSkinShaderGroup(mat):
 
     input = tree.addNode(1, 'ShaderNodeBsdfDiffuse')
     input.inputs["Color"].default_value[0:3] =  (1,1,1)
-    
+
     factor = tree.addNode(1, 'ShaderNodeMath')
     factor.operation = 'MULTIPLY'
     #links.new(input.outputs['Scale'], factor.inputs[0])
     factor.inputs[0].default_value = 0.001
     factor.inputs[1].default_value = 1
-    
+
     ssses = []
     for color,scale in [
         ((0.2,0.2,0.9), 0.006),
@@ -69,21 +69,21 @@ def buildSkinShaderGroup(mat):
         mult.inputs["Fac"].default_value = 1.0
         mult.inputs["Color1"].default_value[0:3] = color
         links.new(input.outputs['BSDF'], mult.inputs['Color2'])
-        
+
         sss = tree.addNode(3, 'ShaderNodeSubsurfaceScattering')
         sss.falloff = 'CUBIC'
         links.new(mult.outputs['Color'], sss.inputs['Color'])
         links.new(factor.outputs['Value'], sss.inputs[1])
         #links.new(input.outputs[2], sss.inputs[3])
         #links.new(input.outputs[3], sss.inputs[4])
-        
+
         ssses.append(sss)
-        
+
     adders = []
     for n in range(5):
         add = tree.addNode(4, 'ShaderNodeAddShader')
         adders.append(add)
-        
+
     links.new(ssses[0].outputs['BSSRDF'], adders[0].inputs[0])
     links.new(ssses[1].outputs['BSSRDF'], adders[0].inputs[1])
     links.new(ssses[2].outputs['BSSRDF'], adders[1].inputs[0])
@@ -97,10 +97,10 @@ def buildSkinShaderGroup(mat):
 
     output = tree.addNode(5, 'ShaderNodeOutputMaterial')
     links.new(adders[4].outputs['Shader'], output.inputs['Surface'])
-            
-    
-                
-class VIEW3D_OT_MakeSkinShaderButton(bpy.types.Operator):
+
+
+
+class MHX_OT_MakeSkinShader(bpy.types.Operator):
     bl_idname = "mhx2.make_skin_shader"
     bl_label = "Make Skin Shader"
     bl_description = ""
@@ -116,6 +116,20 @@ class VIEW3D_OT_MakeSkinShaderButton(bpy.types.Operator):
         if me.materials:
             buildSkinShaderGroup(me.materials[0])
         return{'FINISHED'}
-        
-print("shaders.py done")
-        
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_MakeSkinShader,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

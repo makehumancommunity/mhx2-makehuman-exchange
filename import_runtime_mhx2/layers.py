@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,8 +20,10 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
-from bpy_extras.io_utils import ImportHelper, ExportHelper
+if bpy.app.version < (2,80,0):
+    from .buttons27 import MhpImport, MhpExport
+else:
+    from .buttons28 import MhpImport, MhpExport
 
 ###################################################################################
 #
@@ -74,7 +76,7 @@ OtherLayers = [
 ]
 
 
-class VIEW3D_OT_MhxEnableAllLayersButton(bpy.types.Operator):
+class MHX_OT_MhxEnableAllLayers(bpy.types.Operator):
     bl_idname = "mhx2.pose_enable_all_layers"
     bl_label = "Enable all layers"
     bl_options = {'UNDO'}
@@ -88,7 +90,7 @@ class VIEW3D_OT_MhxEnableAllLayersButton(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class VIEW3D_OT_MhxDisableAllLayersButton(bpy.types.Operator):
+class MHX_OT_MhxDisableAllLayers(bpy.types.Operator):
     bl_idname = "mhx2.pose_disable_all_layers"
     bl_label = "Disable all layers"
     bl_options = {'UNDO'}
@@ -227,18 +229,11 @@ def loadMhpFile(rig, scn, filepath):
     print("Mhp file %s loaded" % mhppath)
 
 
-class VIEW3D_OT_LoadMhpButton(bpy.types.Operator, ImportHelper):
+class MHX_OT_LoadMhp(bpy.types.Operator, MhpImport):
     bl_idname = "mhx2.load_mhp"
     bl_label = "Load MHP File"
     bl_description = "Load a pose in MHP format"
     bl_options = {'UNDO'}
-
-    filename_ext = ".mhp"
-    filter_glob = StringProperty(default="*.mhp", options={'HIDDEN'})
-    filepath = bpy.props.StringProperty(
-        name="File Path",
-        description="File path used for mhp file",
-        maxlen= 1024, default= "")
 
     def execute(self, context):
         loadMhpFile(context.object, context.scene, self.properties.filepath)
@@ -249,18 +244,11 @@ class VIEW3D_OT_LoadMhpButton(bpy.types.Operator, ImportHelper):
         return {'RUNNING_MODAL'}
 
 
-class VIEW3D_OT_SaveasMhpFileButton(bpy.types.Operator, ExportHelper):
+class MHX_OT_SaveasMhpFile(bpy.types.Operator, MhpExport):
     bl_idname = "mhx2.saveas_mhp"
     bl_label = "Save MHP File"
     bl_description = "Save current pose in MHP format"
     bl_options = {'UNDO'}
-
-    filename_ext = ".mhp"
-    filter_glob = StringProperty(default="*.mhp", options={'HIDDEN'})
-    filepath = bpy.props.StringProperty(
-        name="File Path",
-        description="File path used for mhp file",
-        maxlen= 1024, default= "")
 
     def execute(self, context):
         saveMhpFile(context.object, context.scene, self.properties.filepath)
@@ -297,5 +285,23 @@ def getMhxRigMesh(ob):
             return (None, None)
     return (None, None)
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
 
+classes = [
+    MHX_OT_MhxEnableAllLayers,
+    MHX_OT_MhxDisableAllLayers,
+    MHX_OT_LoadMhp,
+    MHX_OT_SaveasMhpFile,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
 

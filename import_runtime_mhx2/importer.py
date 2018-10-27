@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -25,12 +25,14 @@ import time
 import math
 import mathutils
 from mathutils import Vector, Matrix, Quaternion
-from bpy.props import *
-from bpy_extras.io_utils import ImportHelper
 
 from .hm8 import *
 from .error import *
 from .utils import *
+if bpy.app.version < (2,80,0):
+    from .buttons27 import Mhx2Import
+else:
+    from .buttons28 import Mhx2Import
 
 LowestVersion = 22
 HighestVersion = 49
@@ -224,7 +226,7 @@ def build(struct, cfg, context):
         elif cfg.useMasks == 'IGNORE':
             pass
 
-    if (cfg.useOverride and cfg.useRig and cfg.useFaceRigDrivers and 
+    if (cfg.useOverride and cfg.useRig and cfg.useFaceRigDrivers and
         cfg.rigType in ['EXPORTED_MHX', 'EXPORTED_RIGIFY']):
         from .armature.rerig import makeBonesPosable
         scn.objects.active = rig
@@ -388,15 +390,11 @@ def setDesignHuman(filepath, context):
     raise MhxError("Unable to set design human")
 
 
-class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator, ImportHelper):
+class MHX_OT_SetDesignHuman(bpy.types.Operator, Mhx2Import):
     bl_idname = "mhx2.set_design_human"
     bl_label = "Set Design Human (.mhx2)"
     bl_description = "Load definition of human to be designed"
     bl_options = {'UNDO'}
-
-    filename_ext = ".mhx2"
-    filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
-    filepath = StringProperty(name="File Path", description="Filepath to mhx2 file", maxlen=1024, default="")
 
     def execute(self, context):
         try:
@@ -410,7 +408,7 @@ class VIEW3D_OT_SetDesignHumanButton(bpy.types.Operator, ImportHelper):
         return {'RUNNING_MODAL'}
 
 
-class VIEW3D_OT_ClearDesignHumanButton(bpy.types.Operator):
+class MHX_OT_ClearDesignHuman(bpy.types.Operator):
     bl_idname = "mhx2.clear_design_human"
     bl_label = "Clear Design Human"
     bl_description = "Clear definition of human to be designed"
@@ -420,3 +418,21 @@ class VIEW3D_OT_ClearDesignHumanButton(bpy.types.Operator):
         mhHuman = None
         context.scene.MhxDesignHuman = "None"
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_SetDesignHuman,
+    MHX_OT_ClearDesignHuman,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -25,11 +25,14 @@ import bpy
 import math
 from collections import OrderedDict
 
-from bpy.props import *
 from mathutils import *
 from .drivers import *
 from .utils import *
 from .error import *
+if bpy.app.version < (2,80,0):
+    from .buttons27 import UnitsString, StringString
+else:
+    from .buttons28 import UnitsString, StringString
 
 #------------------------------------------------------------------------
 #   Bone drivers
@@ -120,7 +123,7 @@ def buildExpressions(mhSkel, rig, scn, cfg):
     if not cfg.useFaceRigDrivers:
         print("Don't use face rig drivers")
         return
-        
+
     addBoneDrivers(rig, "Mfa", poses)
     rig.MhxFaceRigDrivers = True
 
@@ -225,7 +228,7 @@ def buildBvh(mhBvh, poseIndex, corr):
 #   Add Face Rig
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_AddFaceRigDriverButton(bpy.types.Operator):
+class MHX_OT_AddFaceRigDriver(bpy.types.Operator):
     bl_idname = "mhx2.add_facerig_drivers"
     bl_label = "Add Facerig Drivers"
     bl_description = "Control face rig with rig properties."
@@ -262,7 +265,7 @@ def removeBoneDrivers(rig, prefix, poses):
         pb.driver_remove("rotation_quaternion")
 
 
-class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
+class MHX_OT_RemoveFaceRigDriver(bpy.types.Operator):
     bl_idname = "mhx2.remove_facerig_drivers"
     bl_label = "Remove Facerig Drivers"
     bl_description = "Remove rig property control of face rig."
@@ -284,13 +287,11 @@ class VIEW3D_OT_RemoveFaceRigDriverButton(bpy.types.Operator):
 #   Set expression
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_SetExpressionButton(bpy.types.Operator):
+class MHX_OT_SetExpression(bpy.types.Operator, UnitsString):
     bl_idname = "mhx2.set_expression"
     bl_label = "Set Expression"
     bl_description = "Set expression"
     bl_options = {'UNDO'}
-
-    units = StringProperty()
 
     def execute(self, context):
         from .drivers import resetProps, autoKeyProp
@@ -310,13 +311,11 @@ class VIEW3D_OT_SetExpressionButton(bpy.types.Operator):
 #   Pose rig
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_SetPoseButton(bpy.types.Operator):
+class MHX_OT_SetPose(bpy.types.Operator, StringString):
     bl_idname = "mhx2.set_pose"
     bl_label = "Set Pose"
     bl_description = "Set pose"
     bl_options = {'UNDO'}
-
-    string = StringProperty()
 
     def execute(self, context):
         rig = context.object
@@ -347,3 +346,22 @@ class VIEW3D_OT_SetPoseButton(bpy.types.Operator):
                 pb.keyframe_insert("rotation_quaternion")
         return{'FINISHED'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_AddFaceRigDriver,
+    MHX_OT_RemoveFaceRigDriver,
+    MHX_OT_SetExpression,
+    MHX_OT_SetPose,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

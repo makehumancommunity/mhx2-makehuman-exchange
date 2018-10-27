@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,8 +20,11 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import StringProperty
 from mathutils import *
+if bpy.app.version < (2,80,0):
+    from .buttons27 import DataString, ToggleString
+else:
+    from .buttons28 import DataString, ToggleString
 
 #########################################
 #
@@ -355,11 +358,10 @@ def muteConstraints(constraints, value):
         cns.mute = value
 
 
-class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
+class MHX_OT_MhxSnapFk2Ik(bpy.types.Operator, DataString):
     bl_idname = "mhx2.snap_fk_ik"
     bl_label = "Snap FK"
     bl_options = {'UNDO'}
-    data = StringProperty()
 
     def execute(self, context):
         bpy.ops.object.mode_set(mode='POSE')
@@ -373,11 +375,10 @@ class VIEW3D_OT_MhxSnapFk2IkButton(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class VIEW3D_OT_MhxSnapIk2FkButton(bpy.types.Operator):
+class MHX_OT_MhxSnapIk2Fk(bpy.types.Operator, DataString):
     bl_idname = "mhx2.snap_ik_fk"
     bl_label = "Snap IK"
     bl_options = {'UNDO'}
-    data = StringProperty()
 
     def execute(self, context):
         bpy.ops.object.mode_set(mode='POSE')
@@ -429,11 +430,10 @@ def restoreSnapProp(rig, prop, old, context):
     return
 
 
-class VIEW3D_OT_MhxToggleFkIkButton(bpy.types.Operator):
+class MHX_OT_MhxToggleFkIk(bpy.types.Operator, ToggleString):
     bl_idname = "mhx2.toggle_fk_ik"
     bl_label = "FK - IK"
     bl_options = {'UNDO'}
-    toggle = StringProperty()
 
     def execute(self, context):
         words = self.toggle.split()
@@ -454,7 +454,7 @@ class VIEW3D_OT_MhxToggleFkIkButton(bpy.types.Operator):
 
 #
 #   updatePose(context):
-#   class VIEW3D_OT_MhxUpdateButton(bpy.types.Operator):
+#   class MHX_OT_MhxUpdate(bpy.types.Operator):
 #
 
 def updatePose(context):
@@ -464,7 +464,7 @@ def updatePose(context):
     bpy.ops.object.posemode_toggle()
     return
 
-class VIEW3D_OT_MhxUpdateButton(bpy.types.Operator):
+class MHX_OT_MhxUpdate(bpy.types.Operator):
     bl_idname = "mhx2.update"
     bl_label = "Update"
 
@@ -472,4 +472,22 @@ class VIEW3D_OT_MhxUpdateButton(bpy.types.Operator):
         updatePose(context)
         return{'FINISHED'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
 
+classes = [
+    MHX_OT_MhxSnapFk2Ik,
+    MHX_OT_MhxSnapIk2Fk,
+    MHX_OT_MhxToggleFkIk,
+    MHX_OT_MhxUpdate,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

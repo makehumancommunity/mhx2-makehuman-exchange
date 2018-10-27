@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
 from .drivers import *
 
 
@@ -28,7 +27,7 @@ from .drivers import *
 #    Setup: Add and remove groups
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_MhxAddGroupsButton(bpy.types.Operator):
+class MHX_OT_MhxAddGroups(bpy.types.Operator):
     bl_idname = "mhx2.add_groups"
     bl_label = "Add Groups"
     bl_description = "Add meshes to rig group. For file linking."
@@ -51,3 +50,20 @@ def addGroup(ob, gname):
             break
     if not group:
         group = ob.groups.new(gname)
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_MhxAddGroups,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

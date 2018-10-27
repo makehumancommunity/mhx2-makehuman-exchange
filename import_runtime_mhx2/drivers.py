@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -21,9 +21,12 @@
 
 import os
 import bpy
-from bpy.props import *
 from mathutils import *
 from .utils import *
+if bpy.app.version < (2,80,0):
+    from .buttons27 import KeyString, PrefixString
+else:
+    from .buttons28 import KeyString, PrefixString
 
 #------------------------------------------------------------------------
 #
@@ -206,14 +209,11 @@ def autoKeyProp(rig, key, scn):
         rig.keyframe_insert('["%s"]' % key, frame=scn.frame_current)
 
 
-class VIEW3D_OT_PinPropButton(bpy.types.Operator):
+class MHX_OT_PinProp(bpy.types.Operator, KeyString, PrefixString):
     bl_idname = "mhx2.pin_prop"
     bl_label = ""
     bl_description = "Pin property"
     bl_options = {'UNDO'}
-
-    key = StringProperty()
-    prefix = StringProperty()
 
     def execute(self, context):
         rig = getArmature(context.object)
@@ -226,13 +226,11 @@ class VIEW3D_OT_PinPropButton(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class VIEW3D_OT_ResetPropsButton(bpy.types.Operator):
+class MHX_OT_ResetProps(bpy.types.Operator, PrefixString):
     bl_idname = "mhx2.reset_props"
     bl_label = "Reset Props"
     bl_description = ""
     bl_options = {'UNDO'}
-
-    prefix = StringProperty()
 
     def execute(self, context):
         rig = getArmature(context.object)
@@ -240,3 +238,21 @@ class VIEW3D_OT_ResetPropsButton(bpy.types.Operator):
             resetProps(rig, self.prefix, context.scene)
             updateScene(context)
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_PinProp,
+    MHX_OT_ResetProps,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

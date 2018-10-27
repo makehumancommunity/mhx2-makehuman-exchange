@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,11 +20,12 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy.props import *
-from bpy_extras.io_utils import ImportHelper
-
 from .utils import *
 from .armature.rig_panel import BoneDrivers
+if bpy.app.version < (2,80,0):
+    from .buttons27 import VisemeString, DatImport
+else:
+    from .buttons28 import VisemeString, DatImport
 
 # ---------------------------------------------------------------------
 #   VisemeData class
@@ -152,13 +153,11 @@ def setPanelKey(rig, key, value):
     pb.location[idx] = offs
 
 
-class VIEW3D_OT_SetVisemeButton(bpy.types.Operator):
+class MHX_OT_SetViseme(bpy.types.Operator, VisemeString):
     bl_idname = "mhx2.set_viseme"
     bl_label = "X"
     bl_description = "Set viseme"
     bl_options = {'UNDO'}
-
-    viseme = StringProperty()
 
     def execute(self, context):
         ob = context.object
@@ -195,15 +194,11 @@ def loadMoho(rig, context, filepath, offs):
     print("Moho file %s loaded" % filepath)
 
 
-class VIEW3D_OT_LoadMohoButton(bpy.types.Operator, ImportHelper):
+class MHX_OT_LoadMoho(bpy.types.Operator, DatImport):
     bl_idname = "mhx2.load_moho"
     bl_label = "Load Moho"
     bl_description = "Load Moho (.dat) file"
     bl_options = {'UNDO'}
-
-    filename_ext = ".dat"
-    filter_glob = StringProperty(default="*.dat", options={'HIDDEN'})
-    filepath = StringProperty(subtype='FILE_PATH')
 
     def execute(self, context):
         rig = getArmature(context.object)
@@ -268,7 +263,7 @@ def deleteLipsyncRig(rig):
                     pb.location[idx] = 0.0
 
 
-class VIEW3D_OT_DeleteLipsyncButton(bpy.types.Operator):
+class MHX_OT_DeleteLipsync(bpy.types.Operator):
     bl_idname = "mhx2.delete_lipsync"
     bl_label = "Delete Lipsync"
     bl_description = "Delete F-curves associated with lipsync"
@@ -322,7 +317,7 @@ def bakeFaceAnim(rig):
 
 
 
-class VIEW3D_OT_BakeFaceAnimButton(bpy.types.Operator):
+class MHX_OT_BakeFaceAnim(bpy.types.Operator):
     bl_idname = "mhx2.bake_face_anim"
     bl_label = "Bake Face Animation"
     bl_description = "Move facial F-curves from rig to mesh"
@@ -341,3 +336,23 @@ class VIEW3D_OT_BakeFaceAnimButton(bpy.types.Operator):
             bakeFaceAnim(rig)
         updateScene(context)
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_SetViseme,
+    MHX_OT_LoadMoho,
+    MHX_OT_DeleteLipsync,
+    MHX_OT_BakeFaceAnim,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

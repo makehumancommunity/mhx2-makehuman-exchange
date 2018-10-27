@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -21,11 +21,14 @@
 
 import os
 import bpy
-from bpy.props import *
 from mathutils import Vector
 
 from .drivers import *
 from .utils import zup2
+if bpy.app.version < (2,80,0):
+    from .buttons27 import FilenameString
+else:
+    from .buttons28 import FilenameString
 
 #------------------------------------------------------------------------
 #   Setup shapekeys
@@ -94,13 +97,11 @@ def getScales(human, struct, mhHuman):
     return scales
 
 
-class VIEW3D_OT_AddShapekeysButton(bpy.types.Operator):
+class MHX_OT_AddShapekeys(bpy.types.Operator, FilenameString):
     bl_idname = "mhx2.add_shapekeys"
     bl_label = "Add Shapekeys"
     bl_description = "Add shapekeys"
     bl_options = {'UNDO'}
-
-    filename = StringProperty()
 
     @classmethod
     def poll(self, context):
@@ -177,7 +178,7 @@ def hasShapekeys(ob):
     return False
 
 
-class VIEW3D_OT_AddFaceShapeDriverButton(bpy.types.Operator):
+class MHX_OT_AddFaceShapeDriver(bpy.types.Operator):
     bl_idname = "mhx2.add_face_shape_drivers"
     bl_label = "Add Face Shape Drivers"
     bl_description = "Control facial shapes with rig properties. For file linking."
@@ -199,7 +200,7 @@ class VIEW3D_OT_AddFaceShapeDriverButton(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class VIEW3D_OT_AddOtherShapeDriverButton(bpy.types.Operator):
+class MHX_OT_AddOtherShapeDriver(bpy.types.Operator):
     bl_idname = "mhx2.add_other_shape_drivers"
     bl_label = "Add Other Shape Drivers"
     bl_description = "Control other shapes with rig properties. For file linking."
@@ -231,7 +232,7 @@ def removeShapekeyDrivers(ob, rig, prefix):
             deleteRigProperty(rig, sname)
 
 
-class VIEW3D_OT_MhxRemoveFaceDriverButton(bpy.types.Operator):
+class MHX_OT_MhxRemoveFaceDriver(bpy.types.Operator):
     bl_idname = "mhx2.remove_face_shape_drivers"
     bl_label = "Remove Face Shape Drivers"
     bl_description = "Remove ability to control facial shapekeys from rig property"
@@ -250,7 +251,7 @@ class VIEW3D_OT_MhxRemoveFaceDriverButton(bpy.types.Operator):
         return{'FINISHED'}
 
 
-class VIEW3D_OT_MhxRemoveOtherDriverButton(bpy.types.Operator):
+class MHX_OT_MhxRemoveOtherDriver(bpy.types.Operator):
     bl_idname = "mhx2.remove_other_shape_drivers"
     bl_label = "Remove Other Shape Drivers"
     bl_description = "Remove ability to control other shapekeys from rig property"
@@ -267,3 +268,24 @@ class VIEW3D_OT_MhxRemoveOtherDriverButton(bpy.types.Operator):
             removeShapekeyDrivers(ob, rig, "Mho")
         rig.MhxOtherShapeDrivers = False
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_AddShapekeys,
+    MHX_OT_AddFaceShapeDriver,
+    MHX_OT_AddOtherShapeDriver,
+    MHX_OT_MhxRemoveFaceDriver,
+    MHX_OT_MhxRemoveOtherDriver,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

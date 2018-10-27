@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -23,10 +23,12 @@
 import os
 import math
 import bpy
-from bpy.props import *
-from bpy_extras.io_utils import ImportHelper
 from mathutils import Euler
 from .error import *
+if bpy.app.version < (2,80,0):
+    from .buttons27 import BvhImport, UseHeadBool
+else:
+    from .buttons28 import BvhImport, UseHeadBool
 
 #------------------------------------------------------------------------
 #    Quick and dirty BVH load.
@@ -222,22 +224,16 @@ def addKeyPoints(fcu, points):
 #    Button
 #------------------------------------------------------------------------
 
-class VIEW3D_OT_LoadFaceshiftBvhButton(bpy.types.Operator, ImportHelper):
+class MHX_OT_LoadFaceshiftBvh(bpy.types.Operator, BvhImport, UseHeadBool):
     bl_idname = "mhx2.load_faceshift_bvh"
     bl_label = "Load FaceShift BVH File (.bvh)"
     bl_description = "Load facesthift from a bvh file"
     bl_options = {'UNDO'}
 
-    filename_ext = ".bvh"
-    filter_glob = StringProperty(default="*.bvh", options={'HIDDEN'})
-    filepath = StringProperty(name="File Path", description="Filepath used for importing the BVH file", maxlen=1024, default="")
-
     @classmethod
     def poll(self, context):
         rig = context.object
         return (rig and rig.MhxFaceRigDrivers)
-
-    useHead = BoolProperty(name="Head animation", description="Include head and eye movements", default=True)
 
     def draw(self, context):
         self.layout.prop(self, "useHead")
@@ -256,3 +252,20 @@ class VIEW3D_OT_LoadFaceshiftBvhButton(bpy.types.Operator, ImportHelper):
     def invoke(self, context, event):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_LoadFaceshiftBvh,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

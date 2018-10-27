@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 
 import os
 import bpy
-from bpy.props import *
 from .error import *
 from .utils import *
 
@@ -209,7 +208,7 @@ def mergeBodyParts(human, proxies, scn, proxyTypes=[]):
         changeMaterial(human, mn)
 
 
-class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
+class MHX_OT_MergeObjects(bpy.types.Operator):
     bl_idname = "mhx2.merge_objects"
     bl_label = "Merge Selected To Human"
     bl_description = "Merge selected objects to active seamlessly"
@@ -230,3 +229,19 @@ class VIEW3D_OT_MergeObjectsButton(bpy.types.Operator):
             handleMhxError(context)
         return{'FINISHED'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_MergeObjects,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

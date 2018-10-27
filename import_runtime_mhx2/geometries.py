@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
         useSeedMesh = (meshType == "seed_mesh")
         ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh)
         ob.MhxSeedMesh = useSeedMesh
-        
+
     ob.MhxUuid = mhGeo["uuid"]
     if "license" in mhGeo.keys():
         mhLicense = mhGeo["license"]
@@ -83,7 +83,7 @@ def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
     elif "issubdivided" in mhGeo.keys() and mhGeo["issubdivided"]:
         mod = ob.modifiers.new("Subsurf", 'SUBSURF')
         mod.levels = 1
-        mod.render_levels = 1              
+        mod.render_levels = 1
 
     mat = mats[mhGeo["material"]]
     ob.data.materials.append(mat)

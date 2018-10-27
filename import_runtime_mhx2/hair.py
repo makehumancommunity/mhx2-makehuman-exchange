@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -130,7 +130,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None, override={}):
         ccset.root_width = 1.0
         ccset.tip_width = 0
         ccset.radius_scale = 0.01*ob.MhxScale
-        
+
         bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
         pedit = scn.tool_settings.particle_edit
         pedit.use_emitter_deflect = False
@@ -148,7 +148,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None, override={}):
                 pass
 
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         if not useHairDynamics:
             psys.use_hair_dynamics = False
         else:
@@ -335,7 +335,7 @@ def particlifyHair(context):
                     groupsWithLength[slen1].append(nGroups)
                     strandLength[nGroups] = slen1
 
-            nGroups += 1                    
+            nGroups += 1
 
     '''
     print("Calculate perpendiculars")
@@ -394,7 +394,7 @@ def particlifyHair(context):
         gn = groups[rn]
         slen = strandLength[gn]
         hcoord = rebaseHair(rcoords[rn], slen)
-        if hcoord:            
+        if hcoord:
             hcoords[slen].append(hcoord)
 
     print("Building hair")
@@ -424,7 +424,7 @@ def getCloseGroup(slen, groupsWithLength):
         if slen < 1.2*slen1 and slen > 0.8*slen1:
             return slen1
     return None
-    
+
 
 def getOrientation(rcoord):
     sum = Vector((0,0,0))
@@ -443,7 +443,7 @@ def ringLength(rcoord):
         vec = y-x
         dist += vec.length
         x = y
-    return dist        
+    return dist
 
 
 def addHairMeshes(hcoords, scn):
@@ -579,7 +579,7 @@ def centrum(en, ob):
     return c
 
 
-class VIEW3D_OT_ParticlifyHairButton(bpy.types.Operator):
+class MHX_OT_ParticlifyHair(bpy.types.Operator):
     bl_idname = "mhx2.particlify_hair"
     bl_label = "Particlify Hair"
     bl_description = "Make particle hair from mesh hair"
@@ -596,3 +596,20 @@ class VIEW3D_OT_ParticlifyHairButton(bpy.types.Operator):
         except MhxError:
             handleMhxError(context)
         return{'FINISHED'}
+
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_ParticlifyHair,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)

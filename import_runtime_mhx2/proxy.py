@@ -1,7 +1,7 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script copyright (C) Thomas Larsson 2014-2018
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,13 +20,15 @@
 # ##### END GPL LICENSE BLOCK #####
 
 import bpy
-from bpy_extras.io_utils import ImportHelper, ExportHelper
-from bpy.props import *
 from mathutils import Vector
 from .error import *
 from .utils import *
 from .hm8 import *
 from .hair import isHairStruct
+if bpy.app.version < (2,80,0):
+    from .buttons27 import MxaImport
+else:
+    from .buttons28 import MxaImport
 
 # ---------------------------------------------------------------------
 #   Add proxy
@@ -330,15 +332,11 @@ def addMxa(context, filepath):
             addTargets(pxy, mhGeo["targets"], scales)
 
 
-class VIEW3D_OT_AddAssetButton(bpy.types.Operator, ImportHelper):
+class MHX_OT_AddAsset(bpy.types.Operator, MxaImport):
     bl_idname = "mhx2.add_asset"
     bl_label = "Add Asset (.mxa)"
     bl_description = "Add clothes, genitalia or hair stored in am .mxa file"
     bl_options = {'UNDO'}
-
-    filename_ext = ".mxa"
-    filter_glob = StringProperty(default="*.mxa", options={'HIDDEN'})
-    filepath = StringProperty(name="File Path", description="Filepath used for loading the hair file", maxlen=1024, default="")
 
     @classmethod
     def poll(self, context):
@@ -356,3 +354,19 @@ class VIEW3D_OT_AddAssetButton(bpy.types.Operator, ImportHelper):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
+#----------------------------------------------------------
+#   Initialize
+#----------------------------------------------------------
+
+classes = [
+    MHX_OT_AddAsset,
+]
+
+def initialize():
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+
+def uninitialize():
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
