@@ -36,10 +36,10 @@ if "bpy" in locals():
     imp.reload(utils)
     if bpy.app.version < (2,80,0):
         imp.reload(buttons27)
-        from .buttons27 import Mhx2Import
+        from .buttons27 import Mhx2Import, HairColorProperty
     else:
         imp.reload(buttons28)
-        from .buttons28 import Mhx2Import
+        from .buttons28 import Mhx2Import, HairColorProperty
     imp.reload(armature)
     imp.reload(hm8)
     imp.reload(error)
@@ -67,10 +67,10 @@ else:
     from . import utils
     if bpy.app.version < (2,80,0):
         from . import buttons27
-        from .buttons27 import Mhx2Import
+        from .buttons27 import Mhx2Import, HairColorProperty
     else:
         from . import buttons28
-        from .buttons28 import Mhx2Import
+        from .buttons28 import Mhx2Import, HairColorProperty
     from . import armature
     from . import hm8
     from . import error
@@ -98,26 +98,11 @@ from bpy_extras.io_utils import ImportHelper
 from .error import *
 from .utils import *
 
-import os
-
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
 
-HairColorProperty = FloatVectorProperty(
-    name = "Hair Color",
-    subtype = "COLOR",
-    size = 4,
-    min = 0.0,
-    max = 1.0,
-    default = (0.15, 0.03, 0.005, 1.0)
-    )
-
-# ---------------------------------------------------------------------
-#
-# ---------------------------------------------------------------------
-
-class ImportMHX2(bpy.types.Operator, Mhx2Import):
+class MHX_OT_Import(bpy.types.Operator, Mhx2Import):
     """Import from MHX2 file format (.mhx2)"""
     bl_idname = "import_scene.makehuman_mhx2"
     bl_description = 'Import from MHX2 file format (.mhx2)'
@@ -125,105 +110,6 @@ class ImportMHX2(bpy.types.Operator, Mhx2Import):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_options = {'PRESET', 'UNDO'}
-
-    useHelpers = BoolProperty(name="Helper Geometry", description="Keep helper geometry", default=False)
-    useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
-    useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
-
-    useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
-    useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
-    useFaceShapeDrivers = BoolProperty(name="Face Shape Drivers", description="Drive face shapes with rig properties", default=False)
-    useFaceRigDrivers = BoolProperty(name="Face Rig Drivers", description="Drive face rig with rig properties", default=True)
-    useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
-    useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
-    finalizeRigify = BoolProperty(name="Finalize Rigify", description="If off, only load metarig. Press Finalize Rigify to complete rigification later", default=True)
-    useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
-    useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
-    useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
-    useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
-    useConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
-
-    useSubsurf = BoolProperty(name="Subsurface", description="Add a subsurf modifier to all meshes", default=False)
-    subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=0)
-    subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=1)
-
-    useMasks = EnumProperty(
-        items = [('IGNORE', "Ignore", "Ignore masks"),
-                 ('APPLY', "Apply", "Apply masks (delete vertices permanently)"),
-                 ('MODIFIER', "Modifier", "Create mask modifier"),
-                 ],
-        name = "Masks",
-        description = "How to deal with masks",
-        default = 'MODIFIER')
-
-    useHumanType = EnumProperty(
-        items = [('BASE', "Base", "Base mesh"),
-                 ('PROXY', "Proxy", "Exported topology (if exists)"),
-                 ('BOTH', "Both", "Both base mesh and proxy mesh"),
-                 ],
-        name = "Import Human Type",
-        description = "Human types to be imported",
-        default = 'BOTH')
-    mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
-    mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=False)
-    mergeMaxType = EnumProperty(
-        items = [('BODY', "Body", "Merge up to body"),
-                 ('HAIR', "Hair", "Merge up to hair"),
-                 ('CLOTHES', "Clothes", "Merge all"),
-                 ],
-        name = "Maximum Merge Type",
-        description = "Maximum type to merge",
-        default = 'BODY')
-
-    rigTypes = []
-    folder = os.path.dirname(__file__)
-    for file in os.listdir(os.path.join(folder, "armature/data/rigs")):
-        fname = os.path.splitext(file)[0]
-        if fname == "mhx":
-            mhx = ("MHX", "MHX", "An advanced control rig")
-        elif fname == "exported_mhx":
-            exp_mhx = ("EXPORTED_MHX", "Exported MHX", "MHX rig based on exported deform rig")
-        elif fname == "rigify":
-            rigify = ("RIGIFY", "Rigify", "Modified Rigify rig")
-        elif fname == "exported_rigify":
-            exp_rigify = ("EXPORTED_RIGIFY", "Exported Rigify", "Rigify rig based on exported deform rig")
-        else:
-            entry = (fname.upper(), fname.capitalize(), "%s-compatible rig" % fname.capitalize())
-            rigTypes.append(entry)
-    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"),
-                exp_mhx, exp_rigify, mhx, rigify] + rigTypes
-
-    rigType = EnumProperty(
-        items = rigTypes,
-        name = "Rig Type",
-        description = "Rig type",
-        default = 'EXPORTED')
-
-    genitalia = EnumProperty(
-        items = [("NONE", "None", "None"),
-                 ("PENIS", "Male", "Male genitalia"),
-                 ("PENIS2", "Male 2", "Better male genitalia"),
-                 ("VULVA", "Female", "Female genitalia"),
-                 ("VULVA2", "Female 2", "Better female genitalia")],
-        name = "Genitalia",
-        description = "Genitalia",
-        default = 'NONE')
-    usePenisRig = BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
-
-    hairlist = [("NONE", "None", "None")]
-    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
-    for file in os.listdir(folder):
-        fname,ext = os.path.splitext(file)
-        if ext == ".mxa":
-            hairlist.append((file, fname, fname))
-
-    hairType = EnumProperty(
-        items = hairlist,
-        name = "Hair",
-        description = "Hair",
-        default = "NONE")
-
-    hairColor = HairColorProperty
 
     def execute(self, context):
         from .config import Config
@@ -255,7 +141,7 @@ class ImportMHX2(bpy.types.Operator, Mhx2Import):
             return
 
         layout.separator()
-        layout.label("Import Human Type:")
+        layout.label(text="Import Human Type:")
         layout.prop(self, "useHumanType", expand=True)
 
         layout.prop(self, "useHelpers")
@@ -267,20 +153,20 @@ class ImportMHX2(bpy.types.Operator, Mhx2Import):
 
         layout.separator()
         box = layout.box()
-        box.label("Subdivision surface")
+        box.label(text="Subdivision surface")
         box.prop(self, "useSubsurf")
         if self.useSubsurf:
             box.prop(self, "subsurfLevels")
             box.prop(self, "subsurfRenderLevels")
 
         layout.separator()
-        layout.label("Masking:")
+        layout.label(text="Masking:")
         layout.prop(self, "useMasks", expand=True)
         layout.prop(self, "useConservativeMasks")
 
         layout.separator()
         box = layout.box()
-        box.label("Merging")
+        box.label(text="Merging")
         box.prop(self, "mergeBodyParts")
         if self.mergeBodyParts and self.useHumanType != 'BODY':
             box.prop(self, "mergeToProxy")
@@ -300,7 +186,7 @@ class ImportMHX2(bpy.types.Operator, Mhx2Import):
 
         layout.separator()
         box = layout.box()
-        box.label("Rigging")
+        box.label(text="Rigging")
         box.prop(self, "useRig")
         if self.useRig:
             box.prop(self, "rigType")
@@ -348,14 +234,14 @@ class MHX_PT_Setup(bpy.types.Panel):
 
         layout.separator()
         box = layout.box()
-        box.label("Design Human")
+        box.label(text="Design Human")
         box.prop(scn, "MhxDesignHuman", text="")
         box.operator("mhx2.set_design_human")
         box.operator("mhx2.clear_design_human")
 
         layout.separator()
         box = layout.box()
-        box.label("Assets")
+        box.label(text="Assets")
         box.operator("mhx2.add_asset")
         box.prop(scn, "MhxUseConservativeMasks")
         box.prop(scn, "MhxHairColor")
@@ -370,19 +256,19 @@ class MHX_PT_Setup(bpy.types.Panel):
 
         layout.separator()
         box = layout.box()
-        box.label("Visibility")
+        box.label(text="Visibility")
         box.operator("mhx2.add_hide_drivers")
         box.operator("mhx2.remove_hide_drivers")
 
         layout.separator()
         box = layout.box()
-        box.label("Facial Rig")
+        box.label(text="Facial Rig")
         #box.operator("mhx2.add_facerig_drivers")
         box.operator("mhx2.remove_facerig_drivers")
 
         layout.separator()
         box = layout.box()
-        box.label("Shapekeys")
+        box.label(text="Shapekeys")
         op = box.operator("mhx2.add_shapekeys", text="Add Face Shapes")
         op.filename="data/hm8/faceshapes/faceshapes.mxa"
         box.separator()
@@ -408,14 +294,14 @@ class MHX_PT_License(bpy.types.Panel):
         layout = self.layout
         ob = context.object
         if ob and ob.type == 'MESH':
-            layout.label("Mesh:")
+            layout.label(text="Mesh:")
             layout.prop(ob, "MhxAuthor", text="Author")
             layout.prop(ob, "MhxLicense", text="License")
             layout.prop(ob, "MhxHomePage", text="Homepage")
 
             if ob.particle_systems:
                 layout.separator()
-                layout.label("Hair:")
+                layout.label(text="Hair:")
                 layout.prop(ob, "MhxHairAuthor", text="Author")
                 layout.prop(ob, "MhxHairLicense", text="License")
                 layout.prop(ob, "MhxHairHomePage", text="Homepage")
@@ -451,15 +337,15 @@ class MHX_PT_Layers(bpy.types.Panel):
         for (left,right) in layers:
             row = layout.row()
             if type(left) == str:
-                row.label(left)
-                row.label(right)
+                row.label(text=left)
+                row.label(text=right)
             else:
                 for (n, name, prop) in [left,right]:
                     row.prop(rig.data, "layers", index=n, toggle=True, text=name)
 
         return
         layout.separator()
-        layout.label("Export/Import MHP")
+        layout.label(text="Export/Import MHP")
         layout.operator("mhx2.saveas_mhp")
         layout.operator("mhx2.load_mhp")
 
@@ -484,54 +370,54 @@ class MHX_PT_FKIK(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.label("")
-        row.label("Left")
-        row.label("Right")
+        row.label(text="")
+        row.label(text="Left")
+        row.label(text="Right")
 
-        layout.label("FK/IK switch")
+        layout.label(text="FK/IK switch")
         row = layout.row()
-        row.label("Arm")
+        row.label(text="Arm")
         self.toggle(row, rig, "MhaArmIk_L", " 3", " 2")
         self.toggle(row, rig, "MhaArmIk_R", " 19", " 18")
         row = layout.row()
-        row.label("Leg")
+        row.label(text="Leg")
         self.toggle(row, rig, "MhaLegIk_L", " 5", " 4")
         self.toggle(row, rig, "MhaLegIk_R", " 21", " 20")
 
-        layout.label("IK Influence")
+        layout.label(text="IK Influence")
         row = layout.row()
-        row.label("Arm")
+        row.label(text="Arm")
         row.prop(rig, '["MhaArmIk_L"]', text="")
         row.prop(rig, '["MhaArmIk_R"]', text="")
         row = layout.row()
-        row.label("Leg")
+        row.label(text="Leg")
         row.prop(rig, '["MhaLegIk_L"]', text="")
         row.prop(rig, '["MhaLegIk_R"]', text="")
 
         layout.separator()
-        layout.label("Snapping")
+        layout.label(text="Snapping")
         row = layout.row()
-        row.label("Rotation Limits")
+        row.label(text="Rotation Limits")
         row.prop(rig, "MhaRotationLimits", text="")
         #row.prop(rig, "MhxSnapExact", text="Exact Snapping")
 
-        layout.label("Snap Arm bones")
+        layout.label(text="Snap Arm bones")
         row = layout.row()
-        row.label("FK Arm")
+        row.label(text="FK Arm")
         row.operator("mhx2.snap_fk_ik", text="Snap L FK Arm").data = "MhaArmIk_L 2 3 12"
         row.operator("mhx2.snap_fk_ik", text="Snap R FK Arm").data = "MhaArmIk_R 18 19 28"
         row = layout.row()
-        row.label("IK Arm")
+        row.label(text="IK Arm")
         row.operator("mhx2.snap_ik_fk", text="Snap L IK Arm").data = "MhaArmIk_L 2 3 12"
         row.operator("mhx2.snap_ik_fk", text="Snap R IK Arm").data = "MhaArmIk_R 18 19 28"
 
-        layout.label("Snap Leg bones")
+        layout.label(text="Snap Leg bones")
         row = layout.row()
-        row.label("FK Leg")
+        row.label(text="FK Leg")
         row.operator("mhx2.snap_fk_ik", text="Snap L FK Leg").data = "MhaLegIk_L 4 5 12"
         row.operator("mhx2.snap_fk_ik", text="Snap R FK Leg").data = "MhaLegIk_R 20 21 28"
         row = layout.row()
-        row.label("IK Leg")
+        row.label(text="IK Leg")
         row.operator("mhx2.snap_ik_fk", text="Snap L IK Leg").data = "MhaLegIk_L 4 5 12"
         row.operator("mhx2.snap_ik_fk", text="Snap R IK Leg").data = "MhaLegIk_R 20 21 28"
 
@@ -579,8 +465,8 @@ class MHX_PT_Control(bpy.types.Panel):
 
         layout.separator()
         row = layout.row()
-        row.label("Left")
-        row.label("Right")
+        row.label(text="Left")
+        row.label(text="Right")
         for prop in lrProps:
             row = layout.row()
             row.prop(ob, prop+"_L", text=prop[3:])
@@ -782,6 +668,8 @@ class MHX_PT_Visemes(bpy.types.Panel):
 # ---------------------------------------------------------------------
 
 classes = [
+    MHX_OT_Import,
+
     MHX_PT_Setup,
     MHX_PT_License,
     MHX_PT_Layers,
@@ -879,7 +767,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.INFO_MT_file_import.append(menu_func)
+    #bpy.types.INFO_MT_file_import.append(menu_func)
 
 
 def unregister():
@@ -902,7 +790,7 @@ def unregister():
 
     for cls in classes:
         bpy.utils.unregister_class(cls)
-    bpy.types.INFO_MT_file_import.remove(menu_func)
+    #bpy.types.INFO_MT_file_import.remove(menu_func)
 
 
 if __name__ == "__main__":

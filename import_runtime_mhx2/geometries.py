@@ -123,8 +123,7 @@ def addMeshToScene(verts, gname, mhMesh, scn):
     for f in me.polygons:
         f.use_smooth = True
 
-    uvtex = me.uv_textures.new()
-    uvlayer = me.uv_layers.active
+    uvlayer = makeNewUvloop(me)
     uvcoords = mhMesh["uv_coordinates"]
     n = 0
     for f in mhMesh["uv_faces"]:
@@ -135,6 +134,15 @@ def addMeshToScene(verts, gname, mhMesh, scn):
     ob = bpy.data.objects.new(gname, me)
     scn.objects.link(ob)
     return ob
+
+
+def makeNewUvloop(me):
+    if bpy.app.version < (2,80,0):
+        uvtex = me.uv_textures.new()
+        return me.uv_layers[-1]
+    else:
+        me.uv_layers.new()
+        return me.uv_layers[0]
 
 
 def buildVertexGroups(vweights, ob, rig):

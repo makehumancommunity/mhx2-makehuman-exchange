@@ -31,19 +31,19 @@ D = math.pi/180
 def buildMaterial(mhMaterial, scn, cfg):
     mname = mhMaterial["name"]
     mat = bpy.data.materials.new(mname)
-    if scn.render.engine == 'CYCLES':
-        buildMaterialCycles(mat, mhMaterial, scn, cfg)
-    else:
+    if scn.render.engine in ['BLENDER_RENDER', 'BLENDER_GAME']:
         buildMaterialInternal(mat, mhMaterial, scn, cfg)
+    else:
+        buildMaterialCycles(mat, mhMaterial, scn, cfg)
     return mname, mat
 
 
 def buildHairMaterial(color, scn):
     mat = bpy.data.materials.new("Hair")
-    if scn.render.engine == 'CYCLES':
-        buildHairMaterialCycles(mat, list(color[0:3]))
-    else:
+    if scn.render.engine in ['BLENDER_RENDER', 'BLENDER_GAME']:
         buildHairMaterialInternal(mat, list(color[0:3]))
+    else:
+        buildHairMaterialCycles(mat, list(color[0:3]))
     return mat
 
 # ---------------------------------------------------------------------
@@ -476,7 +476,7 @@ def makeSimpleMaterials(ob, scn):
         mat.use_shadeless = True
         mat.use_shadows = False
         mat.use_cast_shadows = False
-        if scn.render.engine == 'CYCLES':
+        if scn.render.engine not in ['BLENDER_RENDER', 'BLENDER_GAME']:
             buildSimpleMaterialCycles(mat, color)
 
         mn = len(ob.data.materials)
