@@ -59,12 +59,12 @@ def addTargets(ob, targets, scales):
     targets = list(targets.items())
     targets.sort()
     if not ob.data.shape_keys:
-        basic = ob.shape_key_add("Basis")
+        basic = ob.shape_key_add(name="Basis")
     else:
         basic = ob.data.shape_keys.key_blocks[0]
 
     for tname,data in targets:
-        skey = ob.shape_key_add(tname)
+        skey = ob.shape_key_add(name=tname)
         skey.value = 0
         skey.slider_min = -0.5
         skey.slider_max = 1.5

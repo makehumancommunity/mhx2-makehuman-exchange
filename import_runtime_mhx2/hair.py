@@ -221,7 +221,6 @@ def findDeflector(human):
 #------------------------------------------------------------------------
 
 def particlifyHair(context):
-    from .importer import reallySelect
     scn = context.scene
     human = None
     hair = None
@@ -235,9 +234,9 @@ def particlifyHair(context):
         print("Missing human or hair object")
         return
 
-    reallySelect(human, context)
+    activateObject(context, human)
     bpy.ops.object.mode_set(mode='OBJECT')
-    reallySelect(hair, context)
+    activateObject(context, hair)
     bpy.ops.object.mode_set(mode='OBJECT')
 
     vedges = dict([(n,[]) for n in range(len(hair.data.vertices))])
@@ -412,7 +411,7 @@ def particlifyHair(context):
         "rendered_child_count" : 20,
     }
 
-    reallySelect(human, context)
+    activateObject(context, human)
     addHair(human, struct, list(hcoords.values()), scn, override=override)
     #addHairMeshes(hcoords, context)
     hair.hide = True

@@ -309,7 +309,7 @@ def build(struct, cfg, context):
             from .drivers import addBoneShapeDrivers
             addBoneShapeDrivers(rig, human, parser.boneDrivers, proxies=proxies, proxyTypes=proxyTypes)
 
-    deselectAll(human, proxies, scn)
+    deselectAll(human, proxies, context)
 
     if cfg.useOverride and cfg.useHelpers:
         from .masks import addMasks, selectAllMaskVGroups
@@ -346,23 +346,23 @@ def build(struct, cfg, context):
             proxyTypes += ['Hair', 'Clothes']
         ob = getEffectiveHuman(human, proxy, cfg.mergeToProxy)
         if ob:
-            mergeBodyParts(ob, proxies, scn, proxyTypes=proxyTypes)
+            mergeBodyParts(ob, proxies, context, proxyTypes=proxyTypes)
 
     if cfg.useOverride and cfg.hairType != "NONE":
         from .hair import addHair
         ob = getEffectiveHuman(human, proxy, cfg.useHairOnProxy)
         if ob:
-            reallySelect(ob, context)
+            activateObject(context, ob)
             addHair(ob, hair, hcoords, scn, cfg)
 
     if rig:
-        reallySelect(rig, context)
+        activateObject(context, rig)
         bpy.ops.object.mode_set(mode='POSE')
     elif human:
-        reallySelect(human, context)
+        activateObject(context, human)
         bpy.ops.object.mode_set(mode='OBJECT')
     elif proxy:
-        reallySelect(proxy, context)
+        activateObject(context, proxy)
         bpy.ops.object.mode_set(mode='OBJECT')
 
 
@@ -411,7 +411,7 @@ def buildSkeleton(mhSkel, context, cfg):
     setattr(rig, ShowXRay, True)
     coll = getCollection(context)
     coll.objects.link(rig)
-    reallySelect(rig, context)
+    activateObject(context, rig)
 
     scale,offset = getScaleOffset(mhSkel, cfg, True)
     bpy.ops.object.mode_set(mode='EDIT')
@@ -450,19 +450,25 @@ def deselectMesh(ob):
 
 def deselectAll(human, proxies, context):
     if human:
-        deselectMesh(human)
+        activateObject(context, human)
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
-        deselectMesh(pxy)
+        activateObject(context, pxy)
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def deleteAllSelected(human, proxies, context):
     if human:
-        reallySelect(human, context)
+        activateObject(context, human)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.delete(type='VERT')
         bpy.ops.object.mode_set(mode='OBJECT')
     for _,pxy in proxies:
-        reallySelect(pxy, context)
+        activateObject(context, pxy)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.delete(type='VERT')
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -473,39 +479,6 @@ def selectHelpers(human):
         return
     for vn in range(NBodyVerts, NTotalVerts):
         human.data.vertices[vn].select = True
-
-# ---------------------------------------------------------------------
-#  Make sure that selecting an object really takes.
-# ---------------------------------------------------------------------
-
-def reallySelect(ob, context):
-    if bpy.app.version >= (2,80,0):
-        ob.hide_viewport = False
-        setActiveObject(context, ob)
-        return
-
-    scn = context.scene
-    ob.hide = False
-    visible = False
-    for n,vis in enumerate(ob.layers):
-        if vis and scn.layers[n]:
-            visible = True
-            break
-    if not visible:
-        for n,vis in enumerate(ob.layers):
-            if vis:
-                scn.layers[n] = True
-                visible = True
-                break
-    if not visible:
-        for n,vis in enumerate(scn.layers):
-            if vis:
-                ob.layers[n] = True
-                visible = True
-                break
-    if not visible:
-        ob.layers[0] = scn.layers[0] = True
-    scn.objects.active = ob
 
 #------------------------------------------------------------------------
 #   Design human

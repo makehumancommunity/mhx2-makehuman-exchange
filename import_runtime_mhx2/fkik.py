@@ -21,6 +21,7 @@
 
 import bpy
 from mathutils import *
+from .utils import *
 if bpy.app.version < (2,80,0):
     from .buttons27 import DataString, ToggleString
 else:
@@ -195,7 +196,6 @@ def snapFkArm(context, data):
     snapIk,cnsIk = getSnapBones(rig, "ArmIK", suffix)
     (uparmIk, loarmIk, elbow, elbowPt, handIk) = snapIk
 
-    print(snapIk)
     matchPoseRotation(uparmFk, uparmIk, auto)
     matchPoseScale(uparmFk, uparmIk, auto)
 
@@ -280,7 +280,6 @@ def snapIkLeg(context, data):
     print("Snap IK Leg%s" % suffix)
     snapIk,cnsIk = getSnapBones(rig, "LegIK", suffix)
     (uplegIk, lolegIk, kneePt, ankleIk, legIk, footRev, toeRev, mBall, mToe, mHeel) = snapIk
-    print(snapIk)
     snapFk,cnsFk = getSnapBones(rig, "LegFK", suffix)
     (uplegFk, lolegFk, footFk, toeFk) = snapFk
     muteConstraints(cnsIk, True)

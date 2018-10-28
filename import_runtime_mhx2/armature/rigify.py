@@ -145,14 +145,13 @@ def checkRigifyEnabled(context):
 def rigifyMhx(context, parser, taken={}):
     from collections import OrderedDict
     from ..error import MhxError
-    from ..importer import reallySelect
 
     print("Modifying MHX rig to Rigify")
     rig = context.object
     scn = context.scene
     if not(rig and rig.type == 'ARMATURE'):
         raise RuntimeError("Rigify: %s is neither an armature nor has armature parent" % ob)
-    reallySelect(rig, context)
+    activateObject(context, rig)
 
     group = None
     for grp in bpy.data.groups:

@@ -30,7 +30,6 @@ def buildRig(mhHuman, mhSkel, cfg, context):
     from .parser import Parser
     from ..bone_drivers import buildAnimation, buildExpressions
     from ..geometries import getScaleOffset
-    from ..importer import reallySelect
 
     coll = getCollection(context)
     parser = Parser(mhHuman, mhSkel, cfg)
@@ -45,7 +44,7 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
     rig.data.layers = getLayers(parser.visibleLayers)
     coll.objects.link(rig)
-    reallySelect(rig, context)
+    activateObject(context, rig)
 
     offset = Vector((0,0,0))
 

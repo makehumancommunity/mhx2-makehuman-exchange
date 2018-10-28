@@ -522,7 +522,7 @@ def drawProperties(layout, rig, prefix):
     for prop in rig.keys():
         if prop[0:3] != prefix:
             continue
-        row = layout.split(0.8)
+        row = splitLayout(layout, 0.8)
         row.prop(rig, '["%s"]' % prop, text=prop[3:])
         op = row.operator("mhx2.pin_prop", icon='UNPINNED')
         op.key = prop
