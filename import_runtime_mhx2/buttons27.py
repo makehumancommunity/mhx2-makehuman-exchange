@@ -21,21 +21,14 @@
 
 import os
 import bpy
-from bpy.props import *
+from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper, ExportHelper
+
+from .import_props import *
 
 # ---------------------------------------------------------------------
 #
 # ---------------------------------------------------------------------
-
-HairColorProperty = FloatVectorProperty(
-    name = "Hair Color",
-    subtype = "COLOR",
-    size = 4,
-    min = 0.0,
-    max = 1.0,
-    default = (0.15, 0.03, 0.005, 1.0)
-    )
 
 class Mhx2Import(ImportHelper):
     filename_ext = ".mhx2"
@@ -63,82 +56,17 @@ class Mhx2Import(ImportHelper):
     subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=0)
     subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=1)
 
-    useMasks = EnumProperty(
-        items = [('IGNORE', "Ignore", "Ignore masks"),
-                 ('APPLY', "Apply", "Apply masks (delete vertices permanently)"),
-                 ('MODIFIER', "Modifier", "Create mask modifier"),
-                 ],
-        name = "Masks",
-        description = "How to deal with masks",
-        default = 'MODIFIER')
+    useMasks = UseMaskProperty,
+    useHumanType = UseHumanTypeProperty,
 
-    useHumanType = EnumProperty(
-        items = [('BASE', "Base", "Base mesh"),
-                 ('PROXY', "Proxy", "Exported topology (if exists)"),
-                 ('BOTH', "Both", "Both base mesh and proxy mesh"),
-                 ],
-        name = "Import Human Type",
-        description = "Human types to be imported",
-        default = 'BOTH')
     mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
     mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=False)
-    mergeMaxType = EnumProperty(
-        items = [('BODY', "Body", "Merge up to body"),
-                 ('HAIR', "Hair", "Merge up to hair"),
-                 ('CLOTHES', "Clothes", "Merge all"),
-                 ],
-        name = "Maximum Merge Type",
-        description = "Maximum type to merge",
-        default = 'BODY')
+    mergeMaxType = MergeMaxTypeProperty,
 
-    rigTypes = []
-    folder = os.path.dirname(__file__)
-    for file in os.listdir(os.path.join(folder, "armature/data/rigs")):
-        fname = os.path.splitext(file)[0]
-        if fname == "mhx":
-            mhx = ("MHX", "MHX", "An advanced control rig")
-        elif fname == "exported_mhx":
-            exp_mhx = ("EXPORTED_MHX", "Exported MHX", "MHX rig based on exported deform rig")
-        elif fname == "rigify":
-            rigify = ("RIGIFY", "Rigify", "Modified Rigify rig")
-        elif fname == "exported_rigify":
-            exp_rigify = ("EXPORTED_RIGIFY", "Exported Rigify", "Rigify rig based on exported deform rig")
-        else:
-            entry = (fname.upper(), fname.capitalize(), "%s-compatible rig" % fname.capitalize())
-            rigTypes.append(entry)
-    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"),
-                exp_mhx, exp_rigify, mhx, rigify] + rigTypes
-
-    rigType = EnumProperty(
-        items = rigTypes,
-        name = "Rig Type",
-        description = "Rig type",
-        default = 'EXPORTED')
-
-    genitalia = EnumProperty(
-        items = [("NONE", "None", "None"),
-                 ("PENIS", "Male", "Male genitalia"),
-                 ("PENIS2", "Male 2", "Better male genitalia"),
-                 ("VULVA", "Female", "Female genitalia"),
-                 ("VULVA2", "Female 2", "Better female genitalia")],
-        name = "Genitalia",
-        description = "Genitalia",
-        default = 'NONE')
+    rigType = RigTypeProperty,
+    genitalia = GenitaliaProperty,
     usePenisRig = BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
-
-    hairlist = [("NONE", "None", "None")]
-    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
-    for file in os.listdir(folder):
-        fname,ext = os.path.splitext(file)
-        if ext == ".mxa":
-            hairlist.append((file, fname, fname))
-
-    hairType = EnumProperty(
-        items = hairlist,
-        name = "Hair",
-        description = "Hair",
-        default = "NONE")
-
+    hairType = HairTypeProperty,
     hairColor = HairColorProperty
 
 # ---------------------------------------------------------------------

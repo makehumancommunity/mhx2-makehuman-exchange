@@ -36,10 +36,8 @@ if "bpy" in locals():
     imp.reload(utils)
     if bpy.app.version < (2,80,0):
         imp.reload(buttons27)
-        from .buttons27 import Mhx2Import, HairColorProperty
     else:
         imp.reload(buttons28)
-        from .buttons28 import Mhx2Import, HairColorProperty
     imp.reload(armature)
     imp.reload(hm8)
     imp.reload(error)
@@ -67,10 +65,8 @@ else:
     from . import utils
     if bpy.app.version < (2,80,0):
         from . import buttons27
-        from .buttons27 import Mhx2Import, HairColorProperty
     else:
         from . import buttons28
-        from .buttons28 import Mhx2Import, HairColorProperty
     from . import armature
     from . import hm8
     from . import error
@@ -97,110 +93,6 @@ from bpy.props import *
 from bpy_extras.io_utils import ImportHelper
 from .error import *
 from .utils import *
-
-# ---------------------------------------------------------------------
-#
-# ---------------------------------------------------------------------
-
-class MHX_OT_Import(bpy.types.Operator, Mhx2Import):
-    """Import from MHX2 file format (.mhx2)"""
-    bl_idname = "import_scene.makehuman_mhx2"
-    bl_description = 'Import from MHX2 file format (.mhx2)'
-    bl_label = "Import MHX2"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_options = {'PRESET', 'UNDO'}
-
-    def execute(self, context):
-        from .config import Config
-        cfg = Config().fromSettings(self)
-        try:
-            importer.importMhx2File(self.filepath, cfg, context)
-        except MhxError:
-            handleMhxError(context)
-
-        if AutoWeight:
-            scn = context.scene
-            rig = scn.objects["Bar"]
-            ob = scn.objects["Bar:Body"]
-            ob.select = True
-            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-
-        return {'FINISHED'}
-
-
-    def invoke(self, context, event):
-        context.window_manager.fileselect_add(self)
-        return {'RUNNING_MODAL'}
-
-
-    def draw(self, context):
-        layout = self.layout
-        layout.prop(self, "useOverride")
-        if not self.useOverride:
-            return
-
-        layout.separator()
-        layout.label(text="Import Human Type:")
-        layout.prop(self, "useHumanType", expand=True)
-
-        layout.prop(self, "useHelpers")
-        layout.prop(self, "useOffset")
-        layout.prop(self, "useFaceShapes")
-        if (self.useFaceShapes and
-            not self.useFacePanel):
-            layout.prop(self, "useFaceShapeDrivers")
-
-        layout.separator()
-        box = layout.box()
-        box.label(text="Subdivision surface")
-        box.prop(self, "useSubsurf")
-        if self.useSubsurf:
-            box.prop(self, "subsurfLevels")
-            box.prop(self, "subsurfRenderLevels")
-
-        layout.separator()
-        layout.label(text="Masking:")
-        layout.prop(self, "useMasks", expand=True)
-        layout.prop(self, "useConservativeMasks")
-
-        layout.separator()
-        box = layout.box()
-        box.label(text="Merging")
-        box.prop(self, "mergeBodyParts")
-        if self.mergeBodyParts and self.useHumanType != 'BODY':
-            box.prop(self, "mergeToProxy")
-        if self.mergeBodyParts:
-            box.prop(self, "mergeMaxType")
-
-        layout.prop(self, "genitalia", text="Genitalia")
-
-        layout.separator()
-        box = layout.box()
-        box.prop(self, "hairType")
-        if self.hairType != 'NONE':
-            box.prop(self, "hairColor")
-            box.prop(self, "useHairOnProxy")
-            box.prop(self, "useHairDynamics")
-        box.prop(self, "useDeflector")
-
-        layout.separator()
-        box = layout.box()
-        box.label(text="Rigging")
-        box.prop(self, "useRig")
-        if self.useRig:
-            box.prop(self, "rigType")
-            box.prop(self, "useCustomShapes")
-            if self.rigType in ('MHX', 'EXPORTED_MHX'):
-                box.prop(self, "useRotationLimits")
-            #elif self.rigType in ('RIGIFY', 'EXPORTED_RIGIFY'):
-            #    box.prop(self, "finalizeRigify")
-            if self.useFaceShapes and not self.useFaceShapeDrivers:
-                box.prop(self, "useFacePanel")
-            if self.rigType[0:8] == 'EXPORTED':
-                box.prop(self, "useFaceRigDrivers")
-            if self.genitalia[0:5] == 'PENIS' and self.rigType[0:8] != 'EXPORTED':
-                box.prop(self, "usePenisRig")
 
 #------------------------------------------------------------------------
 #    Setup panel
@@ -668,8 +560,6 @@ class MHX_PT_Visemes(bpy.types.Panel):
 # ---------------------------------------------------------------------
 
 classes = [
-    MHX_OT_Import,
-
     MHX_PT_Setup,
     MHX_PT_License,
     MHX_PT_Layers,
@@ -736,7 +626,7 @@ def register():
     bpy.types.Object.MhaLegIkToAnkle_R = BoolProperty(default=False)
     bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, min=0.0, max=1.0)
 
-    bpy.types.Scene.MhxHairColor = HairColorProperty
+    bpy.types.Scene.MhxHairColor = importer.HairColorProperty
     bpy.types.Scene.MhxMinHairLength = IntProperty(default=10, min=4, max=40)
     bpy.types.Scene.MhxMinHairOrientation = FloatProperty(default=0.6, min=0.0, max=1.0)
     bpy.types.Scene.MhxHairKeySeparation = FloatProperty(default=0.2, min=0.001, max=10.0)

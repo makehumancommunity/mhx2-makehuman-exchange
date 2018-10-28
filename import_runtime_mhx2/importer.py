@@ -19,23 +19,269 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-import bpy
 import os
 import time
 import math
-import mathutils
+import bpy
+from bpy.props import *
+from bpy_extras.io_utils import ImportHelper
 from mathutils import Vector, Matrix, Quaternion
 
 from .hm8 import *
 from .error import *
 from .utils import *
-if bpy.app.version < (2,80,0):
-    from .buttons27 import Mhx2Import
-else:
-    from .buttons28 import Mhx2Import
 
 LowestVersion = 22
 HighestVersion = 49
+
+# ---------------------------------------------------------------------
+#   Properties
+# ---------------------------------------------------------------------
+
+HairColorProperty = FloatVectorProperty(
+    name = "Hair Color",
+    subtype = "COLOR",
+    size = 4,
+    min = 0.0,
+    max = 1.0,
+    default = (0.15, 0.03, 0.005, 1.0)
+    )
+
+UseMaskProperty = EnumProperty(
+    items = [
+        ('IGNORE', "Ignore", "Ignore masks"),
+        ('APPLY', "Apply", "Apply masks (delete vertices permanently)"),
+        ('MODIFIER', "Modifier", "Create mask modifier"),
+    ],
+    name = "Masks",
+    description = "How to deal with masks",
+    default = 'MODIFIER')
+
+UseHumanTypeProperty = EnumProperty(
+    items = [
+        ('BASE', "Base", "Base mesh"),
+        ('PROXY', "Proxy", "Exported topology (if exists)"),
+        ('BOTH', "Both", "Both base mesh and proxy mesh"),
+    ],
+    name = "Import Human Type",
+    description = "Human types to be imported",
+    default = 'BOTH')
+
+MergeMaxTypeProperty = EnumProperty(
+    items = [
+        ('BODY', "Body", "Merge up to body"),
+        ('HAIR', "Hair", "Merge up to hair"),
+        ('CLOTHES', "Clothes", "Merge all"),
+    ],
+    name = "Maximum Merge Type",
+    description = "Maximum type to merge",
+    default = 'BODY')
+
+def getRigTypeItems():
+    rigTypes = []
+    folder = os.path.dirname(__file__)
+    for file in os.listdir(os.path.join(folder, "armature/data/rigs")):
+        fname = os.path.splitext(file)[0]
+        if fname == "mhx":
+            mhx = ("MHX", "MHX", "An advanced control rig")
+        elif fname == "exported_mhx":
+            exp_mhx = ("EXPORTED_MHX", "Exported MHX", "MHX rig based on exported deform rig")
+        elif fname == "rigify":
+            rigify = ("RIGIFY", "Rigify", "Modified Rigify rig")
+        elif fname == "exported_rigify":
+            exp_rigify = ("EXPORTED_RIGIFY", "Exported Rigify", "Rigify rig based on exported deform rig")
+        else:
+            entry = (fname.upper(), fname.capitalize(), "%s-compatible rig" % fname.capitalize())
+            rigTypes.append(entry)
+    rigTypes = [('EXPORTED', "Exported", "Use rig in mhx2 file"),
+                exp_mhx, exp_rigify, mhx, rigify] + rigTypes
+    return rigTypes
+
+RigTypeProperty = EnumProperty(
+    items = getRigTypeItems(),
+    name = "Rig Type",
+    description = "Rig type",
+    default = 'EXPORTED')
+
+GenitaliaProperty = EnumProperty(
+    items = [
+        ("NONE", "None", "None"),
+        ("PENIS", "Male", "Male genitalia"),
+        ("PENIS2", "Male 2", "Better male genitalia"),
+        ("VULVA", "Female", "Female genitalia"),
+        ("VULVA2", "Female 2", "Better female genitalia")
+    ],
+    name = "Genitalia",
+    description = "Genitalia",
+    default = 'NONE')
+
+def getHairItems():
+    hairItems = [("NONE", "None", "None")]
+    folder = os.path.join(os.path.dirname(__file__), "data", "hm8", "hair")
+    for file in os.listdir(folder):
+        fname,ext = os.path.splitext(file)
+        if ext == ".mxa":
+            hairItems.append((file, fname, fname))
+    return hairItems
+
+HairTypeProperty = EnumProperty(
+    items = getHairItems(),
+    name = "Hair",
+    description = "Hair",
+    default = "NONE")
+
+# ---------------------------------------------------------------------
+#   Import class, for B2.7 and B2.8
+# ---------------------------------------------------------------------
+
+print("BPA", bpy.app.version)
+if True or bpy.app.version < (2,80,0):
+    print("OLD")
+    class Mhx2Import(ImportHelper):
+        filename_ext = ".mhx2"
+        filter_glob = StringProperty(default="*.mhx2", options={'HIDDEN'})
+        filepath = StringProperty(subtype='FILE_PATH')
+
+        useHelpers = BoolProperty(name="Helper Geometry", description="Keep helper geometry", default=False)
+        useOffset = BoolProperty(name="Offset", description="Add offset for feet on ground", default=True)
+        useOverride = BoolProperty(name="Override Exported Data", description="Override rig and mesh definitions in mhx2 file", default=False)
+
+        useCustomShapes = BoolProperty(name="Custom Shapes", description="Custom bone shapes", default=True)
+        useFaceShapes = BoolProperty(name="Face Shapes", description="Face shapes", default=False)
+        useFaceShapeDrivers = BoolProperty(name="Face Shape Drivers", description="Drive face shapes with rig properties", default=False)
+        useFaceRigDrivers = BoolProperty(name="Face Rig Drivers", description="Drive face rig with rig properties", default=True)
+        useFacePanel = BoolProperty(name="Face Panel", description="Face panel", default=False)
+        useRig = BoolProperty(name="Add Rig", description="Add rig", default=True)
+        finalizeRigify = BoolProperty(name="Finalize Rigify", description="If off, only load metarig. Press Finalize Rigify to complete rigification later", default=True)
+        useRotationLimits = BoolProperty(name="Rotation Limits", description="Use rotation limits for MHX rig", default=True)
+        useDeflector = BoolProperty(name="Add Deflector", description="Add deflector", default=False)
+        useHairDynamics = BoolProperty(name="Hair Dynamics", description="Add dynamics to hair", default=False)
+        useHairOnProxy = BoolProperty(name="Hair On Proxy", description="Add hair to proxy rather than base human", default=False)
+        useConservativeMasks = BoolProperty(name="Conservative Masks", description="Only delete faces with two delete-verts", default=True)
+
+        useSubsurf = BoolProperty(name="Subsurface", description="Add a subsurf modifier to all meshes", default=False)
+        subsurfLevels = IntProperty(name="Levels", description="Subsurface levels (viewport)", default=0)
+        subsurfRenderLevels = IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=1)
+
+        useMasks = UseMaskProperty,
+        useHumanType = UseHumanTypeProperty,
+
+        mergeBodyParts = BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
+        mergeToProxy = BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=False)
+        mergeMaxType = MergeMaxTypeProperty,
+
+        rigType = RigTypeProperty,
+        genitalia = GenitaliaProperty,
+        usePenisRig = BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
+        hairType = HairTypeProperty,
+        hairColor = HairColorProperty
+
+else:
+    print("NEW")
+
+# ---------------------------------------------------------------------
+#   Import button
+# ---------------------------------------------------------------------
+
+class MHX_OT_Import(bpy.types.Operator, Mhx2Import):
+    """Import from MHX2 file format (.mhx2)"""
+    bl_idname = "import_scene.makehuman_mhx2"
+    bl_description = 'Import from MHX2 file format (.mhx2)'
+    bl_label = "Import MHX2"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_options = {'PRESET', 'UNDO'}
+
+    def execute(self, context):
+        from .config import Config
+        cfg = Config().fromSettings(self)
+        try:
+            importMhx2File(self.filepath, cfg, context)
+        except MhxError:
+            handleMhxError(context)
+
+        if AutoWeight:
+            scn = context.scene
+            rig = scn.objects["Bar"]
+            ob = scn.objects["Bar:Body"]
+            ob.select = True
+            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+
+        return {'FINISHED'}
+
+
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "useOverride")
+        if not self.useOverride:
+            return
+
+        layout.separator()
+        layout.label(text="Import Human Type:")
+        layout.prop(self, "useHumanType", expand=True)
+
+        layout.prop(self, "useHelpers")
+        layout.prop(self, "useOffset")
+        layout.prop(self, "useFaceShapes")
+        if (self.useFaceShapes and
+            not self.useFacePanel):
+            layout.prop(self, "useFaceShapeDrivers")
+
+        layout.separator()
+        box = layout.box()
+        box.label(text="Subdivision surface")
+        box.prop(self, "useSubsurf")
+        if self.useSubsurf:
+            box.prop(self, "subsurfLevels")
+            box.prop(self, "subsurfRenderLevels")
+
+        layout.separator()
+        layout.label(text="Masking:")
+        layout.prop(self, "useMasks", expand=True)
+        layout.prop(self, "useConservativeMasks")
+
+        layout.separator()
+        box = layout.box()
+        box.label(text="Merging")
+        box.prop(self, "mergeBodyParts")
+        if self.mergeBodyParts and self.useHumanType != 'BODY':
+            box.prop(self, "mergeToProxy")
+        if self.mergeBodyParts:
+            box.prop(self, "mergeMaxType")
+
+        layout.prop(self, "genitalia", text="Genitalia")
+
+        layout.separator()
+        box = layout.box()
+        box.prop(self, "hairType")
+        if self.hairType != 'NONE':
+            box.prop(self, "hairColor")
+            box.prop(self, "useHairOnProxy")
+            box.prop(self, "useHairDynamics")
+        box.prop(self, "useDeflector")
+
+        layout.separator()
+        box = layout.box()
+        box.label(text="Rigging")
+        box.prop(self, "useRig")
+        if self.useRig:
+            box.prop(self, "rigType")
+            box.prop(self, "useCustomShapes")
+            if self.rigType in ('MHX', 'EXPORTED_MHX'):
+                box.prop(self, "useRotationLimits")
+            #elif self.rigType in ('RIGIFY', 'EXPORTED_RIGIFY'):
+            #    box.prop(self, "finalizeRigify")
+            if self.useFaceShapes and not self.useFaceShapeDrivers:
+                box.prop(self, "useFacePanel")
+            if self.rigType[0:8] == 'EXPORTED':
+                box.prop(self, "useFaceRigDrivers")
+            if self.genitalia[0:5] == 'PENIS' and self.rigType[0:8] != 'EXPORTED':
+                box.prop(self, "usePenisRig")
 
 # ---------------------------------------------------------------------
 #
@@ -424,6 +670,7 @@ class MHX_OT_ClearDesignHuman(bpy.types.Operator):
 #----------------------------------------------------------
 
 classes = [
+    MHX_OT_Import,
     MHX_OT_SetDesignHuman,
     MHX_OT_ClearDesignHuman,
 ]
