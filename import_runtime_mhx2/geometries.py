@@ -27,23 +27,23 @@ from .hm8 import *
 #
 # ---------------------------------------------------------------------
 
-def buildGeometry(mhGeo, mats, rig, parser, scn, cfg, meshType):
+def buildGeometry(mhGeo, mats, rig, parser, context, cfg, meshType):
     from .proxy import proxifyVertexGroups
 
     mhMesh = mhGeo[meshType]
 
     if meshType == "proxy_seed_mesh" and mhGeo["human"]:
         gname = ("%s:Proxy" % mhGeo["name"].split(':',1)[0])
-        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, True)
+        ob = buildMesh(mhGeo, mhMesh, gname, context, cfg, True)
         ob.MhxSeedMesh = True
     elif meshType == "seed_mesh" and mhGeo["human"]:
         gname = ("%s:Body" % mhGeo["name"].split(':',1)[0])
-        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, True)
+        ob = buildMesh(mhGeo, mhMesh, gname, context, cfg, True)
         ob.MhxSeedMesh = True
     else:
         gname = mhGeo["name"]
         useSeedMesh = (meshType == "seed_mesh")
-        ob = buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh)
+        ob = buildMesh(mhGeo, mhMesh, gname, context, cfg, useSeedMesh)
         ob.MhxSeedMesh = useSeedMesh
 
     ob.MhxUuid = mhGeo["uuid"]
@@ -100,17 +100,17 @@ def meshVertexGroups(mhMesh, parser, cfg):
         return {}
 
 
-def buildMesh(mhGeo, mhMesh, gname, scn, cfg, useSeedMesh):
+def buildMesh(mhGeo, mhMesh, gname, context, cfg, useSeedMesh):
     scale,offset = getScaleOffset(mhGeo, cfg, useSeedMesh)
     print("BUILD", mhGeo["name"], mhGeo["scale"], scale, offset)
     verts = [scale*zup(co)+offset for co in mhMesh["vertices"]]
-    ob = addMeshToScene(verts, gname, mhMesh, scn)
+    ob = addMeshToScene(verts, gname, mhMesh, context)
     ob.MhxScale = mhGeo["scale"]
     ob.MhxOffset = str(list(zup(mhGeo["offset"])))
     return ob
 
 
-def addMeshToScene(verts, gname, mhMesh, scn):
+def addMeshToScene(verts, gname, mhMesh, context):
     me = bpy.data.meshes.new(gname)
     try:
         faces = mhMesh["faces"]
@@ -132,7 +132,8 @@ def addMeshToScene(verts, gname, mhMesh, scn):
             n += 1
 
     ob = bpy.data.objects.new(gname, me)
-    scn.objects.link(ob)
+    coll = getCollection(context)
+    coll.objects.link(ob)
     return ob
 
 
@@ -152,7 +153,7 @@ def buildVertexGroups(vweights, ob, rig):
     mod.object = rig
 
     for vgname,data in vweights.items():
-        vgrp = ob.vertex_groups.new(vgname)
+        vgrp = ob.vertex_groups.new(name=vgname)
         for vn,w in data:
             vgrp.add([vn], w, 'REPLACE')
 

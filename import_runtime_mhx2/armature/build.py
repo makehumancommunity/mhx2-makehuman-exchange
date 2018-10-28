@@ -30,20 +30,22 @@ def buildRig(mhHuman, mhSkel, cfg, context):
     from .parser import Parser
     from ..bone_drivers import buildAnimation, buildExpressions
     from ..geometries import getScaleOffset
+    from ..importer import reallySelect
 
-    scn = context.scene
+    coll = getCollection(context)
     parser = Parser(mhHuman, mhSkel, cfg)
     parser.setup(mhHuman, mhSkel)
 
     rname = mhHuman["name"].split(":")[0]
     amt = bpy.data.armatures.new(rname)
     rig = bpy.data.objects.new(rname, amt)
-    amt.draw_type = 'STICK'
-    rig.draw_type = 'WIRE'
-    rig.show_x_ray = True
+    setattr(amt, DrawType, 'STICK')
+    setattr(rig, DrawType, 'WIRE')
+    setattr(rig, ShowXRay, True)
+
     rig.data.layers = getLayers(parser.visibleLayers)
-    scn.objects.link(rig)
-    reallySelect(rig, scn)
+    coll.objects.link(rig)
+    reallySelect(rig, context)
 
     offset = Vector((0,0,0))
 
@@ -113,13 +115,14 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
     if len(parser.gizmos) > 0:
         empty = bpy.data.objects.new("%s:Gizmos" % rname, None)
-        scn.objects.link(empty)
+        hidden = createHiddenCollection(context)
+        hidden.objects.link(empty)
         empty.parent = rig
-        empty.layers = 19*[False] + [True]
+        putOnHiddenLayer(empty)
 
         gizmos = {}
         for gname,mhGizmo in parser.gizmos.items():
-            gizmo = gizmos[gname] = addGizmo(gname, mhGizmo, scn)
+            gizmo = gizmos[gname] = addGizmo(gname, mhGizmo, hidden)
             gizmo.parent = empty
 
         for bname,gname in parser.customShapes.items():
@@ -173,8 +176,8 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
     if mhSkel is not None:
         scale,offset = getScaleOffset(mhSkel, cfg, True)
-        buildExpressions(mhSkel, rig, scn, cfg)
-        buildAnimation(mhSkel, rig, scn, offset, cfg)
+        buildExpressions(mhSkel, rig, context, cfg)
+        buildAnimation(mhSkel, rig, context, offset, cfg)
 
     return rig, parser
 
@@ -200,12 +203,12 @@ def addPropDrivers(rig, drvlist, suffix, prefix):
         addDriver(rig, cns, "influence", None, data, expr, False)
 
 
-def addGizmo(gname, mhGizmo, scn):
+def addGizmo(gname, mhGizmo, hidden):
     me = bpy.data.meshes.new(gname)
     me.from_pydata(mhGizmo["verts"], mhGizmo["edges"], [])
     ob = bpy.data.objects.new(gname, me)
-    scn.objects.link(ob)
-    ob.layers = 19*[False] + [True]
+    hidden.objects.link(ob)
+    putOnHiddenLayer(ob)
     if "subsurf" in mhGizmo.keys() and mhGizmo["subsurf"]:
         mod = ob.modifiers.new("Subsurf", 'SUBSURF')
     return ob

@@ -60,6 +60,7 @@ def renameShapekeys(ob):
 
 
 def mergeSelectedObjects(context):
+    from .importer import reallySelect
     scn = context.scene
     clothes = []
     human = None
@@ -71,7 +72,7 @@ def mergeSelectedObjects(context):
                 clothes.append(ob)
 
     if human:
-        reallySelect(human, scn)
+        reallySelect(human, context)
         return mergeObjects(human, clothes)
     else:
         raise MhxError("Cannot merge.\nNo human found among\nselected objects.")
@@ -191,16 +192,17 @@ def changeMaterial(human, mn):
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def mergeBodyParts(human, proxies, scn, proxyTypes=[]):
+def mergeBodyParts(human, proxies, context, proxyTypes=[]):
+    from .importer import reallySelect
     clothes = []
-    for ob in scn.objects:
-        ob.select = False
-    human.select = True
-    reallySelect(human, scn)
+    for ob in getSceneObjects(context):
+        setSelected(ob, False)
+    setSelected(human, True)
+    reallySelect(human, context)
     for mhGeo,ob in proxies:
         if mhGeo["proxy"]["type"] in proxyTypes:
             clothes.append(ob)
-            ob.select = True
+            setSelected(ob, True)
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.object.mode_set(mode='OBJECT')
     matnums = mergeObjects(human, clothes)

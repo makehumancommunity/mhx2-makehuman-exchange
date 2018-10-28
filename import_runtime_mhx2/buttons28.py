@@ -56,17 +56,17 @@ class Mhx2Import(ImportHelper):
     subsurfLevels : IntProperty(name="Levels", description="Subsurface levels (viewport)", default=0)
     subsurfRenderLevels : IntProperty(name=" Render Levels", description="Subsurface levels (render)", default=1)
 
-    useMasks : UseMaskProperty,
-    useHumanType : UseHumanTypeProperty,
+    useMasks : UseMaskProperty
+    useHumanType : UseHumanTypeProperty
 
     mergeBodyParts : BoolProperty(name="Merge Body Parts", description="Merge body parts", default=False)
     mergeToProxy : BoolProperty(name="Merge To Proxy", description="Merge body parts to proxy mesh is such exists", default=False)
-    mergeMaxType : MergeMaxTypeProperty,
+    mergeMaxType : MergeMaxTypeProperty
 
-    rigType : RigTypeProperty,
-    genitalia : GenitaliaProperty,
+    rigType : RigTypeProperty
+    genitalia : GenitaliaProperty
     usePenisRig : BoolProperty(name="Penis Rig", description="Add a penis rig", default=False)
-    hairType : HairTypeProperty,
+    hairType : HairTypeProperty
     hairColor : HairColorProperty
 
 # ---------------------------------------------------------------------

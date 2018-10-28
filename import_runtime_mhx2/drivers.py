@@ -176,7 +176,7 @@ def getRigMeshes(context):
     if context.object.type == 'ARMATURE':
         rig = context.object
         meshes = []
-        for ob in context.scene.objects:
+        for ob in getSceneObjects(context):
             if ob.parent == rig and ob.type == 'MESH':
                 meshes.append(ob)
         return rig,meshes

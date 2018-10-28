@@ -37,17 +37,17 @@ def getPoseMatrix(gmat, pb):
     if pb.parent:
         parInv = pb.parent.matrix.inverted()
         parRest = pb.parent.bone.matrix_local
-        return restInv * (parRest * (parInv * gmat))
+        return Mult4(restInv, parRest, parInv, gmat)
     else:
-        return restInv * gmat
+        return Mult2(restInv, gmat)
 
 
 def getGlobalMatrix(mat, pb):
-    gmat = pb.bone.matrix_local * mat
+    gmat = Mult2(pb.bone.matrix_local, mat)
     if pb.parent:
         parMat = pb.parent.matrix
         parRest = pb.parent.bone.matrix_local
-        return parMat * (parRest.inverted() * gmat)
+        return Mult3(parMat, parRest.inverted(), gmat)
     else:
         return gmat
 

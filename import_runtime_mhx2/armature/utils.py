@@ -21,6 +21,7 @@
 
 import math
 from mathutils import Vector, Matrix
+from ..utils import *
 
 #-------------------------------------------------------------------------------
 #   Utilities
@@ -102,7 +103,7 @@ def copyTransform(target, cnsname, inf=1):
 
 
 def checkOrthogonal(mat):
-    prod = mat * mat.transposed()
+    prod = Mult2(mat, mat.transposed())
     diff = prod - Matrix.Identity(3)
     sum = 0
     for i in range(3):
@@ -190,10 +191,10 @@ YZRotation = Matrix(((1,0,0,0),(0,0,1,0),(0,-1,0,0),(0,0,0,1)))
 ZYRotation = Matrix(((1,0,0,0),(0,0,-1,0),(0,1,0,0),(0,0,0,1)))
 
 def m2b3(vec):
-    return ZYRotation.to_3x3() * vec
+    return Mult2(ZYRotation.to_3x3(), vec)
 
 def b2m4(mat):
-    return YZRotation * mat
+    return Mult2(YZRotation, mat)
 
 def getMatrix(head, tail, roll):
     vector = m2b3(tail - head)
@@ -213,7 +214,7 @@ def getMatrix(head, tail, roll):
         angle = math.acos(yproj)
     mat = Matrix.Rotation(angle, 3, axis)
     if roll:
-        mat = mat * Matrix.Rotation(roll, 3, YUnit)
+        mat = Mult2(mat, Matrix.Rotation(roll, 3, YUnit))
     mat = b2m4(mat)
     mat.col[3][:3] = head
     return length, mat

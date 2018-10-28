@@ -30,7 +30,6 @@ Postprocessing of rigify rig
 import bpy
 import os
 from bpy.props import *
-from ..utils import reallySelect
 from ..error import *
 
 if bpy.app.version < (2, 79, 0):
@@ -146,13 +145,14 @@ def checkRigifyEnabled(context):
 def rigifyMhx(context, parser, taken={}):
     from collections import OrderedDict
     from ..error import MhxError
+    from ..importer import reallySelect
 
     print("Modifying MHX rig to Rigify")
     rig = context.object
     scn = context.scene
     if not(rig and rig.type == 'ARMATURE'):
         raise RuntimeError("Rigify: %s is neither an armature nor has armature parent" % ob)
-    reallySelect(rig, scn)
+    reallySelect(rig, context)
 
     group = None
     for grp in bpy.data.groups:
@@ -243,8 +243,7 @@ def rigifyMhx(context, parser, taken={}):
     bpy.ops.pose.rigify_generate()
     gen = context.object
     print("Generated", gen)
-    scn.objects.unlink(meta)
-    del meta
+    deleteObject(context, meta)
 
     for bone in bones.values():
         if bone.original:
@@ -365,11 +364,11 @@ def rigifyMhx(context, parser, taken={}):
 
     # Parent widgets under empty
     empty = bpy.data.objects.new("Widgets", None)
-    scn.objects.link(empty)
-    empty.layers = 20*[False]
-    empty.layers[19] = True
+    hidden = createHiddenCollection(context)
+    hidden.objects.link(empty)
+    putOnHiddenLayer(empty)
     empty.parent = gen
-    for ob in scn.objects:
+    for ob in getSceneObjects(context):
         if (ob.type == 'MESH' and
             ob.name[0:4] in ["WGT-", "GZM_"] and
             not ob.parent):
@@ -377,12 +376,11 @@ def rigifyMhx(context, parser, taken={}):
             #group.objects.link(ob)
 
     #Clean up
-    gen.show_x_ray = True
-    gen.data.draw_type = 'STICK'
+    setattr(gen, ShowXRay, True)
+    setattr(gen, DrawType, 'STICK')
     gen.MhxRigify = False
     name = rig.name
-    scn.objects.unlink(rig)
-    del rig
+    deleteObject(context, rig)
     gen.name = name
     bpy.ops.object.mode_set(mode='POSE')
     print("MHX rig %s successfully rigified" % name)

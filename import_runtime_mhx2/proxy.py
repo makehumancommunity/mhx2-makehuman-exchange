@@ -34,7 +34,7 @@ else:
 #   Add proxy
 # ---------------------------------------------------------------------
 
-def addProxy(filepath, mhHuman, mats, scn, cfg):
+def addProxy(filepath, mhHuman, mats, context, cfg):
     from .load_json import loadJsonRelative
     from .materials import getMaterial, buildMaterial
 
@@ -46,7 +46,7 @@ def addProxy(filepath, mhHuman, mats, scn, cfg):
     pxyGeo["offset"] = mhHuman["offset"]
     if "material" in mhGeo.keys():
         mhMaterial = getMaterial(mhGeo["material"], pxyGeo["name"])
-        mname,mat = buildMaterial(mhMaterial, scn, cfg)
+        mname,mat = buildMaterial(mhMaterial, context.scene, cfg)
         pxyGeo["material"] = mname
         mats[mname] = mat
     else:

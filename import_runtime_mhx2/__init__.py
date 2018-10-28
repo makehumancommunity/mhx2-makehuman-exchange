@@ -34,6 +34,7 @@ if "bpy" in locals():
     print("Reloading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     import imp
     imp.reload(utils)
+    imp.reload(import_props)
     if bpy.app.version < (2,80,0):
         imp.reload(buttons27)
     else:
@@ -63,6 +64,7 @@ else:
     print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     import bpy
     from . import utils
+    from . import import_props
     if bpy.app.version < (2,80,0):
         from . import buttons27
     else:
@@ -626,7 +628,7 @@ def register():
     bpy.types.Object.MhaLegIkToAnkle_R = BoolProperty(default=False)
     bpy.types.Object.MhaLegIk_R = FloatProperty(default=0.0, min=0.0, max=1.0)
 
-    bpy.types.Scene.MhxHairColor = importer.HairColorProperty
+    bpy.types.Scene.MhxHairColor = import_props.HairColorProperty
     bpy.types.Scene.MhxMinHairLength = IntProperty(default=10, min=4, max=40)
     bpy.types.Scene.MhxMinHairOrientation = FloatProperty(default=0.6, min=0.0, max=1.0)
     bpy.types.Scene.MhxHairKeySeparation = FloatProperty(default=0.2, min=0.001, max=10.0)

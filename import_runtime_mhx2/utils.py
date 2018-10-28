@@ -19,8 +19,153 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+import bpy
 from mathutils import Vector
 from .error import MhxError
+
+#-------------------------------------------------------------
+#   Blender 2.8 compatibility
+#-------------------------------------------------------------
+
+if bpy.app.version < (2,80,0):
+
+    HideViewport = "hide"
+    DrawType = "draw_type"
+    ShowXRay = "show_x_ray"
+
+    def getCollection(context):
+        return context.scene
+
+    def getSceneObjects(context):
+        return context.scene.objects
+
+    def getSelected(ob):
+        return ob.select
+
+    def setSelected(ob, value):
+        ob.select = value
+
+    def setActiveObject(context, ob):
+        scn = context.scene
+        scn.objects.active = ob
+        scn.update()
+
+    def putOnHiddenLayer(ob, coll=None, hidden=None):
+        ob.layers = 19*[False] + [True]
+
+    def createHiddenCollection(context):
+        return context.scene
+
+    def inSceneLayer(context, ob):
+        scn = context.scene
+        for n in range(len(scn.layers)):
+            if (ob.layers[n] and scn.layers[n]):
+                return True
+        return False
+
+    def activateObject(context, ob):
+        scn = context.scene
+        for ob1 in scn.objects:
+            ob1.select = False
+        ob.select = True
+        scn.objects.active = ob
+
+    def Mult2(x, y):
+        return x * y
+
+    def Mult3(x, y, z):
+        return x * y * z
+
+    def Mult4(x, y, z, u):
+        return x * y * z * u
+
+    def splitLayout(layout, factor):
+        return layout.split(factor)
+
+    def deleteObject(context, ob):
+        for scn in bpy.data.scenes:
+            if ob in scn.objects.values():
+                scn.objects.unlink(ob)
+        if ob.users == 0:
+            bpy.data.objects.remove(ob)
+            del ob
+
+else:
+
+    HideViewport = "hide_viewport"
+    DrawType = "display_type"
+    ShowXRay = "show_in_front"
+
+    def getCollection(context):
+        return context.scene.collection
+
+    def getSceneObjects(context):
+        return context.view_layer.objects
+
+    def getSelected(ob):
+        return ob.select_get()
+
+    def setSelected(ob, value):
+        ob.select_set(action=('SELECT' if value else 'DESELECT'))
+
+    def setActiveObject(context, ob):
+        vly = context.view_layer
+        vly.objects.active = ob
+        vly.update()
+
+    def putOnHiddenLayer(ob, coll=None, hidden=None):
+        if coll:
+            coll.objects.unlink(ob)
+        if hidden:
+            hidden.objects.link(ob)
+
+    def createHiddenCollection(context):
+        coll = bpy.data.collections.new(name="Hidden")
+        context.scene.collection.children.link(coll)
+        coll.hide_viewport = True
+        coll.hide_render = True
+        return coll
+
+    def inSceneLayer(context, ob):
+        coll = context.scene.collection
+        return (ob in coll.objects.values())
+
+    def activateObject(context, ob):
+        scn = context.scene
+        for ob1 in scn.collection.objects:
+            ob1.select_set(action='DESELECT')
+        ob.select_set(action='SELECT')
+        context.view_layer.objects.active = ob
+
+    def printActive(name, context):
+        coll = context.scene.collection
+        print(name, context.object, coll)
+        sel = [ob for ob in coll.objects if ob.select_get()]
+        print("  ", sel)
+
+    def Mult2(x, y):
+        return x @ y
+
+    def Mult3(x, y, z):
+        return x @ y @ z
+
+    def Mult4(x, y, z, u):
+        return x @ y @ z @ u
+
+    def splitLayout(layout, factor):
+        return layout.split(factor=factor)
+
+    def deleteObject(context, ob):
+        for coll in bpy.data.collections:
+            if ob in coll.objects.values():
+                coll.objects.unlink(ob)
+        if True or ob.users == 0:
+            bpy.data.objects.remove(ob)
+            del ob
+
+#-------------------------------------------------------------
+#
+#-------------------------------------------------------------
 
 def getOriginalName(ob):
     words = ob.name.rsplit(".",1)
@@ -109,47 +254,6 @@ def getMhHuman(ob=None):
     if ob and theMhHuman["uuid"] != ob.MhxUuid:
         raise MhxError("Saved human:\n %s\ndoes not match current object:\n %s" % (theMhHuman["name"], ob.name))
     return theMhHuman
-
-# ---------------------------------------------------------------------
-#   Roll angle
-# ---------------------------------------------------------------------
-
-def getRoll(bone):
-    import math
-    quat = bone.matrix_local.to_3x3().to_quaternion()
-    if abs(quat.w) < 1e-4:
-        roll = math.pi
-    else:
-        roll = -2*math.atan(quat.y/quat.w)
-    return roll
-
-
-# ---------------------------------------------------------------------
-#  Make sure that selecting an object really takes.
-# ---------------------------------------------------------------------
-
-def reallySelect(ob, scn):
-    ob.hide = False
-    visible = False
-    for n,vis in enumerate(ob.layers):
-        if vis and scn.layers[n]:
-            visible = True
-            break
-    if not visible:
-        for n,vis in enumerate(ob.layers):
-            if vis:
-                scn.layers[n] = True
-                visible = True
-                break
-    if not visible:
-        for n,vis in enumerate(scn.layers):
-            if vis:
-                ob.layers[n] = True
-                visible = True
-                break
-    if not visible:
-        ob.layers[0] = scn.layers[0] = True
-    scn.objects.active = ob
 
 # ---------------------------------------------------------------------
 #   Debug flags

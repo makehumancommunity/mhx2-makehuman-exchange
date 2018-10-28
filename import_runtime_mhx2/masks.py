@@ -52,7 +52,7 @@ def addMasks(mhHuman, human, proxies, proxyTypes, useConservativeMasks):
 def addMask(ob, vnums, pname):
     if vnums:
         mod = ob.modifiers.new("Mask:%s" % pname, 'MASK')
-        vgrp = ob.vertex_groups.new("Delete:%s" % pname)
+        vgrp = ob.vertex_groups.new(name=("Delete:%s" % pname))
         mod.vertex_group = vgrp.name
         mod.invert_vertex_group = True
         for vn in vnums:

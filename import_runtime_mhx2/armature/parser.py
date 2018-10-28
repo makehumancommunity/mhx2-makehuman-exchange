@@ -1109,7 +1109,7 @@ class Parser:
             elif axis == 'Z':
                 rvec = t.cross(n)
             rot = Matrix.Rotation(-angle*D, 3, rvec)
-            bvec = rot * t * length * self.scale
+            bvec = Mult2(rot, t) * length * self.scale
 
             bone = self.bones[bname] = Bone(self, bname)
             bone.parent = cbone.parent

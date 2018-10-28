@@ -80,18 +80,18 @@ def equal(x,y):
 
 def getCorrections(rig):
     corr = {}
-    flipmat = Matrix.Rotation(math.pi/2, 3, 'X') * Matrix.Rotation(0, 3, 'X')
+    flipmat = Mult2(Matrix.Rotation(math.pi/2, 3, 'X'), Matrix.Rotation(0, 3, 'X'))
     for bone in rig.data.bones:
         loc,rot,scale = bone.matrix_local.decompose()
         rmat = rot.to_matrix()
-        #corr[bone.name] = flipmat.inverted() * rmat
+        #corr[bone.name] = Mult2(flipmat.inverted(), rmat)
         corr[bone.name] = rmat
     return corr
 
 
 theFacePoses = {}
 
-def buildExpressions(mhSkel, rig, scn, cfg):
+def buildExpressions(mhSkel, rig, context, cfg):
     global theFacePoses
 
     if "expressions" not in mhSkel.keys():
@@ -142,7 +142,7 @@ def buildExpressions(mhSkel, rig, scn, cfg):
             for unit,uval in units.items()])
 
 
-def buildAnimation(mhSkel, rig, scn, offset, cfg):
+def buildAnimation(mhSkel, rig, context, offset, cfg):
     if "animation" not in mhSkel.keys():
         return
     if "lowerleg02.L" not in rig.data.bones.keys():
@@ -221,7 +221,7 @@ def buildBvh(mhBvh, poseIndex, corr):
                 joint = joints[n]
                 if joint in corr.keys():
                     cmat = corr[joint]
-                    qmat = cmat.inverted() * euler.to_matrix() * cmat
+                    qmat = Mult3(cmat.inverted(), euler.to_matrix(), cmat)
                     pose[joint] = qmat.to_quaternion()
 
 #------------------------------------------------------------------------

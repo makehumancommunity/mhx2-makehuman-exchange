@@ -19,6 +19,7 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+import os
 from bpy.props import *
 
 HairColorProperty = FloatVectorProperty(

@@ -91,7 +91,7 @@ def addHair(ob, struct, hcoords, scn, cfg=None, override={}):
             if hasattr(psys, key):
                 setattr(psys, key, val)
 
-        skull = ob.vertex_groups.new("Skull")
+        skull = ob.vertex_groups.new(name="Skull")
         for vn,w in [(879,1.0)]:
             skull.add([vn], w, 'REPLACE')
         psys.vertex_group_density = "Skull"
@@ -177,11 +177,11 @@ def makeDeflector(pair, rig, bnames, cfg):
                 ob.parent_type = 'BONE'
                 ob.parent_bone = bname
                 pb = rig.pose.bones[bname]
-                ob.matrix_basis = pb.matrix.inverted()*ob.matrix_basis
+                ob.matrix_basis = Mult2(pb.matrix.inverted(), ob.matrix_basis)
                 ob.matrix_basis.col[3] -= Vector((0,pb.bone.length,0,0))
                 break
 
-    ob.draw_type = 'WIRE'
+    setattr(ob, DrawType, 'WIRE')
     ob.field.type = 'FORCE'
     print("FIELD", ob.field, ob.field.type)
     ob.field.shape = 'SURFACE'
@@ -221,6 +221,7 @@ def findDeflector(human):
 #------------------------------------------------------------------------
 
 def particlifyHair(context):
+    from .importer import reallySelect
     scn = context.scene
     human = None
     hair = None
@@ -234,9 +235,9 @@ def particlifyHair(context):
         print("Missing human or hair object")
         return
 
-    reallySelect(human, scn)
+    reallySelect(human, context)
     bpy.ops.object.mode_set(mode='OBJECT')
-    reallySelect(hair, scn)
+    reallySelect(hair, context)
     bpy.ops.object.mode_set(mode='OBJECT')
 
     vedges = dict([(n,[]) for n in range(len(hair.data.vertices))])
@@ -411,9 +412,9 @@ def particlifyHair(context):
         "rendered_child_count" : 20,
     }
 
-    reallySelect(human, scn)
+    reallySelect(human, context)
     addHair(human, struct, list(hcoords.values()), scn, override=override)
-    #addHairMeshes(hcoords, scn)
+    #addHairMeshes(hcoords, context)
     hair.hide = True
     hair.hide_render = True
     print("Done")
@@ -446,7 +447,7 @@ def ringLength(rcoord):
     return dist
 
 
-def addHairMeshes(hcoords, scn):
+def addHairMeshes(hcoords, context):
     for ln,hcoord in hcoords.items():
         verts = []
         edges = []
@@ -459,7 +460,8 @@ def addHairMeshes(hcoords, scn):
         me = bpy.data.meshes.new("HairMesh%0d" % ln)
         me.from_pydata(verts, edges, [])
         ob = bpy.data.objects.new("HairObject%0d" % ln, me)
-        scn.objects.link(ob)
+        coll = getCollection(context)
+        coll.objects.link(ob)
 
 
 def sortRing(ring, efaces, fedges):

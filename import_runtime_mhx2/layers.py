@@ -132,7 +132,7 @@ def writeMhpBones(fp, pb, log):
     if not isMuscleBone(pb):
         b = pb.bone
         if pb.parent:
-            mat = b.matrix_local.inverted() * b.parent.matrix_local * pb.parent.matrix.inverted() * pb.matrix
+            mat = Mult4(b.matrix_local.inverted(), b.parent.matrix_local, pb.parent.matrix.inverted(), pb.matrix)
         else:
             mat = pb.matrix.copy()
             maty = mat[1].copy()
@@ -205,7 +205,7 @@ def loadMhpFile(rig, scn, filepath):
             matz = mat[2].copy()
             mat[1] = -matz
             mat[2] = maty
-            pb.matrix_basis = pb.bone.matrix_local.inverted() * mat
+            pb.matrix_basis = Mult2(pb.bone.matrix_local.inverted(), mat)
         elif words[1] == "matrix":
             rows = []
             n = 2
@@ -220,7 +220,7 @@ def loadMhpFile(rig, scn, filepath):
                 matz = mat[2].copy()
                 mat[1] = -matz
                 mat[2] = maty
-                pb.matrix_basis = pb.bone.matrix_local.inverted() * mat
+                pb.matrix_basis = Mult2(pb.bone.matrix_local.inverted(), mat)
         elif words[1] == "scale":
             pass
         else:
