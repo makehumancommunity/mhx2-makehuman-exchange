@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
@@ -145,8 +148,8 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
         links.new(diffuseTex.outputs['Color'], diffuse.inputs['Color'])
 
     glossy = tree.addNode(3, 'ShaderNodeBsdfGlossy')
-    glossy.inputs["Color"].default_value[0:3] = mhMat["diffuse_color"]
-    glossy.inputs["Roughness"].default_value = 0.2
+    glossy.inputs["Color"].default_value[0:3] = mhMat["specular_color"]
+    glossy.inputs["Roughness"].default_value = 1.0 - mhMat["shininess"]
     glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
     if glossyTex:
         links.new(glossyTex.outputs['Color'], glossy.inputs['Color'])
