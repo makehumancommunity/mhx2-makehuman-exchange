@@ -96,6 +96,11 @@ from bpy_extras.io_utils import ImportHelper
 from .error import *
 from .utils import *
 
+if bpy.app.version < (2,80,0):
+    Region = "TOOLS"
+else:
+    Region = "UI"
+
 #------------------------------------------------------------------------
 #    Setup panel
 #------------------------------------------------------------------------
@@ -103,7 +108,7 @@ from .utils import *
 class MHX_PT_Setup(bpy.types.Panel):
     bl_label = "MHX Setup"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
 
     def draw(self, context):
@@ -180,7 +185,7 @@ class MHX_PT_Setup(bpy.types.Panel):
 class MHX_PT_License(bpy.types.Panel):
     bl_label = "License"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -209,7 +214,7 @@ from .layers import MhxLayers, OtherLayers
 class MHX_PT_Layers(bpy.types.Panel):
     bl_label = "Layers"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -251,7 +256,7 @@ class MHX_PT_Layers(bpy.types.Panel):
 class MHX_PT_FKIK(bpy.types.Panel):
     bl_label = "FK/IK Switch"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -330,7 +335,7 @@ class MHX_PT_FKIK(bpy.types.Panel):
 class MHX_PT_Control(bpy.types.Panel):
     bl_label = "MHX Control"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -373,7 +378,7 @@ class MHX_PT_Control(bpy.types.Panel):
 class Visibility(bpy.types.Panel):
     bl_label = "Visibility"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -403,7 +408,7 @@ class Visibility(bpy.types.Panel):
 class FaceUnits(bpy.types.Panel):
     bl_label = "Face Units"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -426,7 +431,7 @@ class FaceUnits(bpy.types.Panel):
 class Expression(bpy.types.Panel):
     bl_label = "Expressions"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -452,7 +457,7 @@ class Expression(bpy.types.Panel):
 class MHX_PT_FaceShape(bpy.types.Panel):
     bl_label = "Facial Shapes"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -475,7 +480,7 @@ class MHX_PT_FaceShape(bpy.types.Panel):
 class MHX_PT_Pose(bpy.types.Panel):
     bl_label = "Poses"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -498,7 +503,7 @@ class MHX_PT_Pose(bpy.types.Panel):
 class MHX_PT_OtherShape(bpy.types.Panel):
     bl_label = "Other Shapes"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
@@ -535,7 +540,7 @@ def drawProperties(layout, rig, prefix):
 class MHX_PT_Visemes(bpy.types.Panel):
     bl_label = "Visemes"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = Region
     bl_category = "MHX2 Runtime"
     bl_options = {'DEFAULT_CLOSED'}
 
