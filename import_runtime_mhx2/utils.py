@@ -106,7 +106,7 @@ else:
         return ob.select_get()
 
     def setSelected(ob, value):
-        ob.select_set(action=('SELECT' if value else 'DESELECT'))
+        ob.select_set(value)
 
     def setActiveObject(context, ob):
         vly = context.view_layer
@@ -133,8 +133,8 @@ else:
     def activateObject(context, ob):
         scn = context.scene
         for ob1 in scn.collection.objects:
-            ob1.select_set(action='DESELECT')
-        ob.select_set(action='SELECT')
+            ob1.select_set(False)
+        ob.select_set(True)
         context.view_layer.objects.active = ob
 
     def printActive(name, context):

@@ -474,12 +474,13 @@ def makeSimpleMaterials(ob, scn):
 
         mat = bpy.data.materials.new(mname)
         mat.diffuse_color = color
-        mat.alpha = 0
-        mat.use_transparency = True
-        mat.use_shadeless = True
-        mat.use_shadows = False
-        mat.use_cast_shadows = False
-        if scn.render.engine not in ['BLENDER_RENDER', 'BLENDER_GAME']:
+        if scn.render.engine in ['BLENDER_RENDER', 'BLENDER_GAME']:
+            mat.alpha = 0
+            mat.use_transparency = True
+            mat.use_shadeless = True
+            mat.use_shadows = False
+            mat.use_cast_shadows = False
+        else:
             buildSimpleMaterialCycles(mat, color)
 
         mn = len(ob.data.materials)
