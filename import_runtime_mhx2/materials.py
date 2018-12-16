@@ -131,63 +131,65 @@ def buildHairMaterialCycles(mat, rgb):
 
 def buildMaterialCycles(mat, mhMat, scn, cfg):
     print("Creating CYCLES material", mat.name)
+    if bpy.app.version >= (2, 80):
+        mat.blend_method = 'HASHED'
     mat.use_nodes= True
     mat.node_tree.nodes.clear()
     tree = NodeTree(mat.node_tree)
     links = mat.node_tree.links
     texco = tree.addNode(1, 'ShaderNodeTexCoord')
 
-    fresnel = tree.addNode(3, 'ShaderNodeFresnel')
-    #fresnel.input['IOR'] = 1.45
+    principled = tree.addNode(5, 'ShaderNodeBsdfPrincipled')
+    principled.inputs['Base Color'].default_value[0:3] = mhMat['diffuse_color']
+    principled.inputs['Roughness'].default_value = 1.0 - mhMat['shininess']
 
-    diffuse = tree.addNode(3, 'ShaderNodeBsdfDiffuse')
-    diffuse.inputs["Color"].default_value[0:3] =  mhMat["diffuse_color"]
-    diffuse.inputs["Roughness"].default_value = 0
     diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg)
     if diffuseTex:
-        links.new(diffuseTex.outputs['Color'], diffuse.inputs['Color'])
+        links.new(diffuseTex.outputs['Color'], principled.inputs['Base Color'])
 
-    glossy = tree.addNode(3, 'ShaderNodeBsdfGlossy')
-    glossy.inputs["Color"].default_value[0:3] = mhMat["specular_color"]
-    glossy.inputs["Roughness"].default_value = 1.0 - mhMat["shininess"]
-    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
-    if glossyTex:
-        links.new(glossyTex.outputs['Color'], glossy.inputs['Color'])
+    mixTrans = None
+    if diffuseTex:
+        transparent = tree.addNode(6, 'ShaderNodeBsdfTransparent')
+        mixTrans = tree.addNode(7, 'ShaderNodeMixShader')
+        links.new(principled.outputs['BSDF'], mixTrans.inputs[2])
+        links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
+        links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
+
+    bumpTex = tree.addTexImageNode(mhMat, texco, "bump_map_texture", cfg)
+    bumpMap = None
+    if bumpTex:
+        bumpTex.color_space = 'NONE'
+        bumpMap = tree.addNode(4, 'ShaderNodeBump')
+        bumpMap.inputs['Strength'].default_value = mhMat.get('bump_map_intensity', 1.0)
+        links.new(bumpTex.outputs['Color'], bumpMap.inputs['Height'])
+        links.new(bumpMap.outputs['Normal'], principled.inputs['Normal'])
 
     normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg)
     if normalTex:
         normalTex.color_space = 'NONE'
-        normalMap = tree.addNode(2, 'ShaderNodeNormalMap')
+        normalMap = tree.addNode(3, 'ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
         normalMap.uv_map = "UVMap"
+        normalMap.inputs['Strength'].default_value = mhMat.get('normal_map_intensity', 1.0)
         links.new(normalTex.outputs['Color'], normalMap.inputs['Color'])
-        links.new(normalMap.outputs['Normal'], fresnel.inputs['Normal'])
-        links.new(normalMap.outputs['Normal'], diffuse.inputs['Normal'])
-        links.new(normalMap.outputs['Normal'], glossy.inputs['Normal'])
+        if bumpMap:
+            links.new(normalMap.outputs['Normal'], bumpMap.inputs['Normal'])
+        else:
+            links.new(normalMap.outputs['Normal'], principled.inputs['Normal'])
+
+    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
+    if glossyTex:
+        glossyTex.color_space = 'NONE'
+        invertColor = tree.addNode(4, 'ShaderNodeInvert')
+        links.new(glossyTex.outputs['Color'], invertColor.inputs['Color'])
+        links.new(invertColor.outputs['Color'], principled.inputs['Roughness'])
+
+    output = tree.addNode(8 if mixTrans else 7, 'ShaderNodeOutputMaterial')
+
+    if mixTrans:
+        links.new(mixTrans.outputs['Shader'], output.inputs['Surface'])
     else:
-        normalMap = None
-
-    if diffuseTex:
-        transparent = tree.addNode(4, 'ShaderNodeBsdfTransparent')
-    else:
-        transparent = None
-
-    mixGloss = tree.addNode(4, 'ShaderNodeMixShader')
-    links.new(fresnel.outputs['Fac'], mixGloss.inputs['Fac'])
-    links.new(diffuse.outputs['BSDF'], mixGloss.inputs[1])
-    links.new(glossy.outputs['BSDF'], mixGloss.inputs[2])
-
-    output = tree.addNode(5, 'ShaderNodeOutputMaterial')
-
-    if transparent:
-        mixTrans = tree.addNode(5, 'ShaderNodeMixShader')
-        links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
-        links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
-        links.new(mixGloss.outputs['Shader'], mixTrans.inputs[2])
-    else:
-        mixTrans = mixGloss
-
-    links.new(mixTrans.outputs['Shader'], output.inputs['Surface'])
+        links.new(principled.outputs['BSDF'], output.inputs['Surface'])
 
 
 def buildSimpleMaterialCycles(mat, color):
