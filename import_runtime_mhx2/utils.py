@@ -27,7 +27,10 @@ from .error import MhxError
 #   Blender 2.8 compatibility
 #-------------------------------------------------------------
 
-if bpy.app.version < (2,80,0):
+def b28():
+    return bpy.app.version >= (2,80,0)
+
+if not b28():
 
     HideViewport = "hide"
     DrawType = "draw_type"
@@ -97,7 +100,7 @@ else:
     ShowXRay = "show_in_front"
 
     def getCollection(context):
-        return context.scene.collection
+        return context.scene['MHCollection']
 
     def getSceneObjects(context):
         return context.view_layer.objects

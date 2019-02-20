@@ -28,7 +28,7 @@ from mathutils import Vector, Matrix, Quaternion
 from .hm8 import *
 from .error import *
 from .utils import *
-if bpy.app.version < (2,80,0):
+if not b28():
     from .buttons27 import Mhx2Import
 else:
     from .buttons28 import Mhx2Import
@@ -201,11 +201,17 @@ def build(struct, cfg, context):
         mname,mat = buildMaterial(mhMaterial, scn, cfg)
         mats[mname] = mat
 
+    mhHuman = None
     for mhGeo in struct["geometries"]:
         if mhGeo["human"]:
             mhHuman = mhGeo
             setMhHuman(mhHuman)
             scn.MhxDesignHuman = getMhHuman()["name"]
+
+    if b28() and mhHuman:
+        col = bpy.data.collections.new(mhHuman['name'].split(':', 1)[0])
+        bpy.context.collection.children.link(col)
+        scn['MHCollection'] = col
 
     parser = None
     rig = None
@@ -334,7 +340,7 @@ def build(struct, cfg, context):
     if cfg.useOverride:
         deleteAllSelected(human, proxies, context)
 
-    if bpy.app.version < (2,80,0):
+    if not b28():
         addToGroup(groupName, rig, human, proxies)
 
     if cfg.useOverride and cfg.mergeBodyParts:
@@ -364,6 +370,9 @@ def build(struct, cfg, context):
     elif proxy:
         activateObject(context, proxy)
         bpy.ops.object.mode_set(mode='OBJECT')
+
+    if b28() and 'MHCollection' in scn:
+        del scn['MHCollection']
 
 
 def addToGroup(groupName, rig, human, proxies):
