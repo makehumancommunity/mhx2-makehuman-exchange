@@ -191,6 +191,11 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     else:
         links.new(principled.outputs['BSDF'], output.inputs['Surface'])
 
+    if len(mat.diffuse_color) == 4:
+        mat.diffuse_color = tuple([*mhMat.get('viewPortColor', (0.8, 0.8, 0.8)), mhMat.get('viewPortAlpha', 1.0)])
+    else:
+        mat.diffuse_color = mhMat.get('viewPortColor', (0.8, 0.8, 0.8))
+
 
 def buildSimpleMaterialCycles(mat, color):
     print("Creating Simple CYCLES material", mat.name)
