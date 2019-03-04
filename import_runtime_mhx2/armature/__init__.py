@@ -20,29 +20,27 @@
 # ##### END GPL LICENSE BLOCK #####
 
 if "bpy" in locals():
-    print("Reloading MHX2 armature")
-    import imp
-    imp.reload(flags)
-    imp.reload(utils)
-    imp.reload(rig_joints)
-    #imp.reload(rig_bones)
-    imp.reload(rig_spine)
-    imp.reload(rig_arm)
-    imp.reload(rig_leg)
-    imp.reload(rig_hand)
-    #imp.reload(rig_muscle)
-    imp.reload(rig_face)
-    imp.reload(rig_control)
-    imp.reload(rig_merge)
-    imp.reload(rig_panel)
-    imp.reload(rig_rigify)
-    imp.reload(parser)
-    imp.reload(constraints)
-    imp.reload(rigify)
-    imp.reload(build)
-    imp.reload(rerig)
+    import importlib
+    importlib.reload(flags)
+    importlib.reload(utils)
+    importlib.reload(rig_joints)
+    #importlib.reload(rig_bones)
+    importlib.reload(rig_spine)
+    importlib.reload(rig_arm)
+    importlib.reload(rig_leg)
+    importlib.reload(rig_hand)
+    #importlib.reload(rig_muscle)
+    importlib.reload(rig_face)
+    importlib.reload(rig_control)
+    importlib.reload(rig_merge)
+    importlib.reload(rig_panel)
+    importlib.reload(rig_rigify)
+    importlib.reload(parser)
+    importlib.reload(constraints)
+    importlib.reload(rigify)
+    importlib.reload(build)
+    importlib.reload(rerig)
 else:
-    print("Loading MHX2 armature")
     from . import flags
     from . import utils
     from . import rig_joints

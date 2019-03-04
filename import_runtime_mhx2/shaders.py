@@ -21,7 +21,6 @@
 
 import bpy
 from .materials import NodeTree
-print("shaders.py")
 
 # ---------------------------------------------------------------------
 #

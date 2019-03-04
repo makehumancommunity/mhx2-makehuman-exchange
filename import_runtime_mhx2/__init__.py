@@ -23,8 +23,8 @@ bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
     'version': (0,30),
-    "blender": (2, 80, 0),
-    'location': "File > Import > MakeHuman (.mhx2)",
+    'blender': (2, 80, 0),
+    'location': "File > Import-Export",
     'description': 'Import files in the new MakeHuman eXchange format (.mhx2)',
     'warning': '',
     'wiki_url': 'http://thomasmakehuman.wordpress.com/mhx2-documentation/',
@@ -32,54 +32,48 @@ bl_info = {
 
 if "bpy" in locals():
     print("Reloading MHX2 importer-runtime v %d.%d" % bl_info["version"])
-    import imp
-    imp.reload(utils)
-    imp.reload(import_props)
-    if bpy.app.version < (2,80,0):
-        imp.reload(buttons27)
+    import importlib
+    importlib.reload(utils)
+    importlib.reload(import_props)
+    if utils.b28():
+        importlib.reload(buttons28)
     else:
-        imp.reload(buttons28)
-    imp.reload(armature)
-    imp.reload(hm8)
-    imp.reload(error)
-    imp.reload(config)
-    imp.reload(load_json)
-    imp.reload(masks)
-    imp.reload(materials)
-    imp.reload(shaders)
-    imp.reload(proxy)
-    imp.reload(hair)
-    imp.reload(geometries)
-    imp.reload(layers)
-    imp.reload(fkik)
-    imp.reload(drivers)
-    imp.reload(bone_drivers)
-    imp.reload(faceshift)
-    imp.reload(hide)
-    imp.reload(shapekeys)
-    imp.reload(visemes)
-    imp.reload(merge)
-    imp.reload(importer)
+        importlib.reload(buttons27)
+    importlib.reload(armature)
+    importlib.reload(hm8)
+    importlib.reload(error)
+    importlib.reload(config)
+    importlib.reload(load_json)
+    importlib.reload(masks)
+    importlib.reload(materials)
+    importlib.reload(shaders)
+    importlib.reload(proxy)
+    importlib.reload(hair)
+    importlib.reload(geometries)
+    importlib.reload(layers)
+    importlib.reload(fkik)
+    importlib.reload(drivers)
+    importlib.reload(bone_drivers)
+    importlib.reload(faceshift)
+    importlib.reload(hide)
+    importlib.reload(shapekeys)
+    importlib.reload(visemes)
+    importlib.reload(merge)
+    importlib.reload(importer)
 else:
-    print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     import bpy
+    print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     from . import utils
     from . import import_props
-    if bpy.app.version < (2,80,0):
-        from . import buttons27
-    else:
+    if utils.b28():
         from . import buttons28
+    else:
+        from . import buttons27
     from . import armature
-    from . import hm8
-    from . import error
-    from . import config
-    from . import load_json
-    from . import masks
     from . import materials
     from . import shaders
     from . import proxy
     from . import hair
-    from . import geometries
     from . import layers
     from . import fkik
     from . import drivers
@@ -92,11 +86,10 @@ else:
     from . import importer
 
 from bpy.props import *
-from bpy_extras.io_utils import ImportHelper
 from .error import *
 from .utils import *
 
-if bpy.app.version < (2,80,0):
+if not b28():
     Region = "TOOLS"
 else:
     Region = "UI"
@@ -581,7 +574,7 @@ classes = [
 ]
 
 def menu_func(self, context):
-    self.layout.operator(ImportMHX2.bl_idname, text="MakeHuman (.mhx2)...")
+    self.layout.operator(importer.MHX_OT_Import.bl_idname, text="MakeHuman (.mhx2)")
 
 def register():
     bpy.types.Object.MhxRig = StringProperty(default="")
@@ -664,7 +657,10 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    #bpy.types.INFO_MT_file_import.append(menu_func)
+    if b28():
+        bpy.types.TOPBAR_MT_file_import.append(menu_func)
+    else:
+        bpy.types.INFO_MT_file_import.append(menu_func)
 
 
 def unregister():
@@ -687,7 +683,11 @@ def unregister():
 
     for cls in classes:
         bpy.utils.unregister_class(cls)
-    #bpy.types.INFO_MT_file_import.remove(menu_func)
+
+    if b28():
+        bpy.types.TOPBAR_MT_file_import.remove(menu_func)
+    else:
+        bpy.types.INFO_MT_file_import.remove(menu_func)
 
 
 if __name__ == "__main__":
