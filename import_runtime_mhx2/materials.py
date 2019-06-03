@@ -25,6 +25,7 @@
 import bpy
 import os
 import math
+from .utils import b28
 D = math.pi/180
 
 # ---------------------------------------------------------------------
@@ -65,13 +66,13 @@ class NodeTree:
         self.ycoords[n] -= 250
         return node
 
-    def addTexImageNode(self, mhMat, texco, channel, cfg):
+    def addTexImageNode(self, mhMat, texco, channel, cfg, color_space = None):
         try:
             filepath = mhMat[channel]
         except KeyError:
             return None
         tex = self.addNode(2, 'ShaderNodeTexImage')
-        tex.image = loadImage(filepath, cfg)
+        tex.image = loadImage(filepath, cfg, color_space)
         self.links.new(texco.outputs['UV'], tex.inputs['Vector'])
         return tex
 
@@ -131,7 +132,7 @@ def buildHairMaterialCycles(mat, rgb):
 
 def buildMaterialCycles(mat, mhMat, scn, cfg):
     print("Creating CYCLES material", mat.name)
-    if bpy.app.version >= (2, 80):
+    if b28():
         mat.blend_method = 'HASHED'
     mat.use_nodes= True
     mat.node_tree.nodes.clear()
@@ -143,7 +144,9 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     principled.inputs['Base Color'].default_value[0:3] = mhMat['diffuse_color']
     principled.inputs['Roughness'].default_value = 1.0 - mhMat['shininess']
 
-    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg)
+    color_space = 'sRGB' if b28() else None
+
+    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg, color_space)
     if diffuseTex:
         links.new(diffuseTex.outputs['Color'], principled.inputs['Base Color'])
 
@@ -155,18 +158,20 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
         links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
         links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
 
-    bumpTex = tree.addTexImageNode(mhMat, texco, "bump_map_texture", cfg)
+    color_space = 'Non-Color' if b28() else None
+
+    bumpTex = tree.addTexImageNode(mhMat, texco, "bump_map_texture", cfg, color_space)
     bumpMap = None
     if bumpTex:
-        bumpTex.color_space = 'NONE'
+        if not b28(): bumpTex.color_space = 'NONE'
         bumpMap = tree.addNode(4, 'ShaderNodeBump')
         bumpMap.inputs['Strength'].default_value = mhMat.get('bump_map_intensity', 1.0)
         links.new(bumpTex.outputs['Color'], bumpMap.inputs['Height'])
         links.new(bumpMap.outputs['Normal'], principled.inputs['Normal'])
 
-    normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg)
+    normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg, color_space)
     if normalTex:
-        normalTex.color_space = 'NONE'
+        if not b28(): normalTex.color_space = 'NONE'
         normalMap = tree.addNode(3, 'ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
         normalMap.uv_map = "UVMap"
@@ -177,9 +182,9 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
         else:
             links.new(normalMap.outputs['Normal'], principled.inputs['Normal'])
 
-    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg)
+    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg, color_space)
     if glossyTex:
-        glossyTex.color_space = 'NONE'
+        if not b28(): glossyTex.color_space = 'NONE'
         invertColor = tree.addNode(4, 'ShaderNodeInvert')
         links.new(glossyTex.outputs['Color'], invertColor.inputs['Color'])
         links.new(invertColor.outputs['Color'], principled.inputs['Roughness'])
@@ -312,7 +317,7 @@ def setTransparent(mat, scn):
         mat.transparency_method = 'Z_TRANSPARENCY'
 
 
-def loadImage(filepath, cfg):
+def loadImage(filepath, cfg, color_space=None):
     abspath = os.path.join(cfg.folder, filepath)
     try:
         img = bpy.data.images.load(abspath)
@@ -320,6 +325,8 @@ def loadImage(filepath, cfg):
         print("Unable to load \"%s\"" % abspath)
         return None
     img.name = os.path.splitext(os.path.basename(filepath))[0]
+    if color_space:
+        img.colorspace_settings.name = color_space
     #img.use_premultiply = True
     return img
 
