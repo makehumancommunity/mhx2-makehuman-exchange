@@ -114,7 +114,7 @@ def buildRig(mhHuman, mhSkel, cfg, context):
 
     if len(parser.gizmos) > 0:
         empty = bpy.data.objects.new("%s:Gizmos" % rname, None)
-        hidden = createHiddenCollection(context)
+        hidden = createHiddenCollection(context, name="%s:Gizmos" % rname)
         hidden.objects.link(empty)
         empty.parent = rig
         putOnHiddenLayer(empty)

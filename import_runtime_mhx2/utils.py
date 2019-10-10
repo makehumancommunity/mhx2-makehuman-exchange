@@ -56,7 +56,7 @@ if not b28():
     def putOnHiddenLayer(ob, coll=None, hidden=None):
         ob.layers = 19*[False] + [True]
 
-    def createHiddenCollection(context):
+    def createHiddenCollection(context, name=None):
         return context.scene
 
     def inSceneLayer(context, ob):
@@ -122,12 +122,19 @@ else:
         if hidden:
             hidden.objects.link(ob)
 
-    def createHiddenCollection(context):
-        coll = bpy.data.collections.new(name="Hidden")
-        context.scene.collection.children.link(coll)
-        coll.hide_viewport = True
-        coll.hide_render = True
-        return coll
+    def createHiddenCollection(context, name=None):
+        hcoll = bpy.data.collections.get('Hidden')
+        if not hcoll:
+            hcoll = bpy.data.collections.new(name="Hidden")
+            context.scene.collection.children.link(hcoll)
+            hcoll.hide_viewport = True
+            hcoll.hide_render = True
+        if name:
+            ncoll = bpy.data.collections.new(name=name)
+            hcoll.children.link(ncoll)
+            return ncoll
+        else:
+            return hcoll
 
     def inSceneLayer(context, ob):
         coll = context.scene.collection
