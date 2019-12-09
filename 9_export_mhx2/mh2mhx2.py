@@ -408,10 +408,29 @@ def addWeights(mhMesh, skel, vertexWeights):
 
 def addMesh(mhGeo, mesh):
     mhGeo["vertices"] = mesh.coord
-    #mhGeo["normals"] = mesh.vnorm
-    mhGeo["faces"] = mesh.fvert
+    #
+    # we need to create different output for 3 or 4 vertices
+    # otherwise we can trouble in blender for tri-angles
+    # when first and last point is equal, subdiv in blender failes
+    # and furthermore ctrl-+ selection will completely freeze your system
+    # so we have to work with an additional list for export
+    #
+    temp_faces = []
+    for fn, fv in enumerate(mesh.fvert):
+       if (fv[0] == fv[3]):
+           temp_faces.append([fv[0], fv[1], fv[2]])
+       else:
+           temp_faces.append([fv[0], fv[1], fv[2], fv[3]])
+    mhGeo["faces"] = temp_faces
+
     mhGeo["uv_coordinates"] = mesh.texco
-    mhGeo["uv_faces"] = mesh.fuvs
+    utemp_faces = []
+    for fn, fv in enumerate(mesh.fuvs):
+       if (fv[0] == fv[3]):
+           utemp_faces.append([fv[0], fv[1], fv[2]])
+       else:
+           utemp_faces.append([fv[0], fv[1], fv[2], fv[3]])
+    mhGeo["uv_faces"] = utemp_faces
 
 
 #-----------------------------------------------------------------------
