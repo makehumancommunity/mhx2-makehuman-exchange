@@ -56,7 +56,10 @@ def encodeJsonData3(data, pad=""):
         if abs(data) < 1e-6:
             return "0"
         else:
-            return "%.5g" % data
+            if abs(data) > 99999:       # otherwise %.5g will destroy index numbers bigger than 100000 by writing 1e05
+                return "%d" % int(data) 
+            else:
+                return "%.5g" % data
     elif isinstance(data, (int, np.int32, np.uint32, np.int64, np.uint64)):
         return str(data)
     elif isinstance(data, str):
@@ -102,7 +105,10 @@ def encodeJsonData2(data, pad=""):
         if abs(data) < 1e-6:
             return "0"
         else:
-            return "%.5g" % data
+            if abs(data) > 99999:       # otherwise %.5g will destroy index numbers bigger than 100000 by writing 1e05
+                return "%d" % int(data)
+            else:
+                return "%.5g" % data
     elif isinstance(data, (int, np.int32, np.uint32)):
         return str(data)
     elif isinstance(data, (str, unicode)):
