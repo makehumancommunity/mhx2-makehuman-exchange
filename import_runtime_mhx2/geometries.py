@@ -155,7 +155,7 @@ def buildVertexGroups(vweights, ob, rig):
     for vgname,data in vweights.items():
         vgrp = ob.vertex_groups.new(name=vgname)
         for vn,w in data:
-            vgrp.add([vn], w, 'REPLACE')
+            vgrp.add([int(vn)], w, 'REPLACE')
 
 
 def getVertexGroupsFromObject(ob):

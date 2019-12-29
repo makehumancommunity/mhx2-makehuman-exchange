@@ -18,125 +18,33 @@
 
 
 import gzip
-import codecs
 import numpy as np
-import log
-import sys
-
-python3 = sys.version_info[0] >= 3
-
+import json
 
 def saveJson(struct, filepath, binary=False):
     if binary:
-        if python3:
-            bdata = bytes(encodeJsonData3(struct, ""), 'utf8')
-        else:
-            bdata = encodeJsonData2(struct, "")
+        bdata = bytes(json.dumps(struct, cls=MHEncoder), 'utf8')
         with gzip.open(filepath, 'wb') as fp:
             fp.write(bdata)
     else:
-        if python3:
-            string = encodeJsonData3(struct, "")
-        else:
-            string = encodeJsonData2(struct, "")
-        with codecs.open(filepath, "w", encoding="utf-8") as fp:
+        string = json.dumps(struct, cls=MHEncoder)
+        with open(filepath, "w", encoding="utf-8") as fp:
             fp.write(string)
-            fp.write("\n")
 
 
-def encodeJsonData3(data, pad=""):
-    if data is None:
-        return "null"
-    elif isinstance(data, (bool, np.bool_)):
-        if data:
-            return "true"
-        else:
-            return "false"
-    elif isinstance(data, (float, np.float32, np.float64)):
-        if abs(data) < 1e-6:
-            return "0"
-        else:
-            return "%.5g" % data
-    elif isinstance(data, (int, np.int32, np.uint32, np.int64, np.uint64)):
-        return str(data)
-    elif isinstance(data, str):
-        return "\"%s\"" % data
-    elif isinstance(data, bytes):
-        return "\"%s\"" % str(data, 'utf8')
-    elif isinstance(data, (list, tuple, np.ndarray)):
-        if leafList(data):
-            string = "["
-            string += ",".join([encodeJsonData3(elt) for elt in data])
-            return string + "]"
-        else:
-            string = "["
-            string += ",".join(
-                ["\n    " + pad + encodeJsonData3(elt, pad+"    ")
-                 for elt in data])
-            if string == "[":
-                return "[]"
+class MHEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, np.ndarray):
+            if o.dtype == 'bool':
+                return o.tolist()
             else:
-                return string + "\n%s]" % pad
-    elif isinstance(data, dict):
-        string = "{"
-        string += ",".join(
-            ["\n    %s\"%s\" : " % (pad, key) + encodeJsonData3(value, pad+"    ")
-             for key,value in data.items()])
-        if string == "{":
-            return "{}"
+                return o.round(5).tolist()
+        elif isinstance(o, (np.float16, np.float32, np.float64)):
+            return 0 if abs(o) < 1.0e-5 else round(float(o), 5)
+        elif isinstance(o, (np.int8, np.int16, np.int32, np.int64, np.uint8, np.uint16, np.uint32, np.uint64)):
+            return int(o)
+        elif isinstance(o, bytes):
+            return o.decode('utf-8')
         else:
-            return string + "\n%s}" % pad
-    else:
-        log.debug(data)
-        raise RuntimeError("Can't encode: %s %s" % (data, data.type))
-
-def encodeJsonData2(data, pad=""):
-    if data is None:
-        return "null"
-    elif isinstance(data, (bool, np.bool_)):
-        if data:
-            return "true"
-        else:
-            return "false"
-    elif isinstance(data, (float, np.float32, np.float64)):
-        if abs(data) < 1e-6:
-            return "0"
-        else:
-            return "%.5g" % data
-    elif isinstance(data, (int, np.int32, np.uint32)):
-        return str(data)
-    elif isinstance(data, (str, unicode)):
-        return "\"%s\"" % data
-    elif isinstance(data, (list, tuple, np.ndarray)):
-        if leafList(data):
-            string = "["
-            string += ",".join([encodeJsonData2(elt) for elt in data])
-            return string + "]"
-        else:
-            string = "["
-            string += ",".join(
-                ["\n    " + pad + encodeJsonData2(elt, pad+"    ")
-                 for elt in data])
-            if string == "[":
-                return "[]"
-            else:
-                return string + "\n%s]" % pad
-    elif isinstance(data, dict):
-        string = "{"
-        string += ",".join(
-            ["\n    %s\"%s\" : " % (pad, key) + encodeJsonData2(value, pad+"    ")
-             for key,value in data.items()])
-        if string == "{":
-            return "{}"
-        else:
-            return string + "\n%s}" % pad
-    else:
-        log.debug(data)
-        raise RuntimeError("Can't encode: %s %s" % (data, data.type))
-
-
-def leafList(data):
-    for elt in data:
-        if isinstance(elt, (list,tuple,dict)):
-            return False
-    return True
+            return json.JSONEncoder.default(self, o)
