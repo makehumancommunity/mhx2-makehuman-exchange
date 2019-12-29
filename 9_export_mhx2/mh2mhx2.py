@@ -35,6 +35,7 @@ import log
 import skeleton
 from .save_json import saveJson
 from .hm8 import getBaseMesh
+from material import getSkinBlender
 
 
 def exportMhx2(filepath, cfg):
@@ -90,6 +91,9 @@ def exportMhx2(filepath, cfg):
     mhMaterials = mhFile["materials"] = []
     mats = {}
     for mesh in meshes:
+        if mesh.object.proxy is None or mesh.object.proxy.type == 'Proxymeshes':
+            mesh.material.setViewPortColor(getSkinBlender().getDiffuseColor())
+            mesh.material.setViewPortAlpha(1.0)
         mats[mesh.name] = mname = getMaterialName(name, mesh.name, mesh.material.name)
         addMaterial(mhMaterials, mesh.material, mname, texhandler)
 
@@ -197,6 +201,10 @@ def addMaterial(mhMaterials, mat, mname, texhandler):
     texhandler.addTexture(mhMat, "bump_map_texture", mat.bumpMapTexture)
     texhandler.addTexture(mhMat, "displacement_map_texture", mat.displacementMapTexture)
     texhandler.addTexture(mhMat, "ao_map_texture", mat.aoMapTexture)
+
+    if mat.usesViewPortColor():
+        mhMat["viewPortColor"] = mat.viewPortColor.asTuple()
+        mhMat["viewPortAlpha"] = mat.viewPortAlpha
 
 
 class TextureHandler:
