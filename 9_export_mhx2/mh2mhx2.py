@@ -36,6 +36,7 @@ import skeleton
 from .save_json import saveJson
 from .hm8 import getBaseMesh
 from material import getSkinBlender
+from uuid import uuid4
 
 
 def exportMhx2(filepath, cfg):
@@ -309,7 +310,6 @@ def getRoll(rmat):
 #-----------------------------------------------------------------------
 
 def addGeometry(mhGeos, mesh, skel, rawWeights, mats, mname, cfg):
-    from .uuid4 import uuid4
 
     mhGeo = OrderedDict()
     mhGeos.append(mhGeo)
