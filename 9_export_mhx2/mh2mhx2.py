@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -18,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# changed for triangle-support    by punkduck
 
 Mhx2Version = "0.27"
 
@@ -416,6 +417,7 @@ def addWeights(mhMesh, skel, vertexWeights):
 
 def addMesh(mhGeo, mesh):
     mhGeo["vertices"] = mesh.coord
+    mhGeo["uv_coordinates"] = mesh.texco
     #
     # we need to create different output for 3 or 4 vertices
     # otherwise we can trouble in blender for tri-angles
@@ -423,23 +425,19 @@ def addMesh(mhGeo, mesh):
     # and furthermore ctrl-+ selection will completely freeze your system
     # so we have to work with an additional list for export
     #
-    temp_faces = []
-    for fn, fv in enumerate(mesh.fvert):
-       if (fv[0] == fv[3]):
+    if mesh.vertsPerFaceForExport != 4:
+        temp_faces = []
+        for fn, fv in enumerate(mesh.fvert):
            temp_faces.append([fv[0], fv[1], fv[2]])
-       else:
-           temp_faces.append([fv[0], fv[1], fv[2], fv[3]])
-    mhGeo["faces"] = temp_faces
+        mhGeo["faces"] = temp_faces
 
-    mhGeo["uv_coordinates"] = mesh.texco
-    utemp_faces = []
-    for fn, fv in enumerate(mesh.fuvs):
-       if (fv[0] == fv[3]):
+        utemp_faces = []
+        for fn, fv in enumerate(mesh.fuvs):
            utemp_faces.append([fv[0], fv[1], fv[2]])
-       else:
-           utemp_faces.append([fv[0], fv[1], fv[2], fv[3]])
-    mhGeo["uv_faces"] = utemp_faces
-
+        mhGeo["uv_faces"] = utemp_faces
+    else:
+        mhGeo["faces"] = mesh.fvert
+        mhGeo["uv_faces"] = mesh.fuvs
 
 #-----------------------------------------------------------------------
 #   Naming
