@@ -1,21 +1,21 @@
 MHX2 - MakeHuman eXchange format 2
 
-MHX2 replaces the old MHX format that has been bundled with MakeHuman. Contrary to the first version, which was a Blender-specific format, MHX2 is not tied to a specific application. Instead it exports relevant information about the MakeHuman meshes and materials, which allows importers to build their own application-specific rigs. Currently there is only an importer for Blender, but mhx2 importers for other applications will eventually be welcomed. Support for the old MHX format will eventually be terminated.
+MHX2 is a format to copy data from MakeHuman to Blender using a JSON file. Because of triangle support, at least MakeHuman version 1.2.x is demanded.
 
-MHX2 is not part of the MakeHuman distribution. It is hosted separately at https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange. To download the repository as a zip file, go to https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange/downloads.
+Original version is hosted separately at https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange. To download the repository as a zip file, go to https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange/downloads.
 
-Instructions.
+This is a downstream version using python3 with fixes for triangle meshes, meshes with huge numbers of vertices and for the use in blender 2.80
+
+Instructions:
 
 1. Copy or link the folder 9_export_mhx2 to the MakeHuman plugins folder.
 
 
 2. Copy or link the folder import_runtime_mhx2 to the addons destination directory where Blender will look for user-defined add-ons. Depending on the OS, this may be:
 
-    Windows 7: C:\Users\%username%\AppData\Roaming\Blender Foundation\Blender\2.6x\scripts\addons
+    Windows 7: C:\Users\%username%\AppData\Roaming\Blender Foundation\Blender\%blenderversion%\scripts\addons
 
-    Windows XP: C:\Documents and Settings\%username%\Application Data\Blender Foundation\Blender\2.6x\scripts\addons
-
-    Vista: C:\Program Files\Blender Foundation\Blender\%blenderversion%\scripts\addons (this is valid at least for blender 2.69)
+    Windows XP: C:\Documents and Settings\%username%\Application Data\Blender Foundation\Blender\%blenderversion%\scripts\addons
 
     Linux: /home/$user/.blender/$version/scripts/addons
 

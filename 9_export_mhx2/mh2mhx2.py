@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -18,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# changed for triangle-support    by punkduck
 
 Mhx2Version = "0.27"
 
@@ -416,11 +417,27 @@ def addWeights(mhMesh, skel, vertexWeights):
 
 def addMesh(mhGeo, mesh):
     mhGeo["vertices"] = mesh.coord
-    #mhGeo["normals"] = mesh.vnorm
-    mhGeo["faces"] = mesh.fvert
     mhGeo["uv_coordinates"] = mesh.texco
-    mhGeo["uv_faces"] = mesh.fuvs
+    #
+    # we need to create different output for 3 or 4 vertices
+    # otherwise we can trouble in blender for tri-angles
+    # when first and last point is equal, subdiv in blender failes
+    # and furthermore ctrl-+ selection will completely freeze your system
+    # so we have to work with an additional list for export
+    #
+    if mesh.vertsPerFaceForExport != 4:
+        temp_faces = []
+        for fn, fv in enumerate(mesh.fvert):
+           temp_faces.append([fv[0], fv[1], fv[2]])
+        mhGeo["faces"] = temp_faces
 
+        utemp_faces = []
+        for fn, fv in enumerate(mesh.fuvs):
+           utemp_faces.append([fv[0], fv[1], fv[2]])
+        mhGeo["uv_faces"] = utemp_faces
+    else:
+        mhGeo["faces"] = mesh.fvert
+        mhGeo["uv_faces"] = mesh.fuvs
 
 #-----------------------------------------------------------------------
 #   Naming
