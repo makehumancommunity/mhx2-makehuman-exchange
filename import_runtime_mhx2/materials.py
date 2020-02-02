@@ -149,14 +149,7 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg, color_space)
     if diffuseTex:
         links.new(diffuseTex.outputs['Color'], principled.inputs['Base Color'])
-
-    mixTrans = None
-    if diffuseTex:
-        transparent = tree.addNode(6, 'ShaderNodeBsdfTransparent')
-        mixTrans = tree.addNode(7, 'ShaderNodeMixShader')
-        links.new(principled.outputs['BSDF'], mixTrans.inputs[2])
-        links.new(transparent.outputs['BSDF'], mixTrans.inputs[1])
-        links.new(diffuseTex.outputs['Alpha'], mixTrans.inputs['Fac'])
+        links.new(diffuseTex.outputs['Alpha'], principled.inputs['Alpha'])
 
     color_space = 'Non-Color' if b28() else None
 
@@ -164,7 +157,7 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     bumpMap = None
     if bumpTex:
         if not b28(): bumpTex.color_space = 'NONE'
-        bumpMap = tree.addNode(4, 'ShaderNodeBump')
+        bumpMap = tree.addNode(5, 'ShaderNodeBump')
         bumpMap.inputs['Strength'].default_value = mhMat.get('bump_map_intensity', 1.0)
         links.new(bumpTex.outputs['Color'], bumpMap.inputs['Height'])
         links.new(bumpMap.outputs['Normal'], principled.inputs['Normal'])
@@ -172,7 +165,7 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg, color_space)
     if normalTex:
         if not b28(): normalTex.color_space = 'NONE'
-        normalMap = tree.addNode(3, 'ShaderNodeNormalMap')
+        normalMap = tree.addNode(4, 'ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
         normalMap.uv_map = "UVMap"
         normalMap.inputs['Strength'].default_value = mhMat.get('normal_map_intensity', 1.0)
@@ -185,16 +178,13 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg, color_space)
     if glossyTex:
         if not b28(): glossyTex.color_space = 'NONE'
-        invertColor = tree.addNode(4, 'ShaderNodeInvert')
+        invertColor = tree.addNode(5, 'ShaderNodeInvert')
         links.new(glossyTex.outputs['Color'], invertColor.inputs['Color'])
         links.new(invertColor.outputs['Color'], principled.inputs['Roughness'])
 
-    output = tree.addNode(8 if mixTrans else 7, 'ShaderNodeOutputMaterial')
+    output = tree.addNode(7, 'ShaderNodeOutputMaterial')
 
-    if mixTrans:
-        links.new(mixTrans.outputs['Shader'], output.inputs['Surface'])
-    else:
-        links.new(principled.outputs['BSDF'], output.inputs['Surface'])
+    links.new(principled.outputs['BSDF'], output.inputs['Surface'])
 
     if len(mat.diffuse_color) == 4:
         mat.diffuse_color = tuple([*mhMat.get('viewPortColor', (0.8, 0.8, 0.8)), mhMat.get('viewPortAlpha', 1.0)])
