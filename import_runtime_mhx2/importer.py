@@ -142,7 +142,7 @@ def importMhx2File(filepath, cfg, context):
     cfg.folder = os.path.dirname(filepath)
     struct, time1 = importMhx2Json(filepath)
     build(struct, cfg, context)
-    time2 = time.clock()
+    time2 = time.perf_counter()
     print("File %s loaded in %g s" % (filepath, time2-time1))
 
 
@@ -154,7 +154,7 @@ def importMhx2Json(filepath):
         return
     print( "Opening MHX2 file %s " % filepath.encode('utf-8', 'strict') )
 
-    time1 = time.clock()
+    time1 = time.perf_counter()
     struct = loadJson(filepath)
 
     try:
