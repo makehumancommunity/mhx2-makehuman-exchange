@@ -1,6 +1,7 @@
 #
 #    MakeHuman .mhx2 exporter
-#    Copyright (C) Thomas Larsson 2014
+#    Copyright (C) Thomas Larsson 2014 - 2020
+#    Copyright (C) MakeHuman Community 2020
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

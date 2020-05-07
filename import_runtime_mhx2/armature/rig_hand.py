@@ -1,7 +1,8 @@
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  Authors:             Thomas Larsson
-#  Script copyright (C) Thomas Larsson 2014
+#  Script Copyright (C) Thomas Larsson 2014 - 2020
+#  Script Copyright (C) MakeHuman Community 2020
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
