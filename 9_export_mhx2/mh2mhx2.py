@@ -20,7 +20,7 @@
 #
 # changed for triangle-support    by punkduck
 
-Mhx2Version = "0.27"
+Mhx2Version = "0.31"
 
 import os
 import sys

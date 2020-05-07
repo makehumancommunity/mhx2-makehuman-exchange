@@ -22,7 +22,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,30),
+    'version': (0,31),
     'blender': (2, 80, 0),
     'location': "File > Import-Export",
     'description': 'Import files in the new MakeHuman eXchange format (.mhx2)',
