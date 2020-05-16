@@ -32,6 +32,7 @@ import bpy
 import os
 from bpy.props import *
 from ..error import *
+from .utils import *
 
 if bpy.app.version < (2, 79, 0):
     # Blender 2.78 and before
@@ -137,7 +138,7 @@ class RigifyBone:
 
 
 def checkRigifyEnabled(context):
-    for addon in context.user_preferences.addons:
+    for addon in context.preferences.addons:
         if addon.module == "rigify":
             return True
     return False
@@ -155,7 +156,7 @@ def rigifyMhx(context, parser, taken={}):
     activateObject(context, rig)
 
     group = None
-    for grp in bpy.data.groups:
+    for grp in bpy.data.collections:
         if rig.name in grp.objects:
             group = grp
             break
@@ -377,7 +378,7 @@ def rigifyMhx(context, parser, taken={}):
 
     #Clean up
     setattr(gen, ShowXRay, True)
-    setattr(gen, DrawType, 'STICK')
+    #setattr(gen, DrawType, 'STICK')
     gen.MhxRigify = False
     name = rig.name
     deleteObject(context, rig)
@@ -464,7 +465,7 @@ def setBoneName(bone, gen):
 def fixConstraint(cns1, cns2, gen, bones):
     for key in dir(cns1):
         if ((key[0] != "_") and
-            (key not in ["bl_rna", "type", "rna_type", "is_valid", "error_location", "error_rotation"])):
+            (key not in ["bl_rna", "type", "rna_type", "is_valid", "error_location", "error_rotation", "is_proxy_local"])):
             setattr(cns2, key, getattr(cns1, key))
 
     if hasattr(cns2, "target"):
