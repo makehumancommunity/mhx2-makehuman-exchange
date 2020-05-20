@@ -81,8 +81,8 @@ else:
     ]
 
     Parents = {
-        "clavicle.L" : "ORG-chest",
-        "clavicle.R" : "ORG-chest",
+        "clavicle.L" : "ORG-spine.003",
+        "clavicle.R" : "ORG-spine.003",
         "shoulder.L" : "clavicle.L",
         "shoulder.R" : "clavicle.R",
         "ORG-shoulder.L" : "clavicle.L",
