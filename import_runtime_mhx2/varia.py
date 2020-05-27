@@ -46,7 +46,7 @@ class MHX_OT_MhxAddGroups(bpy.types.Operator):
 def addGroup(ob, gname):
     group = None
     for grp in ob.groups:
-        if grp.name = gname:
+        if grp.name == gname:
             group = grp
             break
     if not group:
