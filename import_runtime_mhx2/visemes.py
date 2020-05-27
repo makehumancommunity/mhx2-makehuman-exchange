@@ -177,7 +177,7 @@ class MHX_OT_SetViseme(bpy.types.Operator, VisemeString):
 # ---------------------------------------------------------------------
 
 def loadMoho(rig, context, filepath, offs):
-    context.scene.objects.active = rig
+    context.view_layer.objects.active = rig
     moho = getMoho()
     bpy.ops.object.mode_set(mode='POSE')
     fp = open(filepath, "rU")
