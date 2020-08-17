@@ -122,10 +122,9 @@ def saveMhpFile(rig, scn, filepath):
     (pname, ext) = os.path.splitext(filepath)
     mhppath = pname + ".mhp"
 
-    fp = open(mhppath, "w", encoding="utf-8", newline="\n")
-    for root in roots:
-        writeMhpBones(fp, root, None)
-    fp.close()
+    with open(mhppath, "w", encoding="utf-8", newline="\n") as fp:
+        for root in roots:
+            writeMhpBones(fp, root, None)
     print("Mhp file %s saved" % mhppath)
 
 
@@ -181,52 +180,51 @@ def loadMhpFile(rig, scn, filepath):
     (pname, ext) = os.path.splitext(filepath)
     mhppath = pname + ".mhp"
 
-    fp = open(mhppath, "rU")
-    for line in fp:
-        words = line.split()
-        if len(words) < 4:
-            continue
+    with open(mhppath, "r", encoding='utf-8') as fp:
+        for line in fp:
+            words = line.split()
+            if len(words) < 4:
+                continue
 
-        try:
-            pb = rig.pose.bones[words[0]]
-        except KeyError:
-            print("Warning: Did not find bone %s" % words[0])
-            continue
+            try:
+                pb = rig.pose.bones[words[0]]
+            except KeyError:
+                print("Warning: Did not find bone %s" % words[0])
+                continue
 
-        if isMuscleBone(pb):
-            pass
-        elif words[1] == "quat":
-            q = Quaternion((float(words[2]), float(words[3]), float(words[4]), float(words[5])))
-            mat = q.to_matrix().to_4x4()
-            pb.matrix_basis = mat
-        elif words[1] == "gquat":
-            q = Quaternion((float(words[2]), float(words[3]), float(words[4]), float(words[5])))
-            mat = q.to_matrix().to_4x4()
-            maty = mat[1].copy()
-            matz = mat[2].copy()
-            mat[1] = -matz
-            mat[2] = maty
-            pb.matrix_basis = Mult2(pb.bone.matrix_local.inverted(), mat)
-        elif words[1] == "matrix":
-            rows = []
-            n = 2
-            for i in range(4):
-                rows.append((float(words[n]), float(words[n+1]), float(words[n+2]), float(words[n+3])))
-                n += 4
-            mat = Matrix(rows)
-            if pb.parent:
+            if isMuscleBone(pb):
+                pass
+            elif words[1] == "quat":
+                q = Quaternion((float(words[2]), float(words[3]), float(words[4]), float(words[5])))
+                mat = q.to_matrix().to_4x4()
                 pb.matrix_basis = mat
-            else:
+            elif words[1] == "gquat":
+                q = Quaternion((float(words[2]), float(words[3]), float(words[4]), float(words[5])))
+                mat = q.to_matrix().to_4x4()
                 maty = mat[1].copy()
                 matz = mat[2].copy()
                 mat[1] = -matz
                 mat[2] = maty
                 pb.matrix_basis = Mult2(pb.bone.matrix_local.inverted(), mat)
-        elif words[1] == "scale":
-            pass
-        else:
-            print("WARNING: Unknown line in mcp file:\n%s" % line)
-    fp.close()
+            elif words[1] == "matrix":
+                rows = []
+                n = 2
+                for i in range(4):
+                    rows.append((float(words[n]), float(words[n+1]), float(words[n+2]), float(words[n+3])))
+                    n += 4
+                mat = Matrix(rows)
+                if pb.parent:
+                    pb.matrix_basis = mat
+                else:
+                    maty = mat[1].copy()
+                    matz = mat[2].copy()
+                    mat[1] = -matz
+                    mat[2] = maty
+                    pb.matrix_basis = Mult2(pb.bone.matrix_local.inverted(), mat)
+            elif words[1] == "scale":
+                pass
+            else:
+                print("WARNING: Unknown line in mcp file:\n%s" % line)
     print("Mhp file %s loaded" % mhppath)
 
 

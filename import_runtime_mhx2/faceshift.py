@@ -48,7 +48,7 @@ def faceshiftBvhLoad(filepath, useHead, context):
     bmotion = {}
     idx = 0
     R = math.pi/180
-    with open(filepath) as fp:
+    with open(filepath, encoding='utf-8') as fp:
         for line in fp:
             words = line.split()
             if len(words) == 0:

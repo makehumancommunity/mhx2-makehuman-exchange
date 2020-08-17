@@ -180,16 +180,15 @@ def loadMoho(rig, context, filepath, offs):
     context.view_layer.objects.active = rig
     moho = getMoho()
     bpy.ops.object.mode_set(mode='POSE')
-    fp = open(filepath, "rU")
-    for line in fp:
-        words= line.split()
-        if len(words) < 2:
-            pass
-        else:
-            frame = int(words[0]) + offs
-            vis = moho[words[1]]
-            setViseme(rig, vis, True, frame)
-    fp.close()
+    with open(filepath, "r", encoding='utf-8'):
+        for line in fp:
+            words= line.split()
+            if len(words) < 2:
+                pass
+            else:
+                frame = int(words[0]) + offs
+                vis = moho[words[1]]
+                setViseme(rig, vis, True, frame)
     #setInterpolation(rig)
     updateScene(context)
     print("Moho file %s loaded" % filepath)

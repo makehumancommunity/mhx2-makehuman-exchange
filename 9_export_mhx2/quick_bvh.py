@@ -32,7 +32,7 @@ def loadBvh(filepath):
     joint = None
     useMotion = False
     try:
-        fp = open(filepath, "rU")
+        fp = open(filepath, "r", encoding='utf-8')
         for line in fp:
             words = line.split()
             if len(words) == 0:

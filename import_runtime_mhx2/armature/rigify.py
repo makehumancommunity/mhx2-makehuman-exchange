@@ -387,12 +387,6 @@ def rigifyMhx(context, parser, taken={}):
     print("MHX rig %s successfully rigified" % name)
     return gen
 
-    fp = open("/home/rigi.txt", "w")
-    for b in gen.data.bones:
-        fp.write("%s %s %s %s\n" % (b.name, b.parent, b.head, b.tail))
-    fp.close()
-    return gen
-
 
 def fixRigifyMeshes(children):
     for ob in children:

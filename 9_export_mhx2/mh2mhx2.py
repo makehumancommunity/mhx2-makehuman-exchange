@@ -131,7 +131,7 @@ def addJson(folder, file):
     path = os.path.join(folder, file)
     if os.path.exists(path):
         try:
-            fp = open(path, "rU")
+            fp = open(path, "rU", encoding='utf-8')
             return json.load(fp)
         finally:
             fp.close()

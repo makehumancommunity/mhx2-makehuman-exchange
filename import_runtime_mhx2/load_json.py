@@ -35,7 +35,7 @@ def loadJson(filepath):
         string = bytes.decode("utf-8")
         struct = json.loads(string)
     else:
-        with open(filepath, "rU") as fp:
+        with open(filepath, "r", encoding='utf-8') as fp:
             struct = json.load(fp)
 
     if not struct:
