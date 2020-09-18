@@ -15,7 +15,7 @@ Instructions:
 
 3. Open MakeHuman and design you character. In the Files > Export tab, select MakeHuman Exchange (mhx2), select the export path, and press export.
 
-4. Open Blender and enable the MHX2 importer. Select File > User Preferences. In the window that opens, select the Addons tab and then the MakeHuman category. Enable MakeHuman: Import-Runtime: MakeHuman eXchange 2 (.mhx2), and Save User Settings.
+4. Open Blender and enable the MHX2 importer. Select Edit > User Preferences. In the window that opens, select the Addons tab and then the MakeHuman category. Enable MakeHuman: Import-Runtime: MakeHuman eXchange 2 (.mhx2), and Save User Settings.
 
 5. Select File > Import > MakeHuman (.mhx2), and navigate to the mhx2 file exported from MakeHuman.
 
