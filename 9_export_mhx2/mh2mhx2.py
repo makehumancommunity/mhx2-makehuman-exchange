@@ -407,12 +407,17 @@ def addWeights(mhMesh, skel, vertexWeights):
             else:
                 idxs,weights = vertexWeights[bone.name]
         except KeyError:
+            # each bone not included in the weights will be skipped
             continue
-        assoc = [(vn,weights[n]) for n,vn in enumerate(idxs)]
-        assoc.sort()
-        while assoc[0][0] < 0:
-            assoc = assoc[1:]
-        if len(assoc) > 0:
+        #
+        # there are cases without values, so make sure there is always one value
+        # in case there is no value, also skip the bone
+        #
+        if len(idxs) > 0:
+            assoc = [(vn,weights[n]) for n,vn in enumerate(idxs)]
+            assoc.sort()
+            while assoc[0][0] < 0:
+                assoc = assoc[1:]
             mhWeights[bone.name] = np.array(assoc)
 
 
