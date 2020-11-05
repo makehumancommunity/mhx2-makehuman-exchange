@@ -4,6 +4,8 @@ MHX2 is a format to copy data from MakeHuman to Blender using a JSON file. Becau
 
 Original version is hosted separately at https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange. To download the repository as a zip file, go to https://bitbucket.org/Diffeomorphic/mhx2-makehuman-exchange/downloads.
 
+The overall license for MHX2 is GPLv2, but there is an additional license clarification at https://thomasmakehuman.wordpress.com/license-information/
+
 This is a downstream version using python3 with fixes for triangle meshes, meshes with huge numbers of vertices and for the use in blender 2.80
 
 Instructions:

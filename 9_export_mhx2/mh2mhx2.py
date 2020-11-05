@@ -470,32 +470,18 @@ def getMaterialName(name, meshname, matname):
 
 '''
 BaseMeshLicense = (
-    ["MakeHuman 3d morphing modelled by Manuel Bastioni"],
-    ["Copyright (C) 2014 Manuel Bastioni (mb@makehuman.org)"],
-    ["homepage http://www.makehuman.org"],
+    ["MakeHuman Base Mesh"],
+    ["Copyright (C) 2020 MakeHuman Community"],
+    ["homepage http://www.makehumancommunity.org"],
     ["basemesh hm08"],
-    ["license AGPL3 (http://www.makehuman.org/doc/node/makehuman_mesh_license.html)"],
-    ["   This file is part of MakeHuman (www.makehuman.org)."],
-    [""],
-    ["   This program is free software: you can redistribute it and/or modify"],
-    ["   it under the terms of the GNU Affero General Public License as"],
-    ["   published by the Free Software Foundation, either version 3 of the"],
-    ["   License, or (at your option) any later version."],
-    [""],
-    ["   This program is distributed in the hope that it will be useful,"],
-    ["   but WITHOUT ANY WARRANTY; without even the implied warranty of"],
-    ["   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the"],
-    ["   GNU Affero General Public License for more details."],
-    [""],
-    ["   You should have received a copy of the GNU Affero General Public License"],
-    ["   along with this program.  If not, see <http://www.gnu.org/licenses/>."],
-)
+    ["license CC0 (https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.md)"],
+    ["   This file is part of MakeHuman (www.makehumancommunity.org)."]
 '''
 
 BaseMeshLicense = OrderedDict([
-    ("author",  "Manuel Bastioni"),
-    ("license", "AGPL3 (http://www.makehuman.org/doc/node/makehuman_mesh_license.html)"),
-    ("homepage", "http://www.makehuman.org/")
+    ("author",  "MakeHuman Community"),
+    ("license", "CC0 (https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.md)"),
+    ("homepage", "http://www.makehumancommunity.org/")
 ])
 
 def addProxyLicense(mhGeo, pxy):
@@ -504,8 +490,8 @@ def addProxyLicense(mhGeo, pxy):
         for key in ["author", "license", "homepage"]:
             mhLicense[key] = getattr(pxy.license, key)
     else:
-        mhLicense["author"] = "MakeHuman Team"
-        mhLicense["license"] = "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)"
-        mhLicense["homepage"] = "http://www.makehuman.org/"
+        mhLicense["author"] = "MakeHuman Community"
+        mhLicense["license"] = "CC0 (see also https://github.com/makehumancommunity/makehuman/blob/master/LICENSE.md)"
+        mhLicense["homepage"] = "http://www.makehumancommunity.org/"
 
 
