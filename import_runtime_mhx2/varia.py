@@ -28,36 +28,36 @@ from .drivers import *
 #    Setup: Add and remove groups
 #------------------------------------------------------------------------
 
-class MHX_OT_MhxAddGroups(bpy.types.Operator):
-    bl_idname = "mhx2.add_groups"
-    bl_label = "Add Groups"
+class MHX_OT_MhxAddColections(bpy.types.Operator):
+    bl_idname = "mhx2.add_collections"
+    bl_label = "Add Collections"
     bl_description = "Add meshes to rig group. For file linking."
     bl_options = {'UNDO'}
 
     def execute(self, context):
         rig,meshes = getRigMeshes(context)
         if rig:
-            addGroup(rig, rig.name)
+            addCollection(rig, rig.name)
             for ob in meshes:
-                addGroup(ob, rig.name)
+                addCollection(ob, rig.name)
         return{'FINISHED'}
 
 
-def addGroup(ob, gname):
-    group = None
-    for grp in ob.groups:
-        if grp.name == gname:
-            group = grp
+def addCollection(ob, cname):
+    collection = None
+    for col in ob.collections:
+        if col.name = cname:
+            collection = col
             break
-    if not group:
-        group = ob.groups.new(gname)
+    if not collection:
+        collection = ob.collections.new(cname)
 
 #----------------------------------------------------------
 #   Initialize
 #----------------------------------------------------------
 
 classes = [
-    MHX_OT_MhxAddGroups,
+    MHX_OT_MhxAddColections,
 ]
 
 def initialize():
