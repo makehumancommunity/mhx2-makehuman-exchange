@@ -202,7 +202,7 @@ def buildSimpleMaterialCycles(mat, color):
     texco = tree.addNode(1, 'ShaderNodeTexCoord')
 
     diffuse = tree.addNode(2, 'ShaderNodeBsdfDiffuse')
-    diffuse.inputs["Color"].default_value =  list(color) + [0]
+    diffuse.inputs["Color"].default_value =  list(color)
     diffuse.inputs["Roughness"].default_value = 0
 
     output = tree.addNode(3, 'ShaderNodeOutputMaterial')
@@ -409,9 +409,9 @@ ColorItems = [("BLACK", "Black", "Black"),
              ]
 
 ColorRGB = {
-    'BLACK' : [0,0,0],
+    'BLACK' : [0.0, 0.0, 0.0],
     'WHITE' : [0.6, 0.6, 0.6],
-    'GREY' : [0.2, 0.2, 0.2],
+    'GREY'  : [0.2, 0.2, 0.2],
     'BLOND' : [0.8, 0.5, 0.2],
     'BROWN' : [0.035, 0.004, 0.002],
 }
@@ -450,7 +450,7 @@ def defaultRamp(ramp, rgb):
     ramp.elements.new(0.1)
     ramp.elements.new(0.2)
     for n,data in enumerate([
-        (0, rgb+[0]),
+        (0.0, rgb+[0]),
         (0.07, rgb+[1]),
         (0.6, rgb+[1]),
         (1.0, rgb+[0])
@@ -466,11 +466,11 @@ def makeSimpleMaterials(ob, scn):
     from .hm8 import VertexRanges
 
     for mname,color,helper1,helper2 in [
-            ("Cyan", (0,1,1), "Tongue", "Penis"),
-            ("Red", (1,0,0), "Tights", "Tights"),
-            ("Blue", (0,0,1), "Skirt", "Skirt"),
-            ("Yellow", (1,1,0), "Hair", "Hair"),
-            ("Green", (0,1,0), "Joints", "Joints")
+            ("Cyan", (0,1,1,1), "Tongue", "Penis"),
+            ("Red", (1,0,0,1), "Tights", "Tights"),
+            ("Blue", (0,0,1,1), "Skirt", "Skirt"),
+            ("Yellow", (1,1,0,1), "Hair", "Hair"),
+            ("Green", (0,1,0,1), "Joints", "Joints")
         ]:
 
         for mat in ob.data.materials:
