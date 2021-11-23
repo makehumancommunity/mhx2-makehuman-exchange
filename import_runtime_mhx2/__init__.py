@@ -23,7 +23,7 @@
 bl_info = {
     'name': 'Import-Runtime: MakeHuman Exchange 2 (.mhx2)',
     'author': 'Thomas Larsson',
-    'version': (0,31),
+    'version': (0,32),
     'blender': (2, 80, 0),
     'location': "File > Import-Export",
     'description': 'Import files in the new MakeHuman eXchange format (.mhx2)',
@@ -36,10 +36,7 @@ if "bpy" in locals():
     import importlib
     importlib.reload(utils)
     importlib.reload(import_props)
-    if utils.b28():
-        importlib.reload(buttons28)
-    else:
-        importlib.reload(buttons27)
+    importlib.reload(buttons28)
     importlib.reload(armature)
     importlib.reload(hm8)
     importlib.reload(error)
@@ -66,10 +63,7 @@ else:
     print("Loading MHX2 importer-runtime v %d.%d" % bl_info["version"])
     from . import utils
     from . import import_props
-    if utils.b28():
-        from . import buttons28
-    else:
-        from . import buttons27
+    from . import buttons28
     from . import armature
     from . import materials
     from . import shaders
@@ -90,10 +84,7 @@ from bpy.props import *
 from .error import *
 from .utils import *
 
-if not b28():
-    Region = "TOOLS"
-else:
-    Region = "UI"
+Region = "UI"
 
 #------------------------------------------------------------------------
 #    Setup panel
@@ -658,10 +649,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    if b28():
-        bpy.types.TOPBAR_MT_file_import.append(menu_func)
-    else:
-        bpy.types.INFO_MT_file_import.append(menu_func)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func)
 
 
 def unregister():
@@ -685,10 +673,7 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    if b28():
-        bpy.types.TOPBAR_MT_file_import.remove(menu_func)
-    else:
-        bpy.types.INFO_MT_file_import.remove(menu_func)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func)
 
 
 if __name__ == "__main__":

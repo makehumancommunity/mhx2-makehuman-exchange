@@ -26,7 +26,6 @@
 import bpy
 import os
 import math
-from .utils import b28
 D = math.pi/180
 
 # ---------------------------------------------------------------------
@@ -133,8 +132,7 @@ def buildHairMaterialCycles(mat, rgb):
 
 def buildMaterialCycles(mat, mhMat, scn, cfg):
     print("Creating CYCLES material", mat.name)
-    if b28():
-        mat.blend_method = 'HASHED'
+    mat.blend_method = 'HASHED'
     mat.use_nodes= True
     mat.node_tree.nodes.clear()
     tree = NodeTree(mat.node_tree)
@@ -145,27 +143,21 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
     principled.inputs['Base Color'].default_value[0:3] = mhMat['diffuse_color']
     principled.inputs['Roughness'].default_value = 1.0 - mhMat['shininess']
 
-    color_space = 'sRGB' if b28() else None
-
-    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg, color_space)
+    diffuseTex = tree.addTexImageNode(mhMat, texco, "diffuse_texture", cfg, 'sRGB')
     if diffuseTex:
         links.new(diffuseTex.outputs['Color'], principled.inputs['Base Color'])
         links.new(diffuseTex.outputs['Alpha'], principled.inputs['Alpha'])
 
-    color_space = 'Non-Color' if b28() else None
-
-    bumpTex = tree.addTexImageNode(mhMat, texco, "bump_map_texture", cfg, color_space)
+    bumpTex = tree.addTexImageNode(mhMat, texco, "bump_map_texture", cfg,  'Non-Color')
     bumpMap = None
     if bumpTex:
-        if not b28(): bumpTex.color_space = 'NONE'
         bumpMap = tree.addNode(5, 'ShaderNodeBump')
         bumpMap.inputs['Strength'].default_value = mhMat.get('bump_map_intensity', 1.0)
         links.new(bumpTex.outputs['Color'], bumpMap.inputs['Height'])
         links.new(bumpMap.outputs['Normal'], principled.inputs['Normal'])
 
-    normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg, color_space)
+    normalTex = tree.addTexImageNode(mhMat, texco, "normal_map_texture", cfg, 'Non-Color')
     if normalTex:
-        if not b28(): normalTex.color_space = 'NONE'
         normalMap = tree.addNode(4, 'ShaderNodeNormalMap')
         normalMap.space = 'TANGENT'
         normalMap.uv_map = "UVMap"
@@ -176,9 +168,8 @@ def buildMaterialCycles(mat, mhMat, scn, cfg):
         else:
             links.new(normalMap.outputs['Normal'], principled.inputs['Normal'])
 
-    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg, color_space)
+    glossyTex = tree.addTexImageNode(mhMat, texco, "specular_map_texture", cfg, 'Non-Color')
     if glossyTex:
-        if not b28(): glossyTex.color_space = 'NONE'
         invertColor = tree.addNode(5, 'ShaderNodeInvert')
         links.new(glossyTex.outputs['Color'], invertColor.inputs['Color'])
         links.new(invertColor.outputs['Color'], principled.inputs['Roughness'])

@@ -24,22 +24,13 @@ import numpy as np
 import log
 import sys
 
-python3 = sys.version_info[0] >= 3
-
-
 def saveJson(struct, filepath, binary=False):
     if binary:
-        if python3:
-            bdata = bytes(encodeJsonData3(struct, ""), 'utf8')
-        else:
-            bdata = encodeJsonData2(struct, "")
+        bdata = bytes(encodeJsonData3(struct, ""), 'utf8')
         with gzip.open(filepath, 'wb') as fp:
             fp.write(bdata)
     else:
-        if python3:
-            string = encodeJsonData3(struct, "")
-        else:
-            string = encodeJsonData2(struct, "")
+        string = encodeJsonData3(struct, "")
         with codecs.open(filepath, "w", encoding="utf-8") as fp:
             fp.write(string)
             fp.write("\n")
@@ -93,54 +84,6 @@ def encodeJsonData3(data, pad=""):
     else:
         log.debug(data)
         raise RuntimeError("Can't encode: %s %s" % (data, data.type))
-
-def encodeJsonData2(data, pad=""):
-    if data is None:
-        return "null"
-    elif isinstance(data, (bool, np.bool_)):
-        if data:
-            return "true"
-        else:
-            return "false"
-    elif isinstance(data, (float, np.float32, np.float64)):
-        if abs(data) < 1e-6:
-            return "0"
-        else:
-            if abs(data) > 99999:       # otherwise %.5g will destroy index numbers bigger than 100000 by writing 1e05
-                return "%d" % int(data)
-            else:
-                return "%.5g" % data
-    elif isinstance(data, (int, np.int32, np.uint32)):
-        return str(data)
-    elif isinstance(data, (str, unicode)):
-        return "\"%s\"" % data
-    elif isinstance(data, (list, tuple, np.ndarray)):
-        if leafList(data):
-            string = "["
-            string += ",".join([encodeJsonData2(elt) for elt in data])
-            return string + "]"
-        else:
-            string = "["
-            string += ",".join(
-                ["\n    " + pad + encodeJsonData2(elt, pad+"    ")
-                 for elt in data])
-            if string == "[":
-                return "[]"
-            else:
-                return string + "\n%s]" % pad
-    elif isinstance(data, dict):
-        string = "{"
-        string += ",".join(
-            ["\n    %s\"%s\" : " % (pad, key) + encodeJsonData2(value, pad+"    ")
-             for key,value in data.items()])
-        if string == "{":
-            return "{}"
-        else:
-            return string + "\n%s}" % pad
-    else:
-        log.debug(data)
-        raise RuntimeError("Can't encode: %s %s" % (data, data.type))
-
 
 def leafList(data):
     for elt in data:

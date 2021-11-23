@@ -155,12 +155,12 @@ def rigifyMhx(context, parser, taken={}):
         raise RuntimeError("Rigify: %s is neither an armature nor has armature parent" % ob)
     activateObject(context, rig)
 
-    group = None
-    for grp in bpy.data.collections:
-        if rig.name in grp.objects:
-            group = grp
+    collection = None
+    for col in bpy.data.collections:
+        if rig.name in col.objects:
+            collection = col
             break
-    print("Group: %s" % group)
+    print("Collection: %s" % collection)
 
     # Rename some bones
     for bname,bname1 in Renames:
@@ -360,8 +360,8 @@ def rigifyMhx(context, parser, taken={}):
         if nname is None:
             print("Warning: missing vertex group %s" % gname)
 
-    if group:
-        group.objects.link(gen)
+    if collection:
+        collection.objects.link(gen)
 
     # Parent widgets under empty
     empty = bpy.data.objects.new("Widgets", None)
@@ -378,7 +378,7 @@ def rigifyMhx(context, parser, taken={}):
 
     #Clean up
     setattr(gen, ShowXRay, True)
-    #setattr(gen, DrawType, 'STICK')
+    setattr(gen, DrawType, 'WIRE')
     gen.MhxRigify = False
     name = rig.name
     deleteObject(context, rig)

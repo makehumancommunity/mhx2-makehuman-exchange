@@ -180,7 +180,7 @@ def loadMoho(rig, context, filepath, offs):
     context.view_layer.objects.active = rig
     moho = getMoho()
     bpy.ops.object.mode_set(mode='POSE')
-    with open(filepath, "r", encoding='utf-8'):
+    with open(filepath, "r", encoding='utf-8') as fp:
         for line in fp:
             words= line.split()
             if len(words) < 2:

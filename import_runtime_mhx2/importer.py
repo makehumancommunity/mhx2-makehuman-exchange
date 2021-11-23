@@ -29,10 +29,7 @@ from mathutils import Vector, Matrix, Quaternion
 from .hm8 import *
 from .error import *
 from .utils import *
-if not b28():
-    from .buttons27 import Mhx2Import
-else:
-    from .buttons28 import Mhx2Import
+from .buttons28 import Mhx2Import
 
 LowestVersion = 22
 HighestVersion = 49
@@ -209,7 +206,7 @@ def build(struct, cfg, context):
             setMhHuman(mhHuman)
             scn.MhxDesignHuman = getMhHuman()["name"]
 
-    if b28() and mhHuman:
+    if mhHuman:
         col = bpy.data.collections.new(mhHuman['name'].split(':', 1)[0])
         bpy.context.collection.children.link(col)
         scn['MHCollection'] = col
@@ -341,9 +338,6 @@ def build(struct, cfg, context):
     if cfg.useOverride:
         deleteAllSelected(human, proxies, context)
 
-    if not b28():
-        addToGroup(groupName, rig, human, proxies)
-
     if cfg.useOverride and cfg.mergeBodyParts:
         from .merge import mergeBodyParts
         proxyTypes = ["Eyes", "Eyebrows", "Eyelashes", "Teeth", "Tongue", "Genitals"]
@@ -372,18 +366,8 @@ def build(struct, cfg, context):
         activateObject(context, proxy)
         bpy.ops.object.mode_set(mode='OBJECT')
 
-    if b28() and 'MHCollection' in scn:
+    if 'MHCollection' in scn:
         del scn['MHCollection']
-
-
-def addToGroup(groupName, rig, human, proxies):
-    grp = bpy.data.groups.new(groupName)
-    if rig:
-        grp.objects.link(rig)
-    if human:
-        grp.objects.link(human)
-    for _,ob in proxies:
-        grp.objects.link(ob)
 
 
 def getEffectiveHuman(human, proxy, useProxy):

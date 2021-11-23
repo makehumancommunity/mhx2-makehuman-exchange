@@ -24,155 +24,83 @@ import bpy
 from mathutils import Vector
 from .error import MhxError
 
-#-------------------------------------------------------------
-#   Blender 2.8 compatibility
-#-------------------------------------------------------------
+HideViewport = "hide_viewport"
+DrawType = "display_type"
+ShowXRay = "show_in_front"
 
-def b28():
-    return bpy.app.version >= (2,80,0)
+def getCollection(context):
+    return context.scene['MHCollection']
 
-if not b28():
+def getSceneObjects(context):
+    return context.view_layer.objects
 
-    HideViewport = "hide"
-    DrawType = "draw_type"
-    ShowXRay = "show_x_ray"
+def getSelected(ob):
+    return ob.select_get()
 
-    def getCollection(context):
-        return context.scene
+def setSelected(ob, value):
+    ob.select_set(value)
 
-    def getSceneObjects(context):
-        return context.scene.objects
+def setActiveObject(context, ob):
+    vly = context.view_layer
+    vly.objects.active = ob
+    vly.update()
 
-    def getSelected(ob):
-        return ob.select
+def putOnHiddenLayer(ob, coll=None, hidden=None):
+    if coll:
+        coll.objects.unlink(ob)
+    if hidden:
+        hidden.objects.link(ob)
 
-    def setSelected(ob, value):
-        ob.select = value
+def createHiddenCollection(context, name=None):
+    hcoll = bpy.data.collections.get('Hidden')
+    if not hcoll:
+        hcoll = bpy.data.collections.new(name="Hidden")
+        context.scene.collection.children.link(hcoll)
+        hcoll.hide_viewport = True
+        hcoll.hide_render = True
+    if name:
+        ncoll = bpy.data.collections.new(name=name)
+        hcoll.children.link(ncoll)
+        return ncoll
+    else:
+        return hcoll
 
-    def setActiveObject(context, ob):
-        scn = context.scene
-        scn.objects.active = ob
-        scn.update()
+def inSceneLayer(context, ob):
+    coll = context.scene.collection
+    return (ob in coll.objects.values())
 
-    def putOnHiddenLayer(ob, coll=None, hidden=None):
-        ob.layers = 19*[False] + [True]
+def activateObject(context, ob):
+    scn = context.scene
+    for ob1 in scn.collection.objects:
+        ob1.select_set(False)
+    ob.select_set(True)
+    context.view_layer.objects.active = ob
 
-    def createHiddenCollection(context, name=None):
-        return context.scene
+def printActive(name, context):
+    coll = context.scene.collection
+    print(name, context.object, coll)
+    sel = [ob for ob in coll.objects if ob.select_get()]
+    print("  ", sel)
 
-    def inSceneLayer(context, ob):
-        scn = context.scene
-        for n in range(len(scn.layers)):
-            if (ob.layers[n] and scn.layers[n]):
-                return True
-        return False
+def Mult2(x, y):
+    return x @ y
 
-    def activateObject(context, ob):
-        scn = context.scene
-        for ob1 in scn.objects:
-            ob1.select = False
-        ob.select = True
-        scn.objects.active = ob
+def Mult3(x, y, z):
+    return x @ y @ z
 
-    def Mult2(x, y):
-        return x * y
+def Mult4(x, y, z, u):
+    return x @ y @ z @ u
 
-    def Mult3(x, y, z):
-        return x * y * z
+def splitLayout(layout, factor):
+    return layout.split(factor=factor)
 
-    def Mult4(x, y, z, u):
-        return x * y * z * u
-
-    def splitLayout(layout, factor):
-        return layout.split(factor)
-
-    def deleteObject(context, ob):
-        for scn in bpy.data.scenes:
-            if ob in scn.objects.values():
-                scn.objects.unlink(ob)
-        if ob.users == 0:
-            bpy.data.objects.remove(ob)
-            del ob
-
-else:
-
-    HideViewport = "hide_viewport"
-    DrawType = "display_type"
-    ShowXRay = "show_in_front"
-
-    def getCollection(context):
-        return context.scene['MHCollection']
-
-    def getSceneObjects(context):
-        return context.view_layer.objects
-
-    def getSelected(ob):
-        return ob.select_get()
-
-    def setSelected(ob, value):
-        ob.select_set(value)
-
-    def setActiveObject(context, ob):
-        vly = context.view_layer
-        vly.objects.active = ob
-        vly.update()
-
-    def putOnHiddenLayer(ob, coll=None, hidden=None):
-        if coll:
+def deleteObject(context, ob):
+    for coll in bpy.data.collections:
+        if ob in coll.objects.values():
             coll.objects.unlink(ob)
-        if hidden:
-            hidden.objects.link(ob)
-
-    def createHiddenCollection(context, name=None):
-        hcoll = bpy.data.collections.get('Hidden')
-        if not hcoll:
-            hcoll = bpy.data.collections.new(name="Hidden")
-            context.scene.collection.children.link(hcoll)
-            hcoll.hide_viewport = True
-            hcoll.hide_render = True
-        if name:
-            ncoll = bpy.data.collections.new(name=name)
-            hcoll.children.link(ncoll)
-            return ncoll
-        else:
-            return hcoll
-
-    def inSceneLayer(context, ob):
-        coll = context.scene.collection
-        return (ob in coll.objects.values())
-
-    def activateObject(context, ob):
-        scn = context.scene
-        for ob1 in scn.collection.objects:
-            ob1.select_set(False)
-        ob.select_set(True)
-        context.view_layer.objects.active = ob
-
-    def printActive(name, context):
-        coll = context.scene.collection
-        print(name, context.object, coll)
-        sel = [ob for ob in coll.objects if ob.select_get()]
-        print("  ", sel)
-
-    def Mult2(x, y):
-        return x @ y
-
-    def Mult3(x, y, z):
-        return x @ y @ z
-
-    def Mult4(x, y, z, u):
-        return x @ y @ z @ u
-
-    def splitLayout(layout, factor):
-        return layout.split(factor=factor)
-
-    def deleteObject(context, ob):
-        for coll in bpy.data.collections:
-            if ob in coll.objects.values():
-                coll.objects.unlink(ob)
-        if True or ob.users == 0:
-            bpy.data.objects.remove(ob)
-            del ob
+    if True or ob.users == 0:
+        bpy.data.objects.remove(ob)
+        del ob
 
 #-------------------------------------------------------------
 #

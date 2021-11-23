@@ -50,7 +50,7 @@ class ErrorOperator(bpy.types.Operator):
         global theErrorLines
         for line in theErrorLines:
             print(line)
-            self.layout.label(line)
+            self.layout.label(text=line)
 
 
 class MhxError(Exception):
