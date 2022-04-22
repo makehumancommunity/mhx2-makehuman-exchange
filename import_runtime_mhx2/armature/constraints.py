@@ -94,7 +94,7 @@ class CIkConstraint(CConstraint):
             (self.angle, self.ptar) = (0, None)
         (self.useLoc, self.useRot, self.useStretch) = data[4]
         if len(data) > 5:
-            self.useTail = data[5]
+            self.useTail = bool(data[5])
         else:
             self.useTail = True
         self.lockLoc = lockLoc
