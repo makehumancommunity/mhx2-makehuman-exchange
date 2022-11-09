@@ -1,3 +1,17 @@
+# MHX2 - MakeHuman eXchange format 2
+
+This is MXH2, a set of import/export addons for transferring characters from MakeHuman to blender
+
+## Deprecation warning
+
+MHX2 is an ancient system which is kept around to ensure compatibility for older projects. It is mostly unmaintained, and does not
+get updates to keep up with new releases of Blender. 
+
+**The recommended way to transfer characters from MakeHuman to Blender is [MPFB](http://static.makehumancommunity.org/mpfb.html).** See 
+[what are the differenced between MPFB2 and MHX2](http://static.makehumancommunity.org/mpfb/faq/differences_between_mpfb2_and_mhx2.html).
+
+## About MHX2
+
 MHX2 - MakeHuman eXchange format 2
 
 MHX2 is a format to copy data from MakeHuman to Blender using a JSON file. Because of triangle support, at least MakeHuman version 1.2.x is demanded.
@@ -11,7 +25,6 @@ This is a downstream version using python3 with fixes for triangle meshes, meshe
 Instructions:
 
 1. Copy or link the folder 9_export_mhx2 to the MakeHuman plugins folder.
-
 
 2. Copy or link the folder import_runtime_mhx2 to the addons destination directory where Blender will look for user-defined add-ons. Check the Blender docs for more information.
 
